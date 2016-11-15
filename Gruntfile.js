@@ -22,6 +22,12 @@ module.exports = function(grunt) {
           dest: destination
         },
         {
+          cwd: 'src/datasource/adrem',
+          expand: true,
+          src: ['*.min.js'],
+          dest: destination + '/datasource/adrem'
+        },
+        {
           expand: true,
           src: ['README.md'],
           dest: destination
@@ -35,7 +41,7 @@ module.exports = function(grunt) {
       files: [{
         cwd: 'src',
         expand: true,
-        src: ['**/*.js', '**/*.ts'],
+        src: ['**/*.js', '**/*.ts', '!**/*.min.js'],
         dest: destination,
         ext:'.js'
       }]
