@@ -1,0 +1,38 @@
+{
+  "type": "app",
+  "name": "NetCrunch",
+  "id": "grafana-netcrunch",
+
+  "css": {
+    "dark": "css/dark.css",
+    "light": "css/light.css"
+  },
+
+  "info": {
+    "description": "NetCrunch App for Grafana",
+    "author": {
+      "name": "AdRem Software, Inc., New York, NY",
+      "url": "http://www.adremsoft.com"
+    },
+    "keywords": ["netcrunch", "adrem"],
+    "logos": {
+      "small": "images/small-logo.png",
+      "large": "images/large-logo.png"
+    },
+    "links": [
+      {"name": "Project site", "url": "https://github.com/adremsoft/grafana-netcrunch"},
+      {"name": "License & Terms", "url": "https://github.com/adremsoft/grafana-netcrunch/blob/master/LICENSE"}
+    ],
+    "version": "1.0.0",
+    "updated": "2016-11-15"
+  },
+
+  "includes": [
+    {"type": "datasource", "name": "NetCrunch Datasource"}
+  ],
+
+  "dependencies": {
+    "grafanaVersion": "4.x.x",
+    "plugins": []
+  }
+}

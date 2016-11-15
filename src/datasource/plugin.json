@@ -1,0 +1,5 @@
+{
+  "type": "datasource",
+  "name": "NetCrunch",
+  "id": "grafana-netcrunch-datasource"
+}
