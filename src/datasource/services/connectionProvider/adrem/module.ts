@@ -6,9 +6,9 @@
  * found in the LICENSE file.
  */
 
-import {systemJSDatasourceURL} from '../common';
+import {systemJSDatasourceURL} from '../../../common';
 
-const adremModuleUrl = systemJSDatasourceURL + 'adrem/',
+const adremModuleUrl = systemJSDatasourceURL + 'services/connectionProvider/adrem/',
       adremClient = adremModuleUrl + 'client.min.js',
       objectMapper = adremModuleUrl + 'ObjMapper.min.js',
       remoteDataLists = adremModuleUrl + 'RemoteDataLists.min.js',

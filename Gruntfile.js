@@ -23,10 +23,10 @@ module.exports = function(grunt) {
           dest: destination
         },
         {
-          cwd: 'src/datasource/adrem',
+          cwd: 'src/datasource/services/connectionProvider/adrem',
           expand: true,
           src: ['*.min.js'],
-          dest: destination + '/datasource/adrem'
+          dest: destination + '/datasource/services/connectionProvider/adrem'
         },
         {
           expand: true,
