@@ -10,6 +10,6 @@ import {NetCrunchDatasource} from './datasource';
 import {NetCrunchDatasourceConfigCtrl} from './config/datasourceConfig';
 
 export {
-  NetCrunchDatasource,
+  NetCrunchDatasource as Datasource,
   NetCrunchDatasourceConfigCtrl as ConfigCtrl
 };

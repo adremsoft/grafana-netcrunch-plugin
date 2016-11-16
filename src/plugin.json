@@ -28,7 +28,7 @@
   },
 
   "includes": [
-    {"type": "datasource", "name": "NetCrunch Datasource"}
+    {"type": "datasource", "name": "NetCrunch"}
   ],
 
   "dependencies": {
