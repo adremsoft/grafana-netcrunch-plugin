@@ -6,7 +6,9 @@
  * found in the LICENSE file.
  */
 
-const adremModuleUrl = 'plugins/grafana-netcrunch/datasource/adrem/',
+import {systemJSDatasourceURL} from '../common';
+
+const adremModuleUrl = systemJSDatasourceURL + 'adrem/',
       adremClient = adremModuleUrl + 'client.min.js',
       objectMapper = adremModuleUrl + 'ObjMapper.min.js',
       remoteDataLists = adremModuleUrl + 'RemoteDataLists.min.js',

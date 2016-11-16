@@ -6,5 +6,14 @@
  * found in the LICENSE file.
  */
 
-export default class NetCrunchDatasourceConfigCtrl {
+import {datasourceURL} from '../common';
+
+class NetCrunchDatasourceConfigCtrl {
+  static get templateUrl() {
+      return datasourceURL + 'config/config.html';
+  };
+}
+
+export {
+  NetCrunchDatasourceConfigCtrl
 }
