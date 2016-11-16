@@ -28,7 +28,7 @@ class NetCrunchDatasourceConfigCtrl {
 
   updateURL() {
     this.current.access = 'proxy';
-    this.current.url = this.protocol + this.simpleURL; console.log(this.current.url);
+    this.current.url = this.protocol + this.simpleURL;
   }
 
   serverAddressChange() {
