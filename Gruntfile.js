@@ -13,12 +13,13 @@ module.exports = function(grunt) {
   }
 
   function createCopyTask(destination) {
+    var excludeFiles = ['!**/*.js', '!**/*.ts', '!**/*.scss', '!license-banner.txt'];
     return {
       files: [
         {
           cwd: 'src',
           expand: true,
-          src: ['**/*', '!**/*.js', '!**/*.ts', '!**/*.scss'],
+          src: ['**/*'].concat(excludeFiles),
           dest: destination
         },
         {
