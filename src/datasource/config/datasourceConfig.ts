@@ -9,6 +9,36 @@
 import {datasourceURL} from '../common';
 
 class NetCrunchDatasourceConfigCtrl {
+
+  constructor() {
+    this.updateURL();
+  }
+
+  get simpleURL() {
+    return this.current.jsonData.simpleUrl;
+  }
+
+  get isSSL() {
+    return this.current.jsonData.isSSL;
+  }
+
+  get protocol() {
+    return (this.isSSL === true) ? 'https://' : 'http://';
+  }
+
+  updateURL() {
+    this.current.access = 'proxy';
+    this.current.url = this.protocol + this.simpleURL; console.log(this.current.url);
+  }
+
+  serverAddressChange() {
+    this.updateURL();
+  }
+
+  isSSLClick() {
+    this.updateURL();
+  }
+
   static get templateUrl() {
       return datasourceURL + 'config/config.html';
   };
