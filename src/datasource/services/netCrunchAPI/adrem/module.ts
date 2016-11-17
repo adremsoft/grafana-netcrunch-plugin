@@ -8,7 +8,7 @@
 
 import {systemJSDatasourceURL} from '../../../common';
 
-const adremModuleUrl = systemJSDatasourceURL + 'services/connectionProvider/adrem/',
+const adremModuleUrl = systemJSDatasourceURL + 'services/netCrunchAPI/adrem/',
       adremClient = adremModuleUrl + 'client.min.js',
       objectMapper = adremModuleUrl + 'ObjMapper.min.js',
       remoteDataLists = adremModuleUrl + 'RemoteDataLists.min.js',

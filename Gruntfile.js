@@ -23,10 +23,10 @@ module.exports = function(grunt) {
           dest: destination
         },
         {
-          cwd: 'src/datasource/services/connectionProvider/adrem',
+          cwd: 'src/datasource/services/netCrunchAPI/adrem',
           expand: true,
           src: ['*.min.js'],
-          dest: destination + '/datasource/services/connectionProvider/adrem'
+          dest: destination + '/datasource/services/netCrunchAPI/adrem'
         },
         {
           expand: true,
