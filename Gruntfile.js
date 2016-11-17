@@ -44,7 +44,8 @@ module.exports = function(grunt) {
         expand: true,
         src: ['**/*.js', '**/*.ts', '!**/*.min.js'],
         dest: destination,
-        ext:'.js'
+        ext:'.js',
+        extDot: 'last'
       }]
     }
   }
