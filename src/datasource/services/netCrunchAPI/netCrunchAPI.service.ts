@@ -7,15 +7,17 @@
  */
 
 import angular from 'angular';
+import {servicesModule} from '../../common';
+import './adrem/module';
 
 class NetCrunchAPIService {
 
-    /** @ngInject */
-    constructor () {
-    }
+  /** @ngInject */
+  constructor (adrem) {
+  }
 
 }
 
 angular
-  .module('grafana.services')
+  .module(servicesModule)
   .service('netCrunchAPIService', NetCrunchAPIService);

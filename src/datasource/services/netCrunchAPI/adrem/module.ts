@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-import {systemJSDatasourceURL} from '../../../common';
+import {systemJSDatasourceURL, servicesModule} from '../../../common';
 
 const adremModuleUrl = systemJSDatasourceURL + 'services/netCrunchAPI/adrem/',
       adremClient = adremModuleUrl + 'client.min.js',
@@ -27,6 +27,10 @@ function importAdremClient() {
 }
 
 const adrem = importAdremClient();
+
+angular
+  .module(servicesModule)
+  .factory('adrem', function() { return adrem; });
 
 export {
   adrem as adrem

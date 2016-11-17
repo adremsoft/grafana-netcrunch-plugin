@@ -8,9 +8,11 @@
 
 const baseDatasourceURL = 'plugins/grafana-netcrunch/datasource/',
       datasourceURL = 'public/' + baseDatasourceURL,
-      systemJSDatasourceURL = baseDatasourceURL;
+      systemJSDatasourceURL = baseDatasourceURL,
+      servicesModule = 'grafana.services';
 
 export {
   datasourceURL,
-  systemJSDatasourceURL
+  systemJSDatasourceURL,
+  servicesModule
 }
