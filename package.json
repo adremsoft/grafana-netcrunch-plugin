@@ -21,7 +21,9 @@
   },
   "devDependencies": {
     "@types/systemjs": "^0.19.31",
+    "@types/angular": "^1.5.20",
 
+    "angular": "^1.5.8",
     "babel": "~6.5.1",
 
     "grunt": "~0.4.5",
