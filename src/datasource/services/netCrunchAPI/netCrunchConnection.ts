@@ -35,6 +35,7 @@ class NetCrunchConnection {
     this.serverConnection = null;
     this.serverConnectionReady = null;
     this.netCrunchClient = null;
+    this.trendQuery = null,
     this.loginInProgress = false;
     this.loginInProgressPromise = null;
     this.networkAtlas = null;
@@ -190,6 +191,27 @@ class NetCrunchConnection {
   loggedIn() {
     return ((this.netCrunchClient != null) && ('Session' in this.netCrunchClient) &&
             (this.netCrunchClient.status.logged === true));
+  }
+
+  queryTrendData() {
+    if (this.trendQuery == null) {
+      this.trendQuery = new this.serverConnection.ncSrv.ITrendQuery();
+    }
+    return this.callApi(this.trendQuery.AnalyzeGetData, arguments);
+  }
+
+  callApi (apiCall, args, acceptEmpty = true) {
+    let self = this;
+    return new Promise((resolve, reject) => {
+      args = Array.prototype.slice.call(args, 0);   // convert arguments to Array
+      apiCall.apply(self, args.concat([function (data) {
+        if ((data !== undefined) || acceptEmpty) {
+          resolve(data);
+        } else {
+          reject();
+        }
+      }]));
+    });
   }
 
 }
