@@ -37,6 +37,55 @@ class NetCrunchConnection {
     this.netCrunchClient = null;
     this.loginInProgress = false;
     this.loginInProgressPromise = null;
+    this.networkAtlas = null;
+    this.counters = null;
+    this.trends = null;
+  }
+
+  login(userName, password, ignoreDownloadNetworkAtlas) {
+    if (this.serverConnection == null) {
+      this.serverConnectionReady = this.establishConnection();
+    }
+    return this.serverConnectionReady.then(() => {
+      return this.authenticateUser(userName, password).then(() => {
+
+//*** TODO
+        this.networkAtlas = null;
+        this.counters = null;
+        this.trends = null;
+
+        // self.networkAtlas = getNetworkDataProvider();
+        // self.counters = getCountersDataProvider();
+        // self.trends = getTrendDataProvider();
+        // if (ignoreDownloadNetworkAtlas !== true) {
+        //     self.networkAtlas.init().then(function() {
+        //         networkAtlasReady.resolve(self.networkAtlas);
+        //     });
+        return true;
+//***
+
+      });
+    });
+  }
+
+  logout() {
+    let self = this;
+    return new Promise((resolve) => {
+      if (self.serverConnectionReady != null) {
+        self.serverConnectionReady.then(
+          function() {
+            self.netCrunchClient.logout(() => {
+              resolve();
+            });
+          },
+          function() {
+            resolve();
+          }
+        );
+      } else {
+        resolve();
+      }
+    });
   }
 
   establishConnection () {
