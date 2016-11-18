@@ -33,7 +33,10 @@ class NetCrunchConnection {
     this.apiURL = serverURL + this.apiName;
     this.connectionName =connectionName;
     this.serverConnection = null;
+    this.serverConnectionReady = null;
     this.netCrunchClient = null;
+    this.loginInProgress = false;
+    this.loginInProgressPromise = null;
   }
 
   establishConnection () {
@@ -75,6 +78,71 @@ class NetCrunchConnection {
       });
     });
   }
+
+  authenticateUser(userName, password) {
+    const MAX_LOGIN_ATTEMPTS = 3,
+          BASE_LOGIN_TIMEOUT = 5000;
+    let netCrunchClient = this.netCrunchClient,
+        loginProcess;
+
+    function loginTimeout(attempt) {
+      return (MAX_LOGIN_ATTEMPTS - attempt + 1) * BASE_LOGIN_TIMEOUT;
+    }
+
+    function tryAuthenticate(userName, password, attempt) {
+      return new Promise((resolve, reject) => {
+        netCrunchClient.login(userName, password, (status) => {
+          if (status === true) {
+            resolve();
+          } else {
+            if (attempt > 1) {
+              setTimeout(function() {
+                tryAuthenticate(userName, password, attempt - 1).then(
+                  function() { resolve(); },
+                  function() { reject(); }
+                );
+              }, loginTimeout(attempt));
+            } else {
+              reject();
+            }
+          }
+        });
+      });
+    }
+
+    if (this.loggedIn() === false) {
+      if (this.loginInProgress === false) {
+        let self = this;
+        this.loginInProgress = true;
+        loginProcess = new Promise((resolve, reject) => {
+          tryAuthenticate(userName, password, MAX_LOGIN_ATTEMPTS).then(
+            function() {
+              self.loginInProgress = false;
+              self.loginInProgressPromise = null;
+              resolve();
+            },
+            function() {
+              self.loginInProgress = false;
+              self.loginInProgressPromise = null;
+              reject(CONNECTION_CONSTS.ERROR_AUTHENTICATION);
+            }
+          );
+        });
+        this.loginInProgressPromise = loginProcess;
+      } else {
+        loginProcess = this.loginInProgressPromise;
+      }
+    } else {
+      loginProcess = Promise.resolve();
+    }
+    return loginProcess;
+  }
+
+  loggedIn() {
+    return ((this.netCrunchClient != null) && ('Session' in this.netCrunchClient) &&
+            (this.netCrunchClient.status.logged === true));
+  }
+
 }
 
 export {
