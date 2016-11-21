@@ -7,6 +7,7 @@
  */
 
 import {systemJSDatasourceURL, servicesModule} from '../../../common';
+import NetCrunchCounters, {NET_CRUNCH_COUNTER_CONST, NET_CRUNCH_COUNTER_TYPES} from './NetCrunchCounters';
 
 const adremModuleUrl = systemJSDatasourceURL + 'services/netCrunchAPI/adrem/',
       adremClient = adremModuleUrl + 'client.min.js',
@@ -33,5 +34,8 @@ angular
   .factory('adrem', function() { return adrem; });
 
 export {
-  adrem as adrem
+  adrem as adrem,
+  NetCrunchCounters as NetCrunchCounters,
+  NET_CRUNCH_COUNTER_CONST as NET_CRUNCH_COUNTER_CONST,
+  NET_CRUNCH_COUNTER_TYPES as NET_CRUNCH_COUNTER_TYPES
 }
