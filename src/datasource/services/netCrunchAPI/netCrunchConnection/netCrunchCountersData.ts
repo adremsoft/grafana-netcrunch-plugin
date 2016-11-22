@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-import {NetCrunchCounters, NETCRUNCH_COUNTER_CONST} from './adrem/module';
+import {NetCrunchCounters, NETCRUNCH_COUNTER_CONST} from '../adrem/module';
 
 export default function NetCrunchCountersData(adremClient, netCrunchConnection) {
 
