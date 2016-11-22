@@ -6,12 +6,12 @@
  * found in the LICENSE file.
  */
 
-import {NetCrunchCounters, NET_CRUNCH_COUNTER_CONST} from './adrem/module';
+import {NetCrunchCounters, NETCRUNCH_COUNTER_CONST} from './adrem/module';
 
 export default function NetCrunchCountersData(adremClient, netCrunchConnection) {
 
   let ncCounters = new NetCrunchCounters(adremClient, netCrunchConnection),
-      counterConsts = NET_CRUNCH_COUNTER_CONST,
+      counterConsts = NETCRUNCH_COUNTER_CONST,
       trendDB = null,
       trendDBReadyResolve,
       trendDBReadyReject,

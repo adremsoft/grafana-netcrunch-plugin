@@ -22,7 +22,7 @@ const
 
   knownMSCounters = ['load time', 'check time', 'round trip time'];
 
-export const NET_CRUNCH_COUNTER_CONST = {
+export const NETCRUNCH_COUNTER_CONST = {
   CNT_TYPE: {
     cstXML: 1,
     cstMIB: 2,
@@ -47,7 +47,7 @@ export const NET_CRUNCH_COUNTER_CONST = {
   }
 };
 
-export const NET_CRUNCH_COUNTER_TYPES = {
+export const NETCRUNCH_COUNTER_TYPES = {
   percentage: "%",
   milliseconds: "ms",
   bytesBitsPS: "bps",
@@ -63,8 +63,8 @@ export default function NetCrunchCounters(adremClient, netCrunchConnection) {
       cn_SCT = 'Check Time',
       cn_RTT = 'Round Trip Time',
       resources = Object.create(null),
-      counterTypes = NET_CRUNCH_COUNTER_TYPES,
-      counterConsts = NET_CRUNCH_COUNTER_CONST;
+      counterTypes = NETCRUNCH_COUNTER_TYPES,
+      counterConsts = NETCRUNCH_COUNTER_CONST;
 
   function isOid (stringData) {
     if (stringData.indexOf(C_PERSEC) >= 0) {
