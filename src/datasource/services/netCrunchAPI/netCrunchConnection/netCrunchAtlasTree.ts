@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-export default function NetCrunchAtlasTree(netCrunchConnection) {
+export default function NetCrunchAtlasTree(netCrunchServerConnection) {
 
   let mapTree = {
           '' : {
@@ -53,8 +53,8 @@ export default function NetCrunchAtlasTree(netCrunchConnection) {
   function getMapIconUrl (iconId, size) {
     let iconUrl;
     size = size || 32;
-    iconUrl = netCrunchConnection.ncSrv.IMapIcons.GetIcon.asURL(iconId, size);
-    return netCrunchConnection.Client.urlFilter(iconUrl);
+    iconUrl = netCrunchServerConnection.ncSrv.IMapIcons.GetIcon.asURL(iconId, size);
+    return netCrunchServerConnection.Client.urlFilter(iconUrl);
   }
 
   function pushUniqueChildToMap (map, child) {

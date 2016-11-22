@@ -8,13 +8,13 @@
 
 import NetCrunchAtlasTree from './netCrunchAtlasTree';
 
-export default function NetCrunchNetworkData(adremClient, netCrunchConnection) {
+export default function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
 
-  let atlasTree = new NetCrunchAtlasTree(netCrunchConnection),
+  let atlasTree = new NetCrunchAtlasTree(netCrunchServerConnection),
       initialized = null;
 
   function openRemoteData(table, query, processFunction, notifyFunction) {
-    let dataList = new adremClient.RemoteDataListStore('ncSrv', 1000, netCrunchConnection),
+    let dataList = new adremClient.RemoteDataListStore('ncSrv', 1000, netCrunchServerConnection),
         self = this;
 
     return new Promise((resolve) => {

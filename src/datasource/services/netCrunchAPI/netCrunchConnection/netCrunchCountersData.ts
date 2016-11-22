@@ -8,9 +8,9 @@
 
 import {NetCrunchCounters, NETCRUNCH_COUNTER_CONST} from '../adrem/module';
 
-export default function NetCrunchCountersData(adremClient, netCrunchConnection) {
+export default function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
 
-  let ncCounters = new NetCrunchCounters(adremClient, netCrunchConnection),
+  let ncCounters = new NetCrunchCounters(adremClient, netCrunchServerConnection),
       counterConsts = NETCRUNCH_COUNTER_CONST,
       trendDB = null,
       trendDBReadyResolve,
@@ -92,7 +92,7 @@ export default function NetCrunchCountersData(adremClient, netCrunchConnection) 
       if (trendDB == null) {
         trendDB = new adremClient.NetCrunch.TrendDB('ncSrv', '', (status) => {
           (status === true) ? trendDBReadyResolve() : trendDBReadyReject();
-        }, netCrunchConnection);
+        }, netCrunchServerConnection);
       }
 
       return trendDBReady.then(function() {
@@ -127,7 +127,7 @@ export default function NetCrunchCountersData(adremClient, netCrunchConnection) 
       if (monitorMgrInf == null) {
         monitorMgrInf = new adremClient.NetCrunch.MonitorMgrIntf('ncSrv', (status) => {
           (status === true) ? monitorMgrInfReadyResolve() : monitorMgrInfReadyReject();
-        }, netCrunchConnection);
+        }, netCrunchServerConnection);
       }
 
       return monitorMgrInfReady.then(function() {

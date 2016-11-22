@@ -71,7 +71,7 @@ class NetCrunchConnection {
         this.networkAtlas.onNodesChanged = nodesChanged.bind(this);
         this.networkAtlas.onNetworksChanged = networksChanged.bind(this);
         this.counters = new NetCrunchCountersData(this.adremClient, this.serverConnection);
-        this.trends =  new NetCrunchTrendData(this.serverConnection);
+        this.trends =  new NetCrunchTrendData(this);
 
         if (ignoreDownloadNetworkAtlas !== true) {
           this.networkAtlas.init().then(() => {
