@@ -6,6 +6,9 @@
  * found in the LICENSE file.
  */
 
+import NetCrunchNetworkData from './netCrunchNetworkData';
+import NetCrunchCountersData from './netCrunchCountersData';
+
 const CONNECTION_CONSTS = {
         API_NAME: '/ncapi/',
 
@@ -35,36 +38,45 @@ class NetCrunchConnection {
     this.serverConnection = null;
     this.serverConnectionReady = null;
     this.netCrunchClient = null;
-    this.trendQuery = null,
+    this.trendQuery = null;
     this.loginInProgress = false;
     this.loginInProgressPromise = null;
     this.networkAtlas = null;
+    this.networkAtlasReady = new Promise((resolve) => { this.networkAtlasReadyResolve = resolve; });
     this.counters = null;
     this.trends = null;
   }
 
   login(userName, password, ignoreDownloadNetworkAtlas) {
+
+    function nodesChanged() {
+      if (typeof this.onNodesChanged === 'function') {
+        this.onNodesChanged();
+      }
+    }
+
+    function networksChanged() {
+      if (typeof this.onNetworksChanged === 'function') {
+        this.onNetworksChanged();
+      }
+    }
+
     if (this.serverConnection == null) {
       this.serverConnectionReady = this.establishConnection();
     }
     return this.serverConnectionReady.then(() => {
       return this.authenticateUser(userName, password).then(() => {
-
-//*** TODO
-        this.networkAtlas = null;
-        this.counters = null;
-        this.trends = null;
-
-        // self.networkAtlas = getNetworkDataProvider();
-        // self.counters = getCountersDataProvider();
-        // self.trends = getTrendDataProvider();
-        // if (ignoreDownloadNetworkAtlas !== true) {
-        //     self.networkAtlas.init().then(function() {
-        //         networkAtlasReady.resolve(self.networkAtlas);
-        //     });
+        this.networkAtlas = new NetCrunchNetworkData(this.adremClient, this.serverConnection);
+        this.networkAtlas.onNodesChanged = nodesChanged.bind(this);
+        this.networkAtlas.onNetworksChanged = networksChanged.bind(this);
+        this.counters = new NetCrunchCountersData(this.adremClient, this.serverConnection);
+        if (ignoreDownloadNetworkAtlas !== true) {
+          this.networkAtlas.init().then(() => {
+            //noinspection TypeScriptUnresolvedFunction
+            this.networkAtlasReadyResolve(this.networkAtlas);
+          });
+        }
         return true;
-//***
-
       });
     });
   }
@@ -94,6 +106,8 @@ class NetCrunchConnection {
       this.adrem.then((adrem) => {
         let apiName = this.apiName,
             apiURL = this.apiURL;
+
+        this.adremClient = adrem;
 
         this.serverConnection = new adrem.Connection(apiURL);
         this.serverConnection.useWebSocket = false;
