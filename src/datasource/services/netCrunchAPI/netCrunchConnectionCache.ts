@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-class NetCrunchConnectionCache {
+export default class NetCrunchConnectionCache {
 
   constructor () {
     this.connectionCache = new Map();
@@ -25,14 +25,10 @@ class NetCrunchConnectionCache {
   }
 
   getConnection(datasource) {
-    this.connectionCache.get(this.getConnectionKey(datasource));
+    return this.connectionCache.get(this.getConnectionKey(datasource));
   }
 
   connectionExist(datasource) {
     return (this.getConnection(datasource) != null);
   }
-}
-
-export {
-  NetCrunchConnectionCache as NetCrunchConnectionCache
 }

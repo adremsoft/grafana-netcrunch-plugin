@@ -29,7 +29,7 @@ const CONNECTION_CONSTS = {
         ]
       };
 
-class NetCrunchConnection {
+export default class NetCrunchConnection {
 
   constructor(adrem, serverURL, connectionName) {
     this.adrem = adrem;
@@ -231,8 +231,4 @@ class NetCrunchConnection {
     });
   }
 
-}
-
-export {
-  NetCrunchConnection as NetCrunchConnection
 }
