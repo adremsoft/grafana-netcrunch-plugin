@@ -48,7 +48,7 @@ class NetCrunchConnection {
     this.trends = null;
   }
 
-  login(userName, password, ignoreDownloadNetworkAtlas) {
+  login(userName, password, ignoreDownloadNetworkAtlas = false) {
 
     function nodesChanged() {
       if (typeof this.onNodesChanged === 'function') {

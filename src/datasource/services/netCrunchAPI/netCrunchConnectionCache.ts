@@ -13,15 +13,15 @@ class NetCrunchConnectionCache {
   }
 
   getConnectionKey(datasource) {
-    return datasource.serverURL + ':' + datasource.username;
+    return datasource.serverUrl + ':' + datasource.username;
   }
 
   addConnection(datasource, connection) {
     this.connectionCache.set(this.getConnectionKey(datasource), connection);
   }
 
-  removeConnection(datasource) {
-    this.connectionCache.set(this.getConnectionKey(datasource), null);
+  deleteConnection(datasource) {
+    this.connectionCache.delete(this.getConnectionKey(datasource));
   }
 
   getConnection(datasource) {
@@ -29,7 +29,7 @@ class NetCrunchConnectionCache {
   }
 
   connectionExist(datasource) {
-    return (this.getConnection(datasource) !== null);
+    return (this.getConnection(datasource) != null);
   }
 }
 
