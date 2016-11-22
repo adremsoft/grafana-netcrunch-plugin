@@ -8,6 +8,7 @@
 
 import NetCrunchNetworkData from './netCrunchNetworkData';
 import NetCrunchCountersData from './netCrunchCountersData';
+import NetCrunchTrendData from './netCrunchTrendData';
 
 const CONNECTION_CONSTS = {
         API_NAME: '/ncapi/',
@@ -70,6 +71,8 @@ class NetCrunchConnection {
         this.networkAtlas.onNodesChanged = nodesChanged.bind(this);
         this.networkAtlas.onNetworksChanged = networksChanged.bind(this);
         this.counters = new NetCrunchCountersData(this.adremClient, this.serverConnection);
+        this.trends =  new NetCrunchTrendData(this.serverConnection);
+
         if (ignoreDownloadNetworkAtlas !== true) {
           this.networkAtlas.init().then(() => {
             //noinspection TypeScriptUnresolvedFunction
