@@ -15,9 +15,10 @@ import NetCrunchConnection from './netCrunchConnection/netCrunchConnection';
 class NetCrunchAPIService {
 
   /** @ngInject */
-  constructor (adrem, alertSrv, $rootScope) {
+  constructor (adrem, alertSrv, backendSrv, $rootScope) {
     this.adrem = adrem;
     this.alertSrv = alertSrv;
+    this.backendSrv = backendSrv;
     this.$rootScope = $rootScope;
     this.cache = new NetCrunchConnectionCache();
   }
@@ -46,19 +47,17 @@ class NetCrunchAPIService {
   }
 
   getConnection(datasource, withoutNetworkAtlas = false) {
-    //TODO: CHECK SERVER VERSION
-    return this.getNetCrunchConnection(datasource, withoutNetworkAtlas);
-  }
+    let self = this;
 
-  getNetCrunchConnection(datasource, withoutNetworkAtlas = false) {
-    if (this.cache.connectionExist(datasource)) {
-      return this.cache.getConnection(datasource).then((connection) => {
-        connection.fromCache = true;
-        return connection;
-      });
-    } else {
-      let self = this,
-          connection = new NetCrunchConnection(this.adrem, datasource.url, datasource.name);
+    function getConnectionFromCache(datasource) {
+      return self.cache.getConnection(datasource)
+        .then((connection) => {
+          connection.fromCache = true;
+          return connection;
+        });
+    }
+
+    function addConnectionHandlers(datasource, connection) {
 
       connection.onError = function(error) {
         self.alertSrv.set(error.connectionName, error.message, 'error');
@@ -72,7 +71,11 @@ class NetCrunchAPIService {
         self.$rootScope.$broadcast('netcrunch-networks-data-changed(' + datasource.name + ')');
       };
 
-      this.cache.addConnection(datasource, new Promise((resolve, reject) => {
+      return connection;
+    }
+
+    function createSession(datasource, connection) {
+      return new Promise((resolve, reject) => {
         connection.login(datasource.username, datasource.password, withoutNetworkAtlas)
           .then(() => {
             connection.fromCache = false;
@@ -83,8 +86,15 @@ class NetCrunchAPIService {
             connection.logout();
             reject(error);
           });
-      }));
+      });
+    }
 
+    if (this.cache.connectionExist(datasource)) {
+      return getConnectionFromCache(datasource);
+    } else {
+      let connection = new NetCrunchConnection(this.adrem, datasource.url, datasource.name);
+      connection = addConnectionHandlers(datasource, connection);
+      this.cache.addConnection(datasource, createSession(datasource, connection));
       return this.cache.getConnection(datasource);
     }
   }
