@@ -10,24 +10,24 @@ import NetCrunchNetworkData from './netCrunchNetworkData';
 import NetCrunchCountersData from './netCrunchCountersData';
 import NetCrunchTrendData from './netCrunchTrendData';
 
-const CONNECTION_CONSTS = {
-        API_NAME: '/ncapi/',
+export const CONNECTION_CONSTS = {
+  API_NAME: '/ncapi/',
 
-        NC_SERVER_VER_MAJOR : 9,
-        NC_SERVER_VER_MINOR : 2,
+  NC_SERVER_VER_MAJOR : 9,
+  NC_SERVER_VER_MINOR : 2,
 
-        ERROR_SERVER_API : 1,
-        ERROR_SERVER_VER : 2,
-        ERROR_CONNECTION_INIT : 3,
-        ERROR_AUTHENTICATION : 4,
-        ERROR_MESSAGES : [
-          '',
-          'Server connection failed',
-          'NetCrunch server version should be 9.2 or greater',
-          'Server connection initialization failed',
-          'Authentication failed'
-        ]
-      };
+  ERROR_SERVER_API : 1,
+  ERROR_SERVER_VER : 2,
+  ERROR_CONNECTION_INIT : 3,
+  ERROR_AUTHENTICATION : 4,
+  ERROR_MESSAGES : [
+    '',
+    'Server connection failed',
+    'NetCrunch server version should be 9.2 or greater',
+    'Server connection initialization failed',
+    'Authentication failed'
+  ]
+};
 
 export default class NetCrunchConnection {
 

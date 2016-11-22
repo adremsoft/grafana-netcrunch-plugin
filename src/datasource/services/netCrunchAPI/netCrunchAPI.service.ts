@@ -10,7 +10,7 @@ import angular from 'angular';
 import {servicesModule} from '../../common';
 import './adrem/module';
 import NetCrunchConnectionCache from './netCrunchConnectionCache';
-import NetCrunchConnection from './netCrunchConnection/netCrunchConnection';
+import NetCrunchConnection, {CONNECTION_CONSTS} from './netCrunchConnection/netCrunchConnection';
 
 class NetCrunchAPIService {
 
@@ -55,6 +55,19 @@ class NetCrunchAPIService {
           connection.fromCache = true;
           return connection;
         });
+    }
+
+    function getServerApi(connection) {
+      return new Promise((resolve, reject) => {
+        self.backendSrv.get(connection.apiURL + 'api.json')
+          .then((api) => {
+            resolve(api);
+          })
+          .catch((error) => {
+            error.isHandled = true;
+            reject(CONNECTION_CONSTS.ERROR_SERVER_API);
+          });
+      });
     }
 
     function addConnectionHandlers(datasource, connection) {
