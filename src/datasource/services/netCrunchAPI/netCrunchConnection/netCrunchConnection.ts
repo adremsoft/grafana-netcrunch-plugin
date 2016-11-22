@@ -42,9 +42,9 @@ class NetCrunchConnection {
     this.trendQuery = null;
     this.loginInProgress = false;
     this.loginInProgressPromise = null;
-    this.networkAtlas = null;
+    this.networkAtlas = new Map();
     this.networkAtlasReady = new Promise((resolve) => { this.networkAtlasReadyResolve = resolve; });
-    this.counters = null;
+    this.counters = new Map();
     this.trends = null;
   }
 
