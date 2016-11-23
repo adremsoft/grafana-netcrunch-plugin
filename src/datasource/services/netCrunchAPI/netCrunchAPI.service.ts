@@ -106,9 +106,23 @@ class NetCrunchAPIService {
       return getConnectionFromCache(datasource);
     } else {
       let connection = new NetCrunchConnection(this.adrem, datasource.url, datasource.name);
-      connection = addConnectionHandlers(datasource, connection);
-      this.cache.addConnection(datasource, createSession(datasource, connection));
-      return this.cache.getConnection(datasource);
+
+      return getServerApi(connection)
+        .then((serverApi) => {
+          return new Promise((resolve, reject) => {
+            let checkStatus = connection.checkApiVersion(serverApi);
+            if (checkStatus.status === 0) {
+              resolve(checkStatus.version);
+            } else {
+              reject(checkStatus.status);
+            }
+          });
+        })
+        .then(() => {
+          connection = addConnectionHandlers(datasource, connection);
+          this.cache.addConnection(datasource, createSession(datasource, connection));
+          return this.cache.getConnection(datasource);
+        });
     }
   }
 
