@@ -16,6 +16,7 @@ export const CONNECTION_CONSTS = {
   NC_SERVER_VER_MAJOR : 9,
   NC_SERVER_VER_MINOR : 2,
 
+  STATUS_OK : 0,
   ERROR_SERVER_API : 1,
   ERROR_SERVER_VER : 2,
   ERROR_CONNECTION_INIT : 3,
@@ -46,6 +47,67 @@ export default class NetCrunchConnection {
     this.networkAtlasReady = new Promise((resolve) => { this.networkAtlasReadyResolve = resolve; });
     this.counters = new Map();
     this.trends = null;
+  }
+
+  checkApiVersion(serverApi) {
+
+    function parseVersion(version) {
+      let versionPattern = /^(\d+).(\d+).(\d+)(.(\d+))*$/,
+          versionElements = versionPattern.exec(version);
+
+      if (versionElements != null) {
+        return {
+          major : versionElements[1],
+          minor : versionElements[2],
+          bugfix : versionElements[3],
+          text : version
+        };
+      } else {
+        return null;
+      }
+    }
+
+    function versionGreaterEqualThan(version, major, minor) {
+      let result = false;
+
+      if (parseInt(version.major, 10) >= parseInt(major, 10)) {
+        if (parseInt(version.major, 10) > parseInt(major, 10)) {
+          result = true;
+        } else {
+          if (parseInt(version.minor, 10) >= parseInt(minor, 10)) {
+            result = true;
+          }
+        }
+      }
+
+      return result;
+    }
+
+    function createResult(status, version = null) {
+      return {
+        status: status,
+        version: version
+      };
+    }
+
+    if ((serverApi.api != null) && (serverApi.api[0] != null) && (serverApi.api[0].ver != null)) {
+      let version,
+          minMajor = CONNECTION_CONSTS.NC_SERVER_VER_MAJOR,
+          minMinor = CONNECTION_CONSTS.NC_SERVER_VER_MINOR;
+
+      version = parseVersion(serverApi.api[0].ver);
+      if (version != null) {
+        if (versionGreaterEqualThan(version, minMajor, minMinor)) {
+          return createResult(CONNECTION_CONSTS.STATUS_OK, version);
+        } else {
+          return createResult(CONNECTION_CONSTS.ERROR_SERVER_VER, version);
+        }
+      } else {
+        return createResult(CONNECTION_CONSTS.ERROR_SERVER_VER);
+      }
+    } else {
+      return createResult(CONNECTION_CONSTS.ERROR_SERVER_VER);
+    }
   }
 
   login(userName, password, ignoreDownloadNetworkAtlas = false) {
