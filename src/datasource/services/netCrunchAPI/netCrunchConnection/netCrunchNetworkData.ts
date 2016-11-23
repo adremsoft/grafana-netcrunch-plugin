@@ -99,6 +99,8 @@ export default function NetCrunchNetworkData(adremClient, netCrunchServerConnect
   return {
     networkNodes: atlasTree.nodes,
     networkTree: atlasTree.tree,
+    networksReceived: false,
+    nodesReceived: false,
 
     init : function () {
       const PERFORMANCE_VIEWS_NET_INT_ID = 2,
@@ -116,12 +118,14 @@ export default function NetCrunchNetworkData(adremClient, netCrunchServerConnect
           networkData;
 
       function hostsChanged() {
+        self.nodesReceived = true;
         if (typeof self.onNodesChanged === 'function') {
           self.onNodesChanged();
         }
       }
 
       function networksChanged() {
+        self.networksReceived = true;
         if (typeof self.onNetworksChanged === 'function') {
            self.onNetworksChanged();
         }
@@ -138,6 +142,12 @@ export default function NetCrunchNetworkData(adremClient, netCrunchServerConnect
       initialized = Promise.all([hostsData, networkData]);
 
       return initialized;
+    },
+
+    getNodesTable : function() {
+      return Object.keys(this.networkNodes).map((nodeId) => {
+        return this.networkNodes[nodeId];
+      });
     }
 
   };

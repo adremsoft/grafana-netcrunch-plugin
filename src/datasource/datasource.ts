@@ -17,7 +17,8 @@ class NetCrunchDatasource {
   constructor(instanceSettings, netCrunchAPIService, alertSrv, $rootScope) {
     let
       self = this,
-      nodesReady;
+      nodesReady,
+      atlasReady;
 
     function initDatasource() {
       let netCrunchSession;
@@ -29,8 +30,8 @@ class NetCrunchDatasource {
             .then((connection) => {
               let fromCache = connection.fromCache;
               self.netCrunchConnection = connection;
-              initUpdateNodes(connection.networkAtlas, fromCache);
-              initUpdateAtlas(connection.networkAtlas, fromCache);
+              initNodesUpdating(connection.networkAtlas, fromCache);
+              initAtlasUpdating(connection.networkAtlas, fromCache);
               resolve();
             })
             .catch((error) => {
@@ -46,30 +47,30 @@ class NetCrunchDatasource {
       });
     }
 
-    function initUpdateNodes(networkAtlas, fromCache) {
+    function initNodesUpdating( networkAtlas, fromCache) {
 
       function updateNodes() {
-        let nodes = networkAtlas.networkNodes;
-        nodes.table = [];
-
-        Object.keys(nodes).forEach((nodeId) => {
-          nodes.table.push(nodes[nodeId]);
-        });
-
-        self.updateNodeList(nodes.table).then((updatedNodes) => {
-          nodesReady(updatedNodes);
-          nodes.ready = true;
+        self.prepareNodeList(networkAtlas).then((preparedNodes) => {
+          nodesReady(preparedNodes);
         });
       }
 
-      if ((fromCache === true) && (networkAtlas.networkNodes.ready === true)) {
+      if ((fromCache === true) && (networkAtlas.nodesReceived === true)) {
         updateNodes();
       }
 
       $rootScope.$on('netcrunch-nodes-data-changed(' + self.name + ')', updateNodes);
     }
 
-    function initUpdateAtlas(networkAtlas, fromCache) {
+    function initAtlasUpdating( networkAtlas, fromCache) {
+
+      if ((fromCache === true) && (networkAtlas.networksReceived === true)) {
+        atlasReady(networkAtlas);
+      }
+
+      $rootScope.$on('netcrunch-networks-data-changed(' + self.name + ')', function() {
+        atlasReady(networkAtlas);
+      });
     }
 
     this.name = instanceSettings.name;
@@ -83,11 +84,14 @@ class NetCrunchDatasource {
     this.nodes = new Promise((resolve) => {
       nodesReady = resolve;
     });
+    this.networkAtlas = new Promise((resolve) => {
+      atlasReady = resolve;
+    });
 
   }
 
-  updateNodeList(nodes) {
-    return Promise.resolve([]);
+  prepareNodeList(networkAtlas) {
+    return Promise.resolve(networkAtlas.getNodesTable());
   }
 
   query(options) {
