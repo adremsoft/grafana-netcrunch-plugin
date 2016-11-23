@@ -128,6 +128,10 @@ class NetCrunchAPIService {
 
 }
 
+export {
+  CONNECTION_CONSTS as CONNECTION_CONSTS
+}
+
 angular
   .module(servicesModule)
   .service('netCrunchAPIService', NetCrunchAPIService);

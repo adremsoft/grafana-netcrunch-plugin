@@ -7,8 +7,9 @@
  */
 
 import {adrem} from './adrem/module';
-import './netCrunchAPI.service';
+import {CONNECTION_CONSTS} from './netCrunchAPI.service';
 
 export {
-  adrem as adrem
+  adrem as adrem,
+  CONNECTION_CONSTS as CONNECTION_CONSTS
 }
