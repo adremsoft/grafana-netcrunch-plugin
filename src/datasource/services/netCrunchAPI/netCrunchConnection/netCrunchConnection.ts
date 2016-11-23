@@ -9,6 +9,7 @@
 import NetCrunchNetworkData from './netCrunchNetworkData';
 import NetCrunchCountersData from './netCrunchCountersData';
 import NetCrunchTrendData from './netCrunchTrendData';
+import NetCrunchSessionCache from './netCrunchSessionCache';
 
 export const CONNECTION_CONSTS = {
   API_NAME: '/ncapi/',
@@ -47,6 +48,7 @@ export default class NetCrunchConnection {
     this.networkAtlasReady = new Promise((resolve) => { this.networkAtlasReadyResolve = resolve; });
     this.counters = new Map();
     this.trends = null;
+    this.cache = new NetCrunchSessionCache();
   }
 
   checkApiVersion(serverApi) {
@@ -293,4 +295,8 @@ export default class NetCrunchConnection {
     });
   }
 
+}
+
+export {
+  NetCrunchSessionCache as NetCrunchSessionCache
 }
