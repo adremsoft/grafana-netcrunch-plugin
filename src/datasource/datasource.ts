@@ -18,7 +18,8 @@ class NetCrunchDatasource {
     let
       self = this,
       nodesReady,
-      atlasReady;
+      atlasReady,
+      datasourceInitialization = null;
 
     function initDatasource() {
       let netCrunchSession;
@@ -88,7 +89,16 @@ class NetCrunchDatasource {
       atlasReady = resolve;
     });
 
+    this.datasourceReady = function() {
+      if (datasourceInitialization == null) {
+        datasourceInitialization = initDatasource();
+      }
+      return datasourceInitialization;
+    };
+
   }
+
+  datasourceReady() {};
 
   prepareNodeList(networkAtlas) {
     return Promise.resolve(networkAtlas.getNodesTable());
