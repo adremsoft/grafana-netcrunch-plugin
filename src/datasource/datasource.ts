@@ -14,8 +14,10 @@ const
 class NetCrunchDatasource {
 
   /** @ngInject */
-  constructor(instanceSettings, netCrunchAPIService, alertSrv) {
-    let self = this;
+  constructor(instanceSettings, netCrunchAPIService, alertSrv, $rootScope) {
+    let
+      self = this,
+      nodesReady;
 
     function initDatasource() {
       let netCrunchSession;
@@ -45,6 +47,26 @@ class NetCrunchDatasource {
     }
 
     function initUpdateNodes(networkAtlas, fromCache) {
+
+      function updateNodes() {
+        let nodes = networkAtlas.networkNodes;
+        nodes.table = [];
+
+        Object.keys(nodes).forEach((nodeId) => {
+          nodes.table.push(nodes[nodeId]);
+        });
+
+        self.updateNodeList(nodes.table).then((updatedNodes) => {
+          nodesReady(updatedNodes);
+          nodes.ready = true;
+        });
+      }
+
+      if ((fromCache === true) && (networkAtlas.networkNodes.ready === true)) {
+        updateNodes();
+      }
+
+      $rootScope.$on('netcrunch-nodes-data-changed(' + self.name + ')', updateNodes);
     }
 
     function initUpdateAtlas(networkAtlas, fromCache) {
@@ -58,7 +80,14 @@ class NetCrunchDatasource {
 
     this.netCrunchAPI = netCrunchAPIService;
     this.alertSrv = alertSrv;
+    this.nodes = new Promise((resolve) => {
+      nodesReady = resolve;
+    });
 
+  }
+
+  updateNodeList(nodes) {
+    return Promise.resolve([]);
   }
 
   query(options) {
