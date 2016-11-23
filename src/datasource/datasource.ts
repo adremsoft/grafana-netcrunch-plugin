@@ -15,34 +15,33 @@ class NetCrunchDatasource {
 
   /** @ngInject */
   constructor(instanceSettings, netCrunchAPIService, alertSrv) {
-    let
-      self = this,
-      readyResolve,
-      readyReject;
+    let self = this;
 
     function initDatasource() {
       let netCrunchSession;
 
-      if (self.url != null) {
-        netCrunchSession = self.netCrunchAPI.getConnection(self);
-        netCrunchSession
-          .then((connection) => {
-            let fromCache = connection.fromCache;
-            self.netCrunchConnection = connection;
-            initUpdateNodes(connection.networkAtlas, fromCache);
-            initUpdateAtlas(connection.networkAtlas, fromCache);
-            readyResolve();
-          })
-          .catch((error) => {
-            self.alertSrv.set(self.name, CONNECTION_ERROR_MESSAGES[error], 'error');
-            console.log('');
-            console.log('NetCrunch datasource');
-            console.log(self.name + ': ' + CONNECTION_ERROR_MESSAGES[error]);
-            readyReject();
-          });
-      } else {
-        readyReject();
-      }
+      return new Promise((resolve, reject) => {
+        if (self.url != null) {
+          netCrunchSession = self.netCrunchAPI.getConnection(self);
+          netCrunchSession
+            .then((connection) => {
+              let fromCache = connection.fromCache;
+              self.netCrunchConnection = connection;
+              initUpdateNodes(connection.networkAtlas, fromCache);
+              initUpdateAtlas(connection.networkAtlas, fromCache);
+              resolve();
+            })
+            .catch((error) => {
+              self.alertSrv.set(self.name, CONNECTION_ERROR_MESSAGES[error], 'error');
+              console.log('');
+              console.log('NetCrunch datasource');
+              console.log(self.name + ': ' + CONNECTION_ERROR_MESSAGES[error]);
+              reject();
+            });
+        } else {
+          reject();
+        }
+      });
     }
 
     function initUpdateNodes(networkAtlas, fromCache) {
@@ -59,11 +58,6 @@ class NetCrunchDatasource {
 
     this.netCrunchAPI = netCrunchAPIService;
     this.alertSrv = alertSrv;
-
-    this.ready = new Promise((resolve, reject) => {
-      readyResolve = resolve;
-      readyReject = reject;
-    });
 
   }
 
