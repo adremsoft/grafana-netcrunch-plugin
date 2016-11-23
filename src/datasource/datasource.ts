@@ -6,16 +6,50 @@
  * found in the LICENSE file.
  */
 
-export default class NetCrunchDatasource {
+import {CONNECTION_CONSTS} from './services/netCrunchAPI/module';
 
-  constructor() {}
+const
+  CONNECTION_ERROR_MESSAGES = CONNECTION_CONSTS.ERROR_MESSAGES;
+
+class NetCrunchDatasource {
+
+  /** @ngInject */
+  constructor(instanceSettings, netCrunchAPIService) {
+
+    this.name = instanceSettings.name;
+    this.url = instanceSettings.url;
+    this.serverUrl = instanceSettings.jsonData.simpleUrl;
+    this.username = instanceSettings.jsonData.user;
+    this.password = instanceSettings.jsonData.password;
+
+    this.netCrunchAPI = netCrunchAPIService;
+
+  }
 
   query(options) {
     return [];
   }
 
   testDatasource() {
-    return false;
+    return new Promise((resolve) => {
+      this.netCrunchAPI.testConnection(this)
+        .then(() => {
+          resolve({
+            status: "success",
+            message: "Datasource is working",
+            title: "Success" });
+        })
+        .catch((error) => {
+          resolve({
+            status: "error",
+            message: CONNECTION_ERROR_MESSAGES[error],
+            title: "Error" });
+        });
+    });
   }
 
 }
+
+export {
+  NetCrunchDatasource
+};
