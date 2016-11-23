@@ -100,14 +100,6 @@ class NetCrunchDatasource {
 
   datasourceReady() {};
 
-  prepareNodeList(networkAtlas) {
-    return Promise.resolve(networkAtlas.getNodesTable());
-  }
-
-  query(options) {
-    return [];
-  }
-
   testDatasource() {
     return new Promise((resolve) => {
       this.netCrunchAPI.testConnection(this)
@@ -124,6 +116,14 @@ class NetCrunchDatasource {
             title: "Error" });
         });
     });
+  }
+
+  query(options) {
+    return [];
+  }
+
+  prepareNodeList(networkAtlas) {
+    return Promise.resolve(networkAtlas.getNodesTable());
   }
 
 }
