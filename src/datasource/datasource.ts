@@ -14,7 +14,42 @@ const
 class NetCrunchDatasource {
 
   /** @ngInject */
-  constructor(instanceSettings, netCrunchAPIService) {
+  constructor(instanceSettings, netCrunchAPIService, alertSrv) {
+    let
+      self = this,
+      readyResolve,
+      readyReject;
+
+    function initDatasource() {
+      let netCrunchSession;
+
+      if (self.url != null) {
+        netCrunchSession = self.netCrunchAPI.getConnection(self);
+        netCrunchSession
+          .then((connection) => {
+            let fromCache = connection.fromCache;
+            self.netCrunchConnection = connection;
+            initUpdateNodes(connection.networkAtlas, fromCache);
+            initUpdateAtlas(connection.networkAtlas, fromCache);
+            readyResolve();
+          })
+          .catch((error) => {
+            self.alertSrv.set(self.name, CONNECTION_ERROR_MESSAGES[error], 'error');
+            console.log('');
+            console.log('NetCrunch datasource');
+            console.log(self.name + ': ' + CONNECTION_ERROR_MESSAGES[error]);
+            readyReject();
+          });
+      } else {
+        readyReject();
+      }
+    }
+
+    function initUpdateNodes(networkAtlas, fromCache) {
+    }
+
+    function initUpdateAtlas(networkAtlas, fromCache) {
+    }
 
     this.name = instanceSettings.name;
     this.url = instanceSettings.url;
@@ -23,6 +58,12 @@ class NetCrunchDatasource {
     this.password = instanceSettings.jsonData.password;
 
     this.netCrunchAPI = netCrunchAPIService;
+    this.alertSrv = alertSrv;
+
+    this.ready = new Promise((resolve, reject) => {
+      readyResolve = resolve;
+      readyReject = reject;
+    });
 
   }
 
