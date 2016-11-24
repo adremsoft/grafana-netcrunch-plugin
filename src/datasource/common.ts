@@ -12,7 +12,7 @@ const baseDatasourceURL = 'plugins/grafana-netcrunch/datasource/',
       servicesModule = 'grafana.services';
 
 export {
-  datasourceURL,
-  systemJSDatasourceURL,
-  servicesModule
+  datasourceURL as datasourceURL,
+  systemJSDatasourceURL as systemJSDatasourceURL,
+  servicesModule as servicesModule
 }
