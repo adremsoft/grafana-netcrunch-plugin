@@ -7,7 +7,7 @@
  */
 
 import {systemJSDatasourceURL, servicesModule} from '../../../common';
-import NetCrunchCounters, {NETCRUNCH_COUNTER_CONST, NETCRUNCH_COUNTER_TYPES} from './NetCrunchCounters';
+import {NetCrunchCounters, NETCRUNCH_COUNTER_CONST, NETCRUNCH_COUNTER_TYPES} from './NetCrunchCounters';
 
 const adremModuleUrl = systemJSDatasourceURL + 'services/netCrunchAPI/adrem/',
       adremClient = adremModuleUrl + 'client.min.js',
@@ -16,15 +16,19 @@ const adremModuleUrl = systemJSDatasourceURL + 'services/netCrunchAPI/adrem/',
       netCrunchObjects = adremModuleUrl + 'NCObjects.min';
 
 function importAdremClient() {
-  return SystemJS.import(adremClient).then((adrem) => {
-    return SystemJS.import(remoteDataLists).then(() => {
-      return SystemJS.import(objectMapper).then(() => {
-        return SystemJS.import(netCrunchObjects).then(() => {
+  return SystemJS.import(adremClient)
+    .then((adrem) => {
+      return SystemJS.import(remoteDataLists)
+        .then(() => {
+          return SystemJS.import(objectMapper);
+        })
+        .then(() => {
+          return SystemJS.import(netCrunchObjects);
+        })
+        .then(() => {
           return adrem;
         });
-      });
     });
-  });
 }
 
 const adrem = importAdremClient();

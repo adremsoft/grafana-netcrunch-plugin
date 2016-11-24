@@ -22,7 +22,7 @@ const
 
   knownMSCounters = ['load time', 'check time', 'round trip time'];
 
-export const NETCRUNCH_COUNTER_CONST = {
+const NETCRUNCH_COUNTER_CONST = {
   CNT_TYPE: {
     cstXML: 1,
     cstMIB: 2,
@@ -47,7 +47,7 @@ export const NETCRUNCH_COUNTER_CONST = {
   }
 };
 
-export const NETCRUNCH_COUNTER_TYPES = {
+const NETCRUNCH_COUNTER_TYPES = {
   percentage: "%",
   milliseconds: "ms",
   bytesBitsPS: "bps",
@@ -55,7 +55,7 @@ export const NETCRUNCH_COUNTER_TYPES = {
   bytes: "bytes"
 };
 
-export default function NetCrunchCounters(adremClient, netCrunchConnection) {
+function NetCrunchCounters(adremClient, netCrunchConnection) {
 
   let snmpMibData = null,
       shortOidPathsCache = Object.create(null),
@@ -441,21 +441,22 @@ export default function NetCrunchCounters(adremClient, netCrunchConnection) {
           displayPath = getFullOidPath(oidPath.objOID);
         }
 
-        return displayPath.then(function(resolvedPath) {
-          if ((resolvedPath == null) || (resolvedPath === '')){
-            resolvedPath = oidPath.objOID;
-          }
-          if (oidPath.inst === '0') {
-            oidPath.inst = '';
-          }
+        return displayPath
+          .then((resolvedPath) => {
+            if ((resolvedPath == null) || (resolvedPath === '')){
+              resolvedPath = oidPath.objOID;
+            }
+            if (oidPath.inst === '0') {
+              oidPath.inst = '';
+            }
 
-          resolvedPath = counterToString(makeShortPath(resolvedPath, '', oidPath.inst));
+            resolvedPath = counterToString(makeShortPath(resolvedPath, '', oidPath.inst));
 
-          if ((showPerSecondValue === true) && (oidPath.isPerSec === true)) {
-            resolvedPath = resolvedPath + C_PERSEC;
-          }
-          return resolvedPath;
-        });
+            if ((showPerSecondValue === true) && (oidPath.isPerSec === true)) {
+              resolvedPath = resolvedPath + C_PERSEC;
+            }
+            return resolvedPath;
+          });
       }
     }
 
@@ -659,4 +660,10 @@ export default function NetCrunchCounters(adremClient, netCrunchConnection) {
     getSNMPDisplayPath: getSNMPDisplayPath,
     counterPathToDisplayStr: counterPathToDisplayStr
   };
+}
+
+export {
+  NETCRUNCH_COUNTER_CONST as NETCRUNCH_COUNTER_CONST,
+  NETCRUNCH_COUNTER_TYPES as NETCRUNCH_COUNTER_TYPES,
+  NetCrunchCounters as NetCrunchCounters
 }
