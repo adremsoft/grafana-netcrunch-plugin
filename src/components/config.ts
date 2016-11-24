@@ -6,6 +6,10 @@
  * found in the LICENSE file.
  */
 
-export class NetCrunchAppConfigCtrl {
+class NetCrunchAppConfigCtrl {
   constructor() {}
+}
+
+export {
+  NetCrunchAppConfigCtrl as NetCrunchAppConfigCtrl
 }
