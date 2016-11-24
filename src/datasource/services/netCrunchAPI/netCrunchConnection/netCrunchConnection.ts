@@ -6,12 +6,11 @@
  * found in the LICENSE file.
  */
 
-import NetCrunchNetworkData from './netCrunchNetworkData';
-import NetCrunchCountersData from './netCrunchCountersData';
-import NetCrunchTrendData from './netCrunchTrendData';
-import NetCrunchSessionCache from './netCrunchSessionCache';
+import {NetCrunchNetworkData} from './netCrunchNetworkData/netCrunchNetworkData';
+import {NetCrunchCountersData} from './netCrunchCountersData';
+import {NetCrunchTrendData} from './netCrunchTrendData';
 
-export const CONNECTION_CONSTS = {
+const CONNECTION_CONSTS = {
   API_NAME: '/ncapi/',
 
   NC_SERVER_VER_MAJOR : 9,
@@ -31,7 +30,7 @@ export const CONNECTION_CONSTS = {
   ]
 };
 
-export default class NetCrunchConnection {
+class NetCrunchConnection {
 
   constructor(adrem, serverURL, connectionName) {
     this.adrem = adrem;
@@ -48,7 +47,6 @@ export default class NetCrunchConnection {
     this.networkAtlasReady = new Promise((resolve) => { this.networkAtlasReadyResolve = resolve; });
     this.counters = new Map();
     this.trends = null;
-    this.cache = new NetCrunchSessionCache();
   }
 
   checkApiVersion(serverApi) {
@@ -129,39 +127,41 @@ export default class NetCrunchConnection {
     if (this.serverConnection == null) {
       this.serverConnectionReady = this.establishConnection();
     }
-    return this.serverConnectionReady.then(() => {
-      return this.authenticateUser(userName, password).then(() => {
-        this.networkAtlas = new NetCrunchNetworkData(this.adremClient, this.serverConnection);
-        this.networkAtlas.onNodesChanged = nodesChanged.bind(this);
-        this.networkAtlas.onNetworksChanged = networksChanged.bind(this);
-        this.counters = new NetCrunchCountersData(this.adremClient, this.serverConnection);
-        this.trends =  new NetCrunchTrendData(this);
+    return this.serverConnectionReady
+      .then(() => {
+        return this.authenticateUser(userName, password)
+          .then(() => {
+            this.networkAtlas = new NetCrunchNetworkData(this.adremClient, this.serverConnection);
+            this.networkAtlas.onNodesChanged = nodesChanged.bind(this);
+            this.networkAtlas.onNetworksChanged = networksChanged.bind(this);
+            this.counters = new NetCrunchCountersData(this.adremClient, this.serverConnection);
+            this.trends =  new NetCrunchTrendData(this);
 
-        if (ignoreDownloadNetworkAtlas !== true) {
-          this.networkAtlas.init().then(() => {
-            //noinspection TypeScriptUnresolvedFunction
-            this.networkAtlasReadyResolve(this.networkAtlas);
+            if (ignoreDownloadNetworkAtlas !== true) {
+              this.networkAtlas.init()
+                .then(() => {
+                  //noinspection TypeScriptUnresolvedFunction
+                  this.networkAtlasReadyResolve(this.networkAtlas);
+                });
+            }
+            return true;
           });
-        }
-        return true;
       });
-    });
   }
 
   logout() {
     let self = this;
     return new Promise((resolve) => {
       if (self.serverConnectionReady != null) {
-        self.serverConnectionReady.then(
-          function() {
+        self.serverConnectionReady
+          .then(() => {
             self.netCrunchClient.logout(() => {
               resolve();
             });
-          },
-          function() {
+          })
+          .catch(() => {
             resolve();
-          }
-        );
+          });
       } else {
         resolve();
       }
@@ -169,36 +169,37 @@ export default class NetCrunchConnection {
   }
 
   establishConnection () {
+    let self = this;
     return new Promise((resolve, reject) => {
-      this.adrem.then((adrem) => {
-        let apiName = this.apiName,
-            apiURL = this.apiURL;
+      self.adrem.then((adrem) => {
+        let apiName = self.apiName,
+            apiURL = self.apiURL;
 
-        this.adremClient = adrem;
+        self.adremClient = adrem;
 
-        this.serverConnection = new adrem.Connection(apiURL);
-        this.serverConnection.useWebSocket = false;
-        this.serverConnection.reloadOnLogout = false;
+        self.serverConnection = new adrem.Connection(apiURL);
+        self.serverConnection.useWebSocket = false;
+        self.serverConnection.reloadOnLogout = false;
 
-        this.netCrunchClient = this.serverConnection.Client;
+        self.netCrunchClient = self.serverConnection.Client;
 
-        this.netCrunchClient.urlFilter = function(url) {
+        self.netCrunchClient.urlFilter = function(url) {
           url = url.replace(apiName, '');
           url = apiURL + url;
           return url;
         };
 
-        this.netCrunchClient.on('exception', (e) => {
-          if (typeof this.onError === 'function') {
+        self.netCrunchClient.on('exception', (e) => {
+          if (typeof self.onError === 'function') {
             //noinspection TypeScriptUnresolvedFunction
-            this.onError({
-              connectionName: this.connectionName,
+            self.onError({
+              connectionName: self.connectionName,
               message: e.message
             });
           }
         });
 
-        this.netCrunchClient.start('', (status) => {
+        self.netCrunchClient.start('', (status) => {
           if (status.init === true) {
             resolve();
           } else {
@@ -228,10 +229,9 @@ export default class NetCrunchConnection {
           } else {
             if (attempt > 1) {
               setTimeout(function() {
-                tryAuthenticate(userName, password, attempt - 1).then(
-                  function() { resolve(); },
-                  function() { reject(); }
-                );
+                tryAuthenticate(userName, password, attempt - 1)
+                  .then(() => { resolve(); })
+                  .catch(() => { reject(); });
               }, loginTimeout(attempt));
             } else {
               reject();
@@ -246,18 +246,17 @@ export default class NetCrunchConnection {
         let self = this;
         this.loginInProgress = true;
         loginProcess = new Promise((resolve, reject) => {
-          tryAuthenticate(userName, password, MAX_LOGIN_ATTEMPTS).then(
-            function() {
+          tryAuthenticate(userName, password, MAX_LOGIN_ATTEMPTS)
+            .then(() => {
               self.loginInProgress = false;
               self.loginInProgressPromise = null;
               resolve();
-            },
-            function() {
+            })
+            .catch(() => {
               self.loginInProgress = false;
               self.loginInProgressPromise = null;
               reject(CONNECTION_CONSTS.ERROR_AUTHENTICATION);
-            }
-          );
+            });
         });
         this.loginInProgressPromise = loginProcess;
       } else {
@@ -298,5 +297,6 @@ export default class NetCrunchConnection {
 }
 
 export {
-  NetCrunchSessionCache as NetCrunchSessionCache
+  CONNECTION_CONSTS as CONNECTION_CONSTS,
+  NetCrunchConnection as NetCrunchConnection
 }
