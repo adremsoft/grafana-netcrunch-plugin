@@ -7,9 +7,9 @@
  */
 
 import {adrem} from './adrem/module';
-import {CONNECTION_CONSTS} from './netCrunchAPI.service';
+import {CONNECTION_ERROR_MESSAGES} from './netCrunchAPI.service';
 
 export {
   adrem as adrem,
-  CONNECTION_CONSTS as CONNECTION_CONSTS
+  CONNECTION_ERROR_MESSAGES as CONNECTION_ERROR_MESSAGES
 }

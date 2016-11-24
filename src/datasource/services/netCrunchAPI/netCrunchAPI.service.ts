@@ -9,8 +9,10 @@
 import angular from 'angular';
 import {servicesModule} from '../../common';
 import './adrem/module';
-import NetCrunchConnectionCache from './netCrunchConnectionCache';
-import NetCrunchConnection, {CONNECTION_CONSTS} from './netCrunchConnection/netCrunchConnection';
+import {NetCrunchConnectionCache} from './netCrunchConnectionCache';
+import {NetCrunchConnection, CONNECTION_CONSTS} from './netCrunchConnection/netCrunchConnection';
+
+const CONNECTION_ERROR_MESSAGES = CONNECTION_CONSTS.ERROR_MESSAGES;
 
 class NetCrunchAPIService {
 
@@ -32,14 +34,17 @@ class NetCrunchAPIService {
   }
 
   clearConnection(datasource) {
+    let self = this;
     return new Promise((resolve) => {
-      if (this.cache.connectionExist(datasource)) {
-        this.cache.getConnection(datasource).then((connection) => {
-          connection.logout().then(() => {
-            this.cache.deleteConnection(datasource);
-            resolve();
+      if (self.cache.connectionExist(datasource)) {
+        self.cache.getConnection(datasource)
+          .then((connection) => {
+            connection.logout()
+              .then(() => {
+                self.cache.deleteConnection(datasource);
+                resolve();
+              });
           });
-        });
       } else {
         resolve();
       }
@@ -120,8 +125,8 @@ class NetCrunchAPIService {
         })
         .then(() => {
           connection = addConnectionHandlers(datasource, connection);
-          this.cache.addConnection(datasource, createSession(datasource, connection));
-          return this.cache.getConnection(datasource);
+          self.cache.addConnection(datasource, createSession(datasource, connection));
+          return self.cache.getConnection(datasource);
         });
     }
   }
@@ -129,7 +134,7 @@ class NetCrunchAPIService {
 }
 
 export {
-  CONNECTION_CONSTS as CONNECTION_CONSTS
+  CONNECTION_ERROR_MESSAGES as CONNECTION_ERROR_MESSAGES
 }
 
 angular

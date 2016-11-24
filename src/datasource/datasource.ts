@@ -6,10 +6,7 @@
  * found in the LICENSE file.
  */
 
-import {CONNECTION_CONSTS} from './services/netCrunchAPI/module';
-
-const
-  CONNECTION_ERROR_MESSAGES = CONNECTION_CONSTS.ERROR_MESSAGES;
+import {CONNECTION_ERROR_MESSAGES} from './services/netCrunchAPI/module';
 
 class NetCrunchDatasource {
 
