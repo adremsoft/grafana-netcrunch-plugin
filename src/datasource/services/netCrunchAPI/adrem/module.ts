@@ -8,6 +8,7 @@
 
 import {systemJSDatasourceURL, servicesModule} from '../../../common';
 import {NetCrunchCounters, NETCRUNCH_COUNTER_CONST, NETCRUNCH_COUNTER_TYPES} from './NetCrunchCounters';
+import {AdremWebWorker} from './adremWebWorker';
 
 const adremModuleUrl = systemJSDatasourceURL + 'services/netCrunchAPI/adrem/',
       adremClient = adremModuleUrl + 'client.min.js',
@@ -41,5 +42,6 @@ export {
   adrem as adrem,
   NetCrunchCounters as NetCrunchCounters,
   NETCRUNCH_COUNTER_CONST as NETCRUNCH_COUNTER_CONST,
-  NETCRUNCH_COUNTER_TYPES as NETCRUNCH_COUNTER_TYPES
+  NETCRUNCH_COUNTER_TYPES as NETCRUNCH_COUNTER_TYPES,
+  AdremWebWorker as AdremWebWorker
 }
