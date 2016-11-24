@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-export default function NetCrunchAtlasTree(netCrunchServerConnection) {
+function NetCrunchAtlasTree(netCrunchServerConnection) {
 
   let mapTree = {
           '' : {
@@ -60,7 +60,7 @@ export default function NetCrunchAtlasTree(netCrunchServerConnection) {
   function pushUniqueChildToMap (map, child) {
     let isUnique;
 
-    isUnique = map.children.every(function(mapChild) {
+    isUnique = map.children.every((mapChild) => {
       return (mapChild.data.values.NetIntId !== child.data.values.NetIntId);
     });
 
@@ -82,7 +82,7 @@ export default function NetCrunchAtlasTree(netCrunchServerConnection) {
         children : []
       };
 
-      orphans = orphans.filter(function (orphan) {
+      orphans = orphans.filter((orphan) => {
         if (orphan.data.local.parentId === netId) {
           pushUniqueChildToMap(mapTree[netId], orphan);
           return false;
@@ -120,7 +120,7 @@ export default function NetCrunchAtlasTree(netCrunchServerConnection) {
 
       function performMapList(maps, innerLevel, parentIndex){
         maps.sort(sortMaps);
-        maps.forEach(function(map) {
+        maps.forEach((map) => {
           map.data.local.innerLevel = innerLevel;
           map.data.local.parentLinearIndex = parentIndex;
           if (map.data.local.isFolder === true) {
@@ -136,4 +136,8 @@ export default function NetCrunchAtlasTree(netCrunchServerConnection) {
       return mapList;
     }
   };
+}
+
+export {
+  NetCrunchAtlasTree as NetCrunchAtlasTree
 }

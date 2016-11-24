@@ -6,9 +6,9 @@
  * found in the LICENSE file.
  */
 
-import NetCrunchAtlasTree from './netCrunchAtlasTree';
+import {NetCrunchAtlasTree} from './netCrunchAtlasTree';
 
-export default function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
+function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
 
   let atlasTree = new NetCrunchAtlasTree(netCrunchServerConnection),
       initialized = null;
@@ -152,4 +152,8 @@ export default function NetCrunchNetworkData(adremClient, netCrunchServerConnect
 
   };
 
+}
+
+export {
+  NetCrunchNetworkData as NetCrunchNetworkData
 }
