@@ -51,9 +51,10 @@ class NetCrunchDatasource {
     function initNodesUpdating( networkAtlas, fromCache) {
 
       function updateNodes() {
-        self.prepareNodeList(networkAtlas).then((preparedNodes) => {
-          nodesReady(preparedNodes);
-        });
+        self.prepareNodeList(networkAtlas)
+          .then((preparedNodes) => {
+            nodesReady(preparedNodes);
+          });
       }
 
       if ((fromCache === true) && (networkAtlas.nodesReceived === true)) {
