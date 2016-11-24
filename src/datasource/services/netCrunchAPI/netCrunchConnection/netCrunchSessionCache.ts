@@ -6,10 +6,14 @@
  * found in the LICENSE file.
  */
 
-export default class NetCrunchSessionCache {
+class NetCrunchSessionCache {
 
   constructor() {
     this.counters = new Map();
   }
 
+}
+
+export {
+  NetCrunchSessionCache as NetCrunchSessionCache
 }

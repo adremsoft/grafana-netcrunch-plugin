@@ -8,7 +8,7 @@
 
 import {NetCrunchCounters, NETCRUNCH_COUNTER_CONST} from '../adrem/module';
 
-export default function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
+function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
 
   let ncCounters = new NetCrunchCounters(adremClient, netCrunchServerConnection),
       counterConsts = NETCRUNCH_COUNTER_CONST,
@@ -34,12 +34,13 @@ export default function NetCrunchCountersData(adremClient, netCrunchServerConnec
           self = this;
 
       function createCounterObject (counter) {
-        return self.convertCounterPathToDisplay(counter[1]).then((displayName) => {
-          return {
-            name: counter[1],
-            displayName: displayName
-          };
-        });
+        return self.convertCounterPathToDisplay(counter[1])
+          .then((displayName) => {
+            return {
+              name: counter[1],
+              displayName: displayName
+            };
+          });
       }
 
       function compareCounters (counterA, counterB) {
@@ -56,12 +57,13 @@ export default function NetCrunchCountersData(adremClient, netCrunchServerConnec
       }
 
       function updateMonitorNames (monitors) {
-        return self.getMonitors().then((monitorsMap) => {
-          Object.keys(monitors).forEach((monitorId) => {
-            if (monitorsMap[monitorId] != null){
-              monitors[monitorId].name = monitorsMap[monitorId].counterGroup;
-            }
-          });
+        return self.getMonitors()
+          .then((monitorsMap) => {
+            Object.keys(monitors).forEach((monitorId) => {
+              if (monitorsMap[monitorId] != null){
+                monitors[monitorId].name = monitorsMap[monitorId].counterGroup;
+              }
+            });
           return monitors;
         });
       }
@@ -76,15 +78,19 @@ export default function NetCrunchCountersData(adremClient, netCrunchServerConnec
       });
 
       Object.keys(monitors).forEach((monitorId) => {
-        counterPromises.push(Promise.all(monitors[monitorId].counters).then((counters) => {
-          monitors[monitorId].counters = counters;
-        }));
+        counterPromises.push(
+          Promise.all(monitors[monitorId].counters)
+            .then((counters) => {
+              monitors[monitorId].counters = counters;
+            })
+        );
       });
 
-      return Promise.all(counterPromises).then(() => {
-        monitors = sortCounters(monitors);
-        return updateMonitorNames(monitors);
-      });
+      return Promise.all(counterPromises)
+        .then(() => {
+          monitors = sortCounters(monitors);
+          return updateMonitorNames(monitors);
+        });
     },
 
     getCounters: function (nodeId) {
@@ -95,18 +101,19 @@ export default function NetCrunchCountersData(adremClient, netCrunchServerConnec
         }, netCrunchServerConnection);
       }
 
-      return trendDBReady.then(function() {
-        return new Promise((resolve) => {
-          trendDB.getCounters({machineId: nodeId}, (counters) => {
+      return trendDBReady
+        .then(() => {
+          return new Promise((resolve) => {
+            trendDB.getCounters({machineId: nodeId}, (counters) => {
 
-            // counters are in form [ "<monitorId>=<counter>", ... ]
+              // counters are in form [ "<monitorId>=<counter>", ... ]
 
-            counters = counters.map((counter) => {
-              return counter.split('=');
+              counters = counters.map((counter) => {
+                return counter.split('=');
+              });
+              resolve(counters);
             });
-            resolve(counters);
           });
-        });
       });
     },
 
@@ -130,18 +137,23 @@ export default function NetCrunchCountersData(adremClient, netCrunchServerConnec
         }, netCrunchServerConnection);
       }
 
-      return monitorMgrInfReady.then(function() {
-        return new Promise((resolve) => {
-          monitorMgrInf.getMonitorsInfo({}, (monitors) => {
-            let monitorsMap = Object.create(null);
+      return monitorMgrInfReady
+        .then(() => {
+          return new Promise((resolve) => {
+            monitorMgrInf.getMonitorsInfo({}, (monitors) => {
+              let monitorsMap = Object.create(null);
 
-            monitors.forEach((monitor) => {
-              monitorsMap[monitor.monitorId] = monitor;
+              monitors.forEach((monitor) => {
+                monitorsMap[monitor.monitorId] = monitor;
+              });
+              resolve(monitorsMap);
             });
-            resolve(monitorsMap);
           });
         });
-      });
     }
   };
+}
+
+export {
+  NetCrunchCountersData as NetCrunchCountersData
 }

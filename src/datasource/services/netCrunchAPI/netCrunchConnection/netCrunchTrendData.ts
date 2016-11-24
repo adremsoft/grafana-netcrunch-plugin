@@ -8,7 +8,7 @@
 
 import moment from 'moment';
 
-export const NETCRUNCH_TREND_DATA_CONST = {
+const NETCRUNCH_TREND_DATA_CONST = {
   DEFAULT_MIN_MAX_SAMPLE_COUNT: 10,
   DEFAULT_MAX_SAMPLE_COUNT: 200,
   DEFAULT_MAX_MAX_SAMPLE_COUNT: 5000,
@@ -33,7 +33,7 @@ export const NETCRUNCH_TREND_DATA_CONST = {
   QUERY_RESULT_ORDER : ['avg', 'min', 'max', 'avail', 'delta', 'equal']
 };
 
-export default function NetCrunchTrendData(netCrunchConnection) {
+function NetCrunchTrendData(netCrunchConnection) {
   const
     PERIOD_TYPE = NETCRUNCH_TREND_DATA_CONST.PERIOD_TYPE,
     QUERY_RESULT_MASKS = NETCRUNCH_TREND_DATA_CONST.QUERY_RESULT_MASKS,
@@ -88,7 +88,7 @@ export default function NetCrunchTrendData(netCrunchConnection) {
       periodType: periods[periodIndex].type,
       periodInterval: periods[periodIndex].interval
     };
-}
+  }
 
   function calculateTimeDomain (dateFrom, periodType, periodInterval, intervalCount) {
     let timeDomain = [],
@@ -114,11 +114,11 @@ export default function NetCrunchTrendData(netCrunchConnection) {
     let resultMask;
 
     resultMask = Object.keys(series).filter((seriesKey) => {
-        return ((series[seriesKey] === true) && (QUERY_RESULT_MASKS[seriesKey] != null));
+      return ((series[seriesKey] === true) && (QUERY_RESULT_MASKS[seriesKey] != null));
     });
 
     resultMask = resultMask.map((seriesKey) => {
-        return QUERY_RESULT_MASKS[seriesKey];
+      return QUERY_RESULT_MASKS[seriesKey];
     });
 
     return { ResultMask: [resultMask] };
@@ -242,4 +242,9 @@ export default function NetCrunchTrendData(netCrunchConnection) {
     getCounterData: getCounterData,
     grafanaDataConverter: grafanaDataConverter
   };
+}
+
+export {
+  NETCRUNCH_TREND_DATA_CONST as NETCRUNCH_TREND_DATA_CONST,
+  NetCrunchTrendData as NetCrunchTrendData
 }
