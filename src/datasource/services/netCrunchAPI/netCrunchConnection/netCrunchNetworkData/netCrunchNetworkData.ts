@@ -7,6 +7,9 @@
  */
 
 import {NetCrunchAtlasTree} from './netCrunchAtlasTree';
+import {mapNodes, orderNodes} from './netCrunchNetworkDataHelpers';
+
+const THREAD_WORKER_NODES_NUMBER = 1000;
 
 function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
 
@@ -147,6 +150,19 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
     getNodesTable : function() {
       return Object.keys(this.networkNodes).map((nodeId) => {
         return this.networkNodes[nodeId];
+      });
+    },
+
+    getOrderedNodes : function(map = null) {
+      let nodes = this.getNodesTable() || [];
+      return new Promise((resolve) => {
+        if (nodes.length < THREAD_WORKER_NODES_NUMBER) {
+          nodes = mapNodes(nodes, map);
+          nodes = orderNodes(nodes);
+          resolve(nodes);
+        } else {
+          resolve(nodes);
+        }
       });
     }
 
