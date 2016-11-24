@@ -7,9 +7,11 @@
  */
 
 import {NetCrunchDatasource} from './datasource';
-import {NetCrunchDatasourceConfigCtrl} from './config/datasourceConfig';
+import {NetCrunchDatasourceConfigCtrl} from './config/datasourceConfig.controller';
+import {NetCrunchQueryController} from './query/query.controller';
 
 export {
   NetCrunchDatasource as Datasource,
-  NetCrunchDatasourceConfigCtrl as ConfigCtrl
+  NetCrunchDatasourceConfigCtrl as ConfigCtrl,
+  NetCrunchQueryController as QueryCtrl
 };

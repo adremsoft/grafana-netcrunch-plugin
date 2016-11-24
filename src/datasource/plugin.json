@@ -1,5 +1,8 @@
 {
   "type": "datasource",
   "name": "NetCrunch",
-  "id": "grafana-netcrunch-datasource"
+  "id": "grafana-netcrunch-datasource",
+
+  "metrics": true,
+  "annotations": false
 }
