@@ -24,7 +24,7 @@ class AdremWebWorker {
     webWorker.onmessage = function(event) {
       if (currentTask != null) {
         currentTask.resolve(event.data.result);
-        taskProcessed = null;
+        currentTask = null;
         processTask();
       }
     };
@@ -36,6 +36,77 @@ class AdremWebWorker {
       });
     };
 
+  }
+
+  static webWorkerBuilder() {
+    let workerCode = [],
+        interfaceFunctions = [];
+
+    function getCodeBlob() {
+
+      function getAdremWebWorkerRuntime() {
+
+        function postResult(result) {
+          postMessage({
+            result: result
+          });
+        }
+
+        function executeSyncFunc(funcName, args) {
+          postMessage(global[funcName].apply(this, args));
+        }
+
+        function executeAsyncFunc(funcName, args) {
+          global[funcName].apply(this, args)
+            .then((result) => postResult({
+              type: 'resolve',
+              result: result
+            }))
+            .catch((error) => postResult({
+              type: 'reject',
+              error: error
+            }));
+        }
+
+        return {
+          executeSyncFunc: executeSyncFunc,
+          executeAsyncFunc: executeAsyncFunc
+        };
+      }
+
+      let bundledCode;
+      bundledCode = 'let global = this, \n adremWebWorkerRuntime = getAdremWebWorkerRuntime(); \n';
+      bundledCode += getAdremWebWorkerRuntime.toString() + '\n';
+      bundledCode += workerCode.reduce((prev, curr) => prev + '\n' + curr, '');
+      return new Blob([bundledCode], {type: 'application/javascript'});
+    }
+
+    function getBlobURL() {
+      return URL.createObjectURL(getCodeBlob());
+    }
+
+    function addFunctionCode(code, createInterface = false, async = false) {
+      if (typeof code === 'function') {
+        workerCode.push(code.toString());
+        if ((createInterface === true) && (code.name != null) && (code.name !== '')) {
+          interfaceFunctions.push({
+            name: code.name,
+            async: async
+          });
+        }
+        return true;
+      }
+      return false;
+    }
+
+    function getWebWorker() {
+      return new AdremWebWorker(getBlobURL());
+    }
+
+    return {
+      addFunctionCode: addFunctionCode,
+      getWebWorker: getWebWorker
+    };
   }
 
 }
