@@ -9,32 +9,33 @@
 class AdremWebWorker {
 
   constructor(workerUrl) {
-    let taskQueue = [],
-        currentTask,
+    let tasks = new Map(),
         webWorker;
 
-    function processTask() {
-      if ((taskQueue.length > 0) && (currentTask == null)) {
-        currentTask = taskQueue.shift();
-        webWorker.postMessage(currentTask.data);
+    function getTaskId() {
+      let taskId = (new Date()).getTime();
+      while (tasks.has(taskId)) {
+        taskId += 1;
       }
+      return taskId;
     }
 
     webWorker = new Worker(workerUrl);
     webWorker.onmessage = function(event) {
-      if (currentTask != null) {
-        currentTask.resolve(event.data.result);
-        currentTask = null;
-        processTask();
+      let taskId = event.data.taskId;
+      if (tasks.has(taskId)) {
+        let resolve = tasks.get(taskId);
+        tasks.delete(taskId);
+        resolve(event.data.result);
       }
     };
 
     this.executeTask = function(taskData) {
-      let taskId = (new Date()).getTime();
+      let taskId = getTaskId();
       taskData.taskId = taskId;
       return new Promise((resolve) => {
-        taskQueue.push({resolve: resolve, data: taskData});
-        processTask();
+        tasks.set(taskId, resolve);
+        webWorker.postMessage(taskData);
       });
     };
 
