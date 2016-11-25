@@ -30,6 +30,8 @@ class AdremWebWorker {
     };
 
     this.executeTask = function(taskData) {
+      let taskId = (new Date()).getTime();
+      taskData.taskId = taskId;
       return new Promise((resolve) => {
         taskQueue.push({resolve: resolve, data: taskData});
         processTask();
@@ -39,6 +41,30 @@ class AdremWebWorker {
   }
 
   addTask(taskSpec) {
+    this[taskSpec.name] = function(...args) {
+      let task = {
+        funcName: taskSpec.name,
+        args: args,
+        async: taskSpec.async
+      };
+
+      if (taskSpec.async === true) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+          self.executeTask(task)
+            .then((result) => {
+              if (result.type === 'resolve') {
+                resolve(result.result);
+              }
+              if (result.type === 'reject') {
+                reject(result.error);
+              }
+            });
+        });
+      }
+
+      return this.executeTask(task);
+    };
   }
 
   static webWorkerBuilder() {
