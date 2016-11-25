@@ -8,8 +8,11 @@
 
 import {NetCrunchAtlasTree} from './netCrunchAtlasTree';
 import {mapNodes, orderNodes} from './netCrunchNetworkDataHelpers';
+import {AdremWebWorker} from '../../adrem/module';
 
 const THREAD_WORKER_NODES_NUMBER = 1000;
+
+let orderingWebWorkerSingleton = null;
 
 function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
 
@@ -99,6 +102,21 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
     return record;
   }
 
+  function filterAndOrderMapNodes(nodes, map) {
+    return orderNodes(mapNodes(nodes, map));
+  }
+
+  function getOrderingWebWorker() {
+    if (orderingWebWorkerSingleton == null) {
+      let workerBuilder = AdremWebWorker.webWorkerBuilder();
+      workerBuilder.addFunctionCode(mapNodes);
+      workerBuilder.addFunctionCode(orderNodes);
+      workerBuilder.addFunctionCode(filterAndOrderMapNodes, true);
+      orderingWebWorkerSingleton = workerBuilder.getWebWorker();
+    }
+    return orderingWebWorkerSingleton;
+  }
+
   return {
     networkNodes: atlasTree.nodes,
     networkTree: atlasTree.tree,
@@ -157,11 +175,11 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       let nodes = this.getNodesTable() || [];
       return new Promise((resolve) => {
         if (nodes.length < THREAD_WORKER_NODES_NUMBER) {
-          nodes = mapNodes(nodes, map);
-          nodes = orderNodes(nodes);
+          nodes = filterAndOrderMapNodes(nodes, map);
           resolve(nodes);
         } else {
-          resolve(nodes);
+          getOrderingWebWorker().filterAndOrderMapNodes(nodes, map)
+            .then(nodes => resolve(nodes));
         }
       });
     }
