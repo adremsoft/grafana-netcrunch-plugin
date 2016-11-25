@@ -120,8 +120,13 @@ class NetCrunchDatasource {
     return [];
   }
 
+  getNodeById(nodeID) {
+    return this.nodes.then(nodes => nodes.nodesMap.get(nodeID));
+  };
+
   prepareNodeList(networkAtlas) {
-    return Promise.resolve(networkAtlas.getNodesTable());
+    return networkAtlas.getOrderedNodes()
+      .then(nodes => networkAtlas.addNodesMap(nodes));
   }
 
 }
