@@ -44,39 +44,51 @@ class AdremWebWorker {
 
     function getCodeBlob() {
 
-      function getAdremWebWorkerRuntime() {
+      function getTaskDispatchingSetup() {
+        return `this.onmessage = ${getAdremTaskDispatcher.name}().bind(this);\n\n`;
+      }
 
-        function postResult(result) {
-          postMessage({
+      function getAdremTaskDispatcher() {
+        let globalScope = this;
+
+        function postResult(taskId, result) {
+          globalScope.postMessage({
+            taskId: taskId,
             result: result
           });
         }
 
-        function executeSyncFunc(funcName, args) {
-          postMessage(global[funcName].apply(this, args));
+        function executeSyncFunc(taskId, funcName, args) {
+          postResult(taskId, globalScope[funcName].apply(globalScope, args));
         }
 
-        function executeAsyncFunc(funcName, args) {
-          global[funcName].apply(this, args)
-            .then((result) => postResult({
+        function executeAsyncFunc(taskId, funcName, args) {
+          globalScope[funcName].apply(globalScope, args)
+            .then((result) => postResult(taskId, {
               type: 'resolve',
               result: result
             }))
-            .catch((error) => postResult({
+            .catch((error) => postResult(taskId, {
               type: 'reject',
               error: error
             }));
         }
 
-        return {
-          executeSyncFunc: executeSyncFunc,
-          executeAsyncFunc: executeAsyncFunc
-        };
+        function taskDispatcher(event) {
+          event = event.data;
+          if (event.async !== true) {
+            executeSyncFunc(event.taskId, event.funcName, event.args);
+          } else {
+            executeAsyncFunc(event.taskId, event.funcName, event.args);
+          }
+        }
+
+        return taskDispatcher;
       }
 
       let bundledCode;
-      bundledCode = 'let global = this, \n adremWebWorkerRuntime = getAdremWebWorkerRuntime(); \n';
-      bundledCode += getAdremWebWorkerRuntime.toString() + '\n';
+      bundledCode = getTaskDispatchingSetup();
+      bundledCode += getAdremTaskDispatcher.toString() + '\n';
       bundledCode += workerCode.reduce((prev, curr) => prev + '\n' + curr, '');
       return new Blob([bundledCode], {type: 'application/javascript'});
     }
