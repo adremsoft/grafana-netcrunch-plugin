@@ -289,6 +289,12 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
             .then(nodes => resolve(nodes));
         }
       });
+    },
+
+    addNodesMap(nodes) {
+      nodes.nodesMap = new Map();
+      nodes.forEach(node => nodes.nodesMap.set(node.values.Id, node));
+      return nodes;
     }
 
   };
