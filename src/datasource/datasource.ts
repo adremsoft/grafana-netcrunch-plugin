@@ -47,8 +47,13 @@ class NetCrunchDatasource {
 
     function initNodesUpdating( networkAtlas, fromCache) {
 
+      function prepareNodeList(networkAtlas) {
+        return networkAtlas.getOrderedNodes()
+          .then(nodes => networkAtlas.addNodesMap(nodes));
+      }
+
       function updateNodes() {
-        self.prepareNodeList(networkAtlas)
+        prepareNodeList(networkAtlas)
           .then((preparedNodes) => {
             nodesReady(preparedNodes);
           });
@@ -121,13 +126,11 @@ class NetCrunchDatasource {
   }
 
   getNodeById(nodeID) {
-    return this.nodes.then(nodes => nodes.nodesMap.get(nodeID));
+    return this.datasourceReady()
+      .then(() => {
+        return this.nodes.then(nodes => nodes.nodesMap.get(nodeID));
+      });
   };
-
-  prepareNodeList(networkAtlas) {
-    return networkAtlas.getOrderedNodes()
-      .then(nodes => networkAtlas.addNodesMap(nodes));
-  }
 
 }
 
