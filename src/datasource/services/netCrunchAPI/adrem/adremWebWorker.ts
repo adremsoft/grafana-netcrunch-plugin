@@ -38,9 +38,12 @@ class AdremWebWorker {
 
   }
 
+  addTask(taskSpec) {
+  }
+
   static webWorkerBuilder() {
     let workerCode = [],
-        interfaceFunctions = [];
+        taskInterfaces = [];
 
     function getCodeBlob() {
 
@@ -101,7 +104,7 @@ class AdremWebWorker {
       if (typeof code === 'function') {
         workerCode.push(code.toString());
         if ((createInterface === true) && (code.name != null) && (code.name !== '')) {
-          interfaceFunctions.push({
+          taskInterfaces.push({
             name: code.name,
             async: async
           });
@@ -112,7 +115,11 @@ class AdremWebWorker {
     }
 
     function getWebWorker() {
-      return new AdremWebWorker(getBlobURL());
+      let webWorker = new AdremWebWorker(getBlobURL());
+      taskInterfaces.forEach((taskSpec) => {
+        webWorker.addTask(taskSpec);
+      });
+      return webWorker;
     }
 
     return {
