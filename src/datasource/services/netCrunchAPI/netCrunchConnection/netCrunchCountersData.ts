@@ -11,7 +11,8 @@ import {NetCrunchSessionCache} from './netCrunchSessionCache';
 
 function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
 
-  const MONITORS_CACHE_SECTION = 'monitors';
+  const COUNTERS_PATH_CACHE_SECTION = 'countersPath',
+        MONITORS_CACHE_SECTION = 'monitors';
 
   let ncCounters = new NetCrunchCounters(adremClient, netCrunchServerConnection),
       counterConsts = NETCRUNCH_COUNTER_CONST,
@@ -31,7 +32,16 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
       }),
       cache = new NetCrunchSessionCache();
 
+  cache.addSection(COUNTERS_PATH_CACHE_SECTION);
   cache.addSection(MONITORS_CACHE_SECTION);
+
+  function addDisplayCounterPathToCache(counterPath, displayCounterPathQuery) {
+    cache.addToCache(COUNTERS_PATH_CACHE_SECTION, counterPath, displayCounterPathQuery);
+  }
+
+  function getDisplayCounterPathFromCache(counterPath) {
+    return cache.getFromCache(COUNTERS_PATH_CACHE_SECTION, counterPath);
+  }
 
   function addMonitorsToCache(monitorsQuery) {
     cache.addToCache(MONITORS_CACHE_SECTION, MONITORS_CACHE_SECTION, monitorsQuery);
@@ -134,19 +144,26 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
       });
     },
 
-    convertCounterPathToDisplay: function (counterPath) {
-      let parsedCounterPath = ncCounters.parseCounterPath(counterPath),
-          counterPathObject;
-
-      if (ncCounters.isMIBCnt(parsedCounterPath.obj, parsedCounterPath.cnt) === true) {
-        counterPathObject = ncCounters.counterPathObject(counterPath, counterConsts.CNT_TYPE.cstMIB);
-        return ncCounters.counterPathToDisplayStr(counterPathObject, true, true);
-      } else {
-        return ncCounters.counterPathToDisplayStr(counterPath, true, true);
-      }
-    },
-
 //***
+
+    convertCounterPathToDisplay: function (counterPath, fromCache = true) {
+      let parsedCounterPath = ncCounters.parseCounterPath(counterPath),
+          counterPathObject,
+          counterPathToDisplayQuery;
+
+      counterPathToDisplayQuery = (fromCache) ? getDisplayCounterPathFromCache(counterPath) : null;
+
+      if (counterPathToDisplayQuery == null) {
+        if (ncCounters.isMIBCnt(parsedCounterPath.obj, parsedCounterPath.cnt) === true) {
+          counterPathObject = ncCounters.counterPathObject(counterPath, counterConsts.CNT_TYPE.cstMIB);
+          counterPathToDisplayQuery = ncCounters.counterPathToDisplayStr(counterPathObject, true, true);
+         } else {
+          counterPathToDisplayQuery = ncCounters.counterPathToDisplayStr(counterPath, true, true);
+        }
+        addDisplayCounterPathToCache(counterPath, counterPathToDisplayQuery);
+      }
+      return counterPathToDisplayQuery;
+    },
 
     getMonitors: function (fromCache = true) {
       let monitorsQuery;
