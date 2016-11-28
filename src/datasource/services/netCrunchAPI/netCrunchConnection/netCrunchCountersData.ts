@@ -7,8 +7,11 @@
  */
 
 import {NetCrunchCounters, NETCRUNCH_COUNTER_CONST} from '../adrem/module';
+import {NetCrunchSessionCache} from './netCrunchSessionCache';
 
 function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
+
+  const MONITORS_CACHE_SECTION = 'monitors';
 
   let ncCounters = new NetCrunchCounters(adremClient, netCrunchServerConnection),
       counterConsts = NETCRUNCH_COUNTER_CONST,
@@ -25,9 +28,23 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
       monitorMgrInfReady = new Promise((resolve, reject) => {
         monitorMgrInfReadyResolve = resolve;
         monitorMgrInfReadyReject = reject;
-      });
+      }),
+      cache = new NetCrunchSessionCache();
+
+  cache.addSection(MONITORS_CACHE_SECTION);
+
+  function addMonitorsToCache(monitorsQuery) {
+    cache.addToCache(MONITORS_CACHE_SECTION, MONITORS_CACHE_SECTION, monitorsQuery);
+  }
+
+  function getMonitorsFromCache() {
+    return cache.getFromCache(MONITORS_CACHE_SECTION, MONITORS_CACHE_SECTION);
+  }
 
   return {
+
+//***
+
     prepareCountersForMonitors: function (counters) {
       let monitors = Object.create(null),
           counterPromises = [],
@@ -93,7 +110,7 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
         });
     },
 
-    getCounters: function (nodeId) {
+    getCounters: function (nodeId, fromCache = true) {
 
       if (trendDB == null) {
         trendDB = new adremClient.NetCrunch.TrendDB('ncSrv', '', (status) => {
@@ -129,27 +146,37 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
       }
     },
 
-    getMonitors: function () {
+//***
 
-      if (monitorMgrInf == null) {
-        monitorMgrInf = new adremClient.NetCrunch.MonitorMgrIntf('ncSrv', (status) => {
-          (status === true) ? monitorMgrInfReadyResolve() : monitorMgrInfReadyReject();
-        }, netCrunchServerConnection);
-      }
+    getMonitors: function (fromCache = true) {
+      let monitorsQuery;
 
-      return monitorMgrInfReady
-        .then(() => {
-          return new Promise((resolve) => {
-            monitorMgrInf.getMonitorsInfo({}, (monitors) => {
-              let monitorsMap = Object.create(null);
+      monitorsQuery = (fromCache) ? getMonitorsFromCache() : null;
 
-              monitors.forEach((monitor) => {
-                monitorsMap[monitor.monitorId] = monitor;
+      if (monitorsQuery == null) {
+        if (monitorMgrInf == null) {
+          monitorMgrInf = new adremClient.NetCrunch.MonitorMgrIntf('ncSrv', (status) => {
+            (status === true) ? monitorMgrInfReadyResolve() : monitorMgrInfReadyReject();
+          }, netCrunchServerConnection);
+        }
+
+        monitorsQuery = monitorMgrInfReady
+          .then(() => {
+            return new Promise((resolve) => {
+              monitorMgrInf.getMonitorsInfo({}, (monitors) => {
+                let monitorsMap = Object.create(null);
+
+                monitors.forEach((monitor) => {
+                  monitorsMap[monitor.monitorId] = monitor;
+                });
+                resolve(monitorsMap);
               });
-              resolve(monitorsMap);
             });
           });
-        });
+        addMonitorsToCache(monitorsQuery);
+      }
+
+      return monitorsQuery;
     },
 
     getCountersForMonitors(nodeId, fromCache) {
