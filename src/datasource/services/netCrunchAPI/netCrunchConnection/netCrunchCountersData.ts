@@ -208,7 +208,7 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
       return monitorsQuery;
     },
 
-    getCountersForMonitors(nodeId, fromCache) {
+    getCountersForMonitors: function(nodeId, fromCache) {
 
       function getCountersTable(counters) {
         let countersTable = [];
@@ -228,7 +228,22 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
           counters.table = getCountersTable(counters);
           return counters;
         });
+    },
+
+    findCounterByName: function(counters, counterName) {
+      let foundCounter = null;
+
+      counters.table.some(function(counter) {
+        if (counter.name === counterName) {
+          foundCounter = counter;
+          return true;
+        } else {
+          return false;
+        }
+      });
+      return foundCounter;
     }
+
   };
 }
 
