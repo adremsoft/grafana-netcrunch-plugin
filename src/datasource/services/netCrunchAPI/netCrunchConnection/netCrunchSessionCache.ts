@@ -9,7 +9,36 @@
 class NetCrunchSessionCache {
 
   constructor() {
-    this.counters = new Map();
+  }
+
+  addSection(sectionName) {
+    this[sectionName] = new Map();
+  }
+
+  getSection(sectionName) {
+    return this[sectionName];
+  }
+
+  addToCache(sectionName, key, value) {
+
+    if (this.getSection(sectionName) == null) {
+      this.addSection(sectionName);
+    }
+
+    this.getSection(sectionName).set(key, {
+      timeStamp: new Date().getTime(),
+      value: value
+    });
+  }
+
+  getFromCache(sectionName, key) {
+    if (this.getSection(sectionName) != null) {
+      if (this.getSection(sectionName).has(key)) {
+        return this.getSection(sectionName).get(key).value;
+      }
+      return null;
+    }
+    return null;
   }
 
 }
