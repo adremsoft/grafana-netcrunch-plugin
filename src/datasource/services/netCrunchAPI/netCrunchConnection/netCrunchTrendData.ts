@@ -49,6 +49,10 @@ function NetCrunchTrendData(netCrunchConnection) {
     QUERY_RESULT_ORDER = NETCRUNCH_TREND_DATA_CONST.QUERY_RESULT_ORDER,
     MAX_SAMPLE_COUNT = NETCRUNCH_TREND_DATA_CONST.MAX_SAMPLE_COUNT;
 
+  function convertPeriodTypeToName(periodType) {
+    return PERIOD_NAMES[periodType];
+  }
+
   function calculateMaxDataPoints (maxDataPoints = null) {
     let result = MAX_SAMPLE_COUNT.DEFAULT;
 
@@ -114,30 +118,6 @@ function NetCrunchTrendData(netCrunchConnection) {
     };
   }
 
-  function calculateTimeDomain (dateFrom, periodType, periodInterval, intervalCount) {
-    let timeDomain = [],
-        timeCalculator = Object.create(null),
-        timeDomainElement,
-        i;
-
-    timeCalculator[PERIOD_TYPE.tpMinutes] = 'minutes';
-    timeCalculator[PERIOD_TYPE.tpHours] = 'hours';
-    timeCalculator[PERIOD_TYPE.tpDays] = 'days';
-    timeCalculator[PERIOD_TYPE.tpMonths] = 'months';
-
-    dateFrom = moment(dateFrom).startOf('minute');
-    for (i=0; i < intervalCount; i += 1) {
-        timeDomainElement = moment(dateFrom).add(i * periodInterval, timeCalculator[periodType]);
-        timeDomain.push(timeDomainElement.toDate());
-    }
-
-    return timeDomain;
-  }
-
-  function convertPeriodTypeToName(periodType) {
-    return PERIOD_NAMES[periodType];
-  }
-
   function prepareResultMask (series) {
     let resultMask;
 
@@ -150,6 +130,20 @@ function NetCrunchTrendData(netCrunchConnection) {
     });
 
     return { ResultMask: [resultMask] };
+  }
+
+  function calculateTimeDomain (dateFrom, periodType, periodInterval, intervalCount) {
+    let timeDomain = [],
+        timeDomainItem,
+        periodName = convertPeriodTypeToName(periodType),
+        i;
+
+    dateFrom = moment(dateFrom).startOf('minute');
+    for (i=0; i < intervalCount; i += 1) {
+      timeDomainItem = moment(dateFrom).add(i * periodInterval, periodName);
+      timeDomain.push(timeDomainItem.toDate());
+    }
+    return timeDomain;
   }
 
   function convertResultData(result, resultType) {
@@ -184,7 +178,7 @@ function NetCrunchTrendData(netCrunchConnection) {
   function getCounterTrendData (nodeID, counter, dateFrom, dateTo, periodType = PERIOD_TYPE.tpHours,
                                 periodInterval = 1, resultType) {
 
-    //resultType possible values are :
+    //resultType possible values are:
     //    [ tqrAvg, tqrMin, tqrMax, tqrAvail, tqrDelta, tqrEqual, tqrDistr ]
     //Default tqrAvg is used : {ResultMask : [['tqrAvg']]}
 
@@ -214,38 +208,16 @@ function NetCrunchTrendData(netCrunchConnection) {
     return getCounterTrendData(nodeID, counter, dateFrom, dateTo, PERIOD_TYPE.tpMinutes, 1, resultType);
   }
 
-  function getCounterTrendMinutesData (nodeID, counter, dateFrom, dateTo, periodInterval, resultType){
-    return getCounterTrendData(nodeID, counter, dateFrom, dateTo, PERIOD_TYPE.tpMinutes, periodInterval, resultType);
-  }
-
-  function getCounterTrendHoursData (nodeID, counter, dateFrom, dateTo, periodInterval, resultType){
-    return getCounterTrendData(nodeID, counter, dateFrom, dateTo, PERIOD_TYPE.tpHours, periodInterval, resultType);
-  }
-
-  function getCounterTrendDaysData (nodeID, counter, dateFrom, dateTo, periodInterval, resultType){
-    return getCounterTrendData(nodeID, counter, dateFrom, dateTo, PERIOD_TYPE.tpDays, periodInterval, resultType);
-  }
-
-  function getCounterTrendMonthsData (nodeID, counter, dateFrom, dateTo, periodInterval, resultType){
-    return getCounterTrendData(nodeID, counter, dateFrom, dateTo, PERIOD_TYPE.tpMonths, periodInterval, resultType);
-  }
-
   function getCounterData (nodeID, counterName, dateStart, dateEnd, maxSampleCount, resultType, period) {
-    let counterTrends = Object.create(null),
-        result = Object.create(null);
+    let result = Object.create(null);
 
     dateEnd = dateEnd || moment();
     maxSampleCount = maxSampleCount || MAX_SAMPLE_COUNT.DEFAULT;
     period = period || calculateChartDataInterval(dateStart, dateEnd, maxSampleCount);
 
-    counterTrends[PERIOD_TYPE.tpMinutes] = getCounterTrendMinutesData;
-    counterTrends[PERIOD_TYPE.tpHours] = getCounterTrendHoursData;
-    counterTrends[PERIOD_TYPE.tpDays] = getCounterTrendDaysData;
-    counterTrends[PERIOD_TYPE.tpMonths] = getCounterTrendMonthsData;
-
     result.period = period;
-    result.data = counterTrends[period.periodType](nodeID, counterName, dateStart, dateEnd,
-                                                   period.periodInterval, resultType);
+    result.data = getCounterTrendData(nodeID, counterName, dateStart, dateEnd, period.periodType,
+                                      period.periodInterval, resultType);
     return result;
   }
 
@@ -256,20 +228,9 @@ function NetCrunchTrendData(netCrunchConnection) {
   }
 
   return {
-    PERIOD_TYPE : PERIOD_TYPE,
-    QUERY_RESULT_MASKS : QUERY_RESULT_MASKS,
     MAX_SAMPLE_COUNT : MAX_SAMPLE_COUNT,
-    calculateMaxDataPoints : calculateMaxDataPoints,
-    calculateChartDataInterval : calculateChartDataInterval,
-    calculateTimeDomain : calculateTimeDomain,
-    convertPeriodTypeToName : convertPeriodTypeToName,
-    prepareResultMask : prepareResultMask,
     getCounterTrendData : getCounterTrendData,
     getCounterTrendRAWData : getCounterTrendRAWData,
-    getCounterTrendMinutesData : getCounterTrendMinutesData,
-    getCounterTrendHoursData : getCounterTrendHoursData,
-    getCounterTrendDaysData : getCounterTrendDaysData,
-    getCounterTrendMonthsData : getCounterTrendMonthsData,
     getCounterData: getCounterData,
     grafanaDataConverter: grafanaDataConverter
   };
