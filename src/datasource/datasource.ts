@@ -132,6 +132,11 @@ class NetCrunchDatasource {
       });
   };
 
+  getCounters(nodeId, fromCache = true) {
+    return this.datasourceReady()
+      .then(() => this.netCrunchConnection.counters.getCountersForMonitors(nodeId, fromCache));
+  };
+
 }
 
 export {

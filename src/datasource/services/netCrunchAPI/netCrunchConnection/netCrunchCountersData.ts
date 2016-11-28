@@ -150,6 +150,28 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
             });
           });
         });
+    },
+
+    getCountersForMonitors(nodeId, fromCache) {
+
+      function getCountersTable(counters) {
+        let countersTable = [];
+        Object.keys(counters).forEach((monitorID) => {
+          if (monitorID > 0) {
+            countersTable = countersTable.concat(counters[monitorID].counters);
+          }
+        });
+        return countersTable;
+      }
+
+      return this.getCounters(nodeId, fromCache)
+        .then((counters) => {
+          return this.prepareCountersForMonitors(counters, fromCache);
+        })
+        .then((counters) => {
+          counters.table = getCountersTable(counters);
+          return counters;
+        });
     }
   };
 }
