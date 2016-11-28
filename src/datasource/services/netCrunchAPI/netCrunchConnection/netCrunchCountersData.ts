@@ -11,7 +11,8 @@ import {NetCrunchSessionCache} from './netCrunchSessionCache';
 
 function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
 
-  const COUNTERS_PATH_CACHE_SECTION = 'countersPath',
+  const COUNTERS_CACHE_SECTION = 'counters',
+        COUNTERS_PATH_CACHE_SECTION = 'countersPath',
         MONITORS_CACHE_SECTION = 'monitors';
 
   let ncCounters = new NetCrunchCounters(adremClient, netCrunchServerConnection),
@@ -35,6 +36,14 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
   cache.addSection(COUNTERS_PATH_CACHE_SECTION);
   cache.addSection(MONITORS_CACHE_SECTION);
 
+  function addCountersToCache(nodeId, countersQuery) {
+    cache.addToCache(COUNTERS_CACHE_SECTION, nodeId, countersQuery);
+  }
+
+  function getCountersFromCache(nodeId) {
+    return cache.getFromCache(COUNTERS_CACHE_SECTION, nodeId);
+  }
+
   function addDisplayCounterPathToCache(counterPath, displayCounterPathQuery) {
     cache.addToCache(COUNTERS_PATH_CACHE_SECTION, counterPath, displayCounterPathQuery);
   }
@@ -53,15 +62,13 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
 
   return {
 
-//***
-
-    prepareCountersForMonitors: function (counters) {
+    prepareCountersForMonitors: function (counters, fromCache = true) {
       let monitors = Object.create(null),
           counterPromises = [],
           self = this;
 
-      function createCounterObject (counter) {
-        return self.convertCounterPathToDisplay(counter[1])
+      function createCounterObject (counter, fromCache) {
+        return self.convertCounterPathToDisplay(counter[1], fromCache)
           .then((displayName) => {
             return {
               name: counter[1],
@@ -76,18 +83,18 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
         if (counterA.displayName === counterB.displayName) { return 0; }
       }
 
-      function sortCounters (monitors){
+      function sortCounters (monitors) {
         Object.keys(monitors).forEach((monitorId) => {
           monitors[monitorId].counters.sort(compareCounters);
         });
         return monitors;
       }
 
-      function updateMonitorNames (monitors) {
-        return self.getMonitors()
+      function updateMonitorNames (monitors, fromCache) {
+        return self.getMonitors(fromCache)
           .then((monitorsMap) => {
             Object.keys(monitors).forEach((monitorId) => {
-              if (monitorsMap[monitorId] != null){
+              if (monitorsMap[monitorId] != null) {
                 monitors[monitorId].name = monitorsMap[monitorId].counterGroup;
               }
             });
@@ -101,7 +108,7 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
           monitors[counter[0]].counters = [];
         }
 
-        monitors[counter[0]].counters.push(createCounterObject(counter));
+        monitors[counter[0]].counters.push(createCounterObject(counter, fromCache));
       });
 
       Object.keys(monitors).forEach((monitorId) => {
@@ -116,35 +123,40 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
       return Promise.all(counterPromises)
         .then(() => {
           monitors = sortCounters(monitors);
-          return updateMonitorNames(monitors);
+          return updateMonitorNames(monitors, fromCache);
         });
     },
 
     getCounters: function (nodeId, fromCache = true) {
+      let countersQuery;
 
-      if (trendDB == null) {
-        trendDB = new adremClient.NetCrunch.TrendDB('ncSrv', '', (status) => {
-          (status === true) ? trendDBReadyResolve() : trendDBReadyReject();
-        }, netCrunchServerConnection);
-      }
+      countersQuery = (fromCache) ? getCountersFromCache(nodeId) : null;
 
-      return trendDBReady
-        .then(() => {
-          return new Promise((resolve) => {
-            trendDB.getCounters({machineId: nodeId}, (counters) => {
+      if (countersQuery == null) {
+        if (trendDB == null) {
+          trendDB = new adremClient.NetCrunch.TrendDB('ncSrv', '', (status) => {
+            (status === true) ? trendDBReadyResolve() : trendDBReadyReject();
+          }, netCrunchServerConnection);
+        }
 
-              // counters are in form [ "<monitorId>=<counter>", ... ]
+        countersQuery = trendDBReady
+          .then(() => {
+            return new Promise((resolve) => {
+              trendDB.getCounters({machineId: nodeId}, (counters) => {
 
-              counters = counters.map((counter) => {
-                return counter.split('=');
+                // counters are in form [ "<monitorId>=<counter>", ... ]
+
+                counters = counters.map((counter) => {
+                  return counter.split('=');
+                });
+                resolve(counters);
               });
-              resolve(counters);
             });
           });
-      });
+         addCountersToCache(nodeId, countersQuery);
+      }
+      return countersQuery;
     },
-
-//***
 
     convertCounterPathToDisplay: function (counterPath, fromCache = true) {
       let parsedCounterPath = ncCounters.parseCounterPath(counterPath),
