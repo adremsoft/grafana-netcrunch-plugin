@@ -9,9 +9,12 @@
 import moment from 'moment';
 
 const NETCRUNCH_TREND_DATA_CONST = {
-  DEFAULT_MIN_MAX_SAMPLE_COUNT: 10,
-  DEFAULT_MAX_SAMPLE_COUNT: 200,
-  DEFAULT_MAX_MAX_SAMPLE_COUNT: 5000,
+
+  MAX_SAMPLE_COUNT : {
+    MIN: 10,
+    DEFAULT: 200,
+    MAX: 5000
+  },
 
   PERIOD_TYPE : {
     tpMinutes : 0,
@@ -37,7 +40,8 @@ function NetCrunchTrendData(netCrunchConnection) {
   const
     PERIOD_TYPE = NETCRUNCH_TREND_DATA_CONST.PERIOD_TYPE,
     QUERY_RESULT_MASKS = NETCRUNCH_TREND_DATA_CONST.QUERY_RESULT_MASKS,
-    QUERY_RESULT_ORDER = NETCRUNCH_TREND_DATA_CONST.QUERY_RESULT_ORDER;
+    QUERY_RESULT_ORDER = NETCRUNCH_TREND_DATA_CONST.QUERY_RESULT_ORDER,
+    MAX_SAMPLE_COUNT = NETCRUNCH_TREND_DATA_CONST.MAX_SAMPLE_COUNT;
 
   function calculateChartDataInterval (dateStart, dateEnd, maxSampleCount) {
     let min = 60 * 1000,
@@ -207,7 +211,7 @@ function NetCrunchTrendData(netCrunchConnection) {
         result = Object.create(null);
 
     dateEnd = dateEnd || moment();
-    maxSampleCount = maxSampleCount || NETCRUNCH_TREND_DATA_CONST.DEFAULT_MAX_SAMPLE_COUNT;
+    maxSampleCount = maxSampleCount || MAX_SAMPLE_COUNT.DEFAULT;
     period = period || calculateChartDataInterval(dateStart, dateEnd, maxSampleCount);
 
     counterTrends[PERIOD_TYPE.tpMinutes] = getCounterTrendMinutesData;
@@ -230,6 +234,7 @@ function NetCrunchTrendData(netCrunchConnection) {
   return {
     PERIOD_TYPE : PERIOD_TYPE,
     QUERY_RESULT_MASKS : QUERY_RESULT_MASKS,
+    MAX_SAMPLE_COUNT : MAX_SAMPLE_COUNT,
     calculateChartDataInterval : calculateChartDataInterval,
     calculateTimeDomain : calculateTimeDomain,
     prepareResultMask : prepareResultMask,
