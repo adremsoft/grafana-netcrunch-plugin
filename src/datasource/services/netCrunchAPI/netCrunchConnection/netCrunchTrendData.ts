@@ -39,9 +39,29 @@ const NETCRUNCH_TREND_DATA_CONST = {
 function NetCrunchTrendData(netCrunchConnection) {
   const
     PERIOD_TYPE = NETCRUNCH_TREND_DATA_CONST.PERIOD_TYPE,
+    PERIOD_NAMES = {
+      [PERIOD_TYPE.tpMinutes] : 'minutes',
+      [PERIOD_TYPE.tpHours] : 'hours',
+      [PERIOD_TYPE.tpDays] : 'days',
+      [PERIOD_TYPE.tpMonths] : 'months'
+    },
     QUERY_RESULT_MASKS = NETCRUNCH_TREND_DATA_CONST.QUERY_RESULT_MASKS,
     QUERY_RESULT_ORDER = NETCRUNCH_TREND_DATA_CONST.QUERY_RESULT_ORDER,
     MAX_SAMPLE_COUNT = NETCRUNCH_TREND_DATA_CONST.MAX_SAMPLE_COUNT;
+
+  function calculateMaxDataPoints (maxDataPoints = null) {
+    let result = MAX_SAMPLE_COUNT.DEFAULT;
+
+    if (maxDataPoints != null) {
+      let maxDataPointsInt = parseInt(maxDataPoints, 10);
+      if ((!isNaN(maxDataPoints)) &&
+          (maxDataPoints >= MAX_SAMPLE_COUNT.MIN) && (maxDataPoints <= MAX_SAMPLE_COUNT.MAX)) {
+        result = maxDataPointsInt;
+      }
+    }
+
+    return result;
+  }
 
   function calculateChartDataInterval (dateStart, dateEnd, maxSampleCount) {
     let min = 60 * 1000,
@@ -112,6 +132,10 @@ function NetCrunchTrendData(netCrunchConnection) {
     }
 
     return timeDomain;
+  }
+
+  function convertPeriodTypeToName(periodType) {
+    return PERIOD_NAMES[periodType];
   }
 
   function prepareResultMask (series) {
@@ -235,8 +259,10 @@ function NetCrunchTrendData(netCrunchConnection) {
     PERIOD_TYPE : PERIOD_TYPE,
     QUERY_RESULT_MASKS : QUERY_RESULT_MASKS,
     MAX_SAMPLE_COUNT : MAX_SAMPLE_COUNT,
+    calculateMaxDataPoints : calculateMaxDataPoints,
     calculateChartDataInterval : calculateChartDataInterval,
     calculateTimeDomain : calculateTimeDomain,
+    convertPeriodTypeToName : convertPeriodTypeToName,
     prepareResultMask : prepareResultMask,
     getCounterTrendData : getCounterTrendData,
     getCounterTrendRAWData : getCounterTrendRAWData,
