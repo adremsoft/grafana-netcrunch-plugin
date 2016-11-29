@@ -7,7 +7,7 @@
  */
 
 import {systemJSDatasourceURL, servicesModule} from '../../../common';
-import {NetCrunchCounters, NETCRUNCH_COUNTER_CONST, NETCRUNCH_COUNTER_TYPES} from './NetCrunchCounters';
+import {NetCrunchCounters, NETCRUNCH_COUNTER_CONST, NETCRUNCH_COUNTER_TYPES} from './counters';
 import {AdremWebWorker} from './adremWebWorker';
 
 const adremModuleUrl = systemJSDatasourceURL + 'services/netCrunchAPI/adrem/',
