@@ -9,8 +9,8 @@
 import angular from 'angular';
 import {servicesModule} from '../../common';
 import './adrem/module';
-import {NetCrunchConnectionCache} from './netCrunchConnectionCache';
-import {NetCrunchConnection, CONNECTION_CONSTS} from './netCrunchConnection/netCrunchConnection';
+import {NetCrunchConnectionCache} from './connectionCache';
+import {NetCrunchConnection, CONNECTION_CONSTS} from './netCrunchConnection/connection';
 
 const CONNECTION_ERROR_MESSAGES = CONNECTION_CONSTS.ERROR_MESSAGES;
 
