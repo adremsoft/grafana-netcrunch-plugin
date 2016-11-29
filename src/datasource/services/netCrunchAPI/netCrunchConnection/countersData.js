@@ -33,6 +33,7 @@ function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
       }),
       cache = new NetCrunchSessionCache();
 
+  cache.addSection(COUNTERS_CACHE_SECTION);
   cache.addSection(COUNTERS_PATH_CACHE_SECTION);
   cache.addSection(MONITORS_CACHE_SECTION);
 
