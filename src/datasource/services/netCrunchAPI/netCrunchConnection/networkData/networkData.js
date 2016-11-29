@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-import {NetCrunchAtlasTree} from './netCrunchAtlasTree';
+import {NetCrunchAtlasTree} from './atlasTree';
 import {AdremWebWorker} from '../../adrem/module';
 
 const THREAD_WORKER_NODES_NUMBER = 1000;
