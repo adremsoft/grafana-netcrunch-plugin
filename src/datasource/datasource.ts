@@ -254,7 +254,7 @@ class NetCrunchDatasource {
 
       if (range.error == null) {
         range = range.result;
-        dataQueries.concat(prepareQueries(targets, range, rawData));
+        dataQueries = dataQueries.concat(prepareQueries(targets, range, rawData));
       } else {
         const ERROR_MESSAGE = RAW_TIME_RANGE_EXCEEDED_WARNING_TEXT + ' ' + range.error.periodInterval + ' ' +
                               range.error.periodName + '.';
