@@ -8,6 +8,16 @@
 
 import {CONNECTION_ERROR_MESSAGES} from './services/netCrunchAPI/module';
 
+const SERIES_TYPES_DISPLAY_NAMES = {
+        min : 'Min',
+        avg : 'Avg',
+        max : 'Max',
+        avail : 'Avail',
+        delta : 'Delta',
+        equal : 'Equal',
+        distr : 'Distr'
+      };
+
 class NetCrunchDatasource {
 
   /** @ngInject */
@@ -168,6 +178,10 @@ class NetCrunchDatasource {
       return seriesName;
     }
 
+    function extendSeriesName(baseSeriesName, seriesType) {
+      return baseSeriesName + '\\' + SERIES_TYPES_DISPLAY_NAMES[seriesType];
+    }
+
     function prepareSeriesDataQuery (target, range, series) {
       let trendsAPI = self.netCrunchConnection.trends;
 
@@ -232,6 +246,35 @@ class NetCrunchDatasource {
     }
 
     function prepareChartData(targetsChartData, rawData) {
+      let counterSeries = Object.create(null),
+          trendsAPI = self.netCrunchConnection.trends;
+
+      counterSeries.data = [];
+
+      if ((targetsChartData != null) && (targetsChartData.length > 0)) {
+        targetsChartData.forEach((target) => {
+          let baseSeriesName = (target != null) ? target[0] : null,
+              targetSeries = (target != null) ? target[1] : null,
+              extendedSeriesNames = !rawData,
+              seriesName;
+
+          if (target != null) {
+            targetSeries.forEach((series) => {
+              if (extendedSeriesNames === true) {
+                seriesName = extendSeriesName(baseSeriesName, series.seriesType);
+              } else {
+                seriesName = baseSeriesName;
+              }
+              counterSeries.data.push({
+                target: seriesName,
+                datapoints: trendsAPI.grafanaDataConverter(series.dataPoints)
+              });
+            });
+          }
+        });
+      }
+
+      return counterSeries;
     }
 
     function performQuery(options) {
