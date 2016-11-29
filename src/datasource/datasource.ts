@@ -124,6 +124,26 @@ class NetCrunchDatasource {
   query(options) {
     let self = this;
 
+    function prepareQueries(targets, range, rawData) {
+      let result = [];
+      targets.forEach((target) => {
+        let targetDataQuery,
+            series = (rawData === true) ? {avg : true} : target.series;
+
+        targetDataQuery = prepareTargetQuery(target, range, series);
+        if (targetDataQuery != null) {
+          result.push(targetDataQuery);
+        }
+      });
+      return result;
+    }
+
+    function prepareTargetQuery (target, range, series) {
+    }
+
+    function prepareChartData(targetsChartData, rawData) {
+    }
+
     function performQuery(options) {
 
       const RAW_TIME_RANGE_EXCEEDED_WARNING_TITLE = 'Time range is too long.',
@@ -144,15 +164,15 @@ class NetCrunchDatasource {
 
       if (range.error == null) {
         range = range.result;
-//***
-//***
+        dataQueries.concat(prepareQueries(targets, range, rawData));
       } else {
         const ERROR_MESSAGE = RAW_TIME_RANGE_EXCEEDED_WARNING_TEXT + ' ' + range.error.periodInterval + ' ' +
                               range.error.periodName + '.';
         self.alertSrv.set(RAW_TIME_RANGE_EXCEEDED_WARNING_TITLE, ERROR_MESSAGE, 'warning');
       }
 
-      return Promise.all(dataQueries);
+      return Promise.all(dataQueries)
+        .then(targetsChartData => prepareChartData(targetsChartData, rawData));
     }
 
     try {
