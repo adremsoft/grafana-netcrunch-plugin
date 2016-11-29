@@ -122,7 +122,47 @@ class NetCrunchDatasource {
   }
 
   query(options) {
-    return [];
+    let self = this;
+
+    function performQuery(options) {
+
+      const RAW_TIME_RANGE_EXCEEDED_WARNING_TITLE = 'Time range is too long.',
+            RAW_TIME_RANGE_EXCEEDED_WARNING_TEXT = 'Maximum allowed length of time range for RAW data is ';
+
+      let trends = self.netCrunchConnection.trends,
+          targets = options.targets || [],
+          globalOptions = options.scopedVars || {},
+          rawData = (globalOptions.rawData == null) ? false : globalOptions.rawData,
+          setMaxDataPoints = (globalOptions.setMaxDataPoints == null) ? false : globalOptions.setMaxDataPoints,
+          maxDataPoints = globalOptions.maxDataPoints,
+          rangeFrom = options.range.from.startOf('minute'),
+          rangeTo = options.range.to.startOf('minute'),
+          range,
+          dataQueries = [];
+
+      range = trends.prepareTimeRange(rangeFrom, rangeTo, rawData, setMaxDataPoints ? maxDataPoints : null);
+
+      if (range.error == null) {
+        range = range.result;
+//***
+//***
+      } else {
+        const ERROR_MESSAGE = RAW_TIME_RANGE_EXCEEDED_WARNING_TEXT + ' ' + range.error.periodInterval + ' ' +
+                              range.error.periodName + '.';
+        self.alertSrv.set(RAW_TIME_RANGE_EXCEEDED_WARNING_TITLE, ERROR_MESSAGE, 'warning');
+      }
+
+      return Promise.all(dataQueries);
+    }
+
+    try {
+      return this.datasourceReady()
+        .then(() => performQuery(options));
+    }
+
+    catch(error) {
+      return Promise.reject(error);
+    }
   }
 
   getNodeById(nodeID) {
