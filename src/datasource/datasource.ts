@@ -124,6 +124,72 @@ class NetCrunchDatasource {
   query(options) {
     let self = this;
 
+    function validateCounterData(target) {
+      let nodeName,
+          counterDisplayName,
+          countersAPI = self.netCrunchConnection.counters;
+
+      nodeName = self.getNodeById(target.nodeID)
+                  .then(nodeData => (nodeData != null) ? nodeData.values.Name : null);
+
+      counterDisplayName = self.getCounters(target.nodeID).then((counterList) => {
+        let counterData = countersAPI.findCounterByName(counterList, target.counterName);
+        return (counterData != null) ? counterData.displayName : null;
+      });
+
+      return Promise.all([nodeName, counterDisplayName])
+        .then((counterData) => {
+          let nodeName = counterData[0],
+              counterDisplayName = counterData[1];
+
+          if ((nodeName != null) && (counterDisplayName != null)) {
+            return {
+              nodeName : nodeName,
+              counterDisplayName : counterDisplayName
+            };
+          }
+
+          return null;
+        });
+    }
+
+    function seriesTypesSelected(series) {
+      return Object.keys(series).some(seriesKey => series[seriesKey] === true);
+    }
+
+    function prepareSeriesName(target, counterData) {
+      let seriesName = counterData.nodeName + ' - ' + counterData.counterDisplayName;
+
+      if (target.datasource != null) {
+        seriesName = self.name + ' - ' + seriesName;
+      }
+      seriesName = target.alias || seriesName;
+
+      return seriesName;
+    }
+
+    function prepareSeriesDataQuery (target, range, series) {
+      let trendsAPI = self.netCrunchConnection.trends;
+
+      if (seriesTypesSelected(series) === false) {
+        return Promise.resolve([]);
+      }
+
+      return trendsAPI.getCounterTrendData(target.nodeID, target.counterName, range.from, range.to,
+                                           range.periodType, range.periodInterval, series)
+        .then((dataPoints) => {
+          return Object.keys(dataPoints.values).map((seriesType) => {
+            return {
+              seriesType: seriesType,
+              dataPoints: {
+                domain: dataPoints.domain,
+                values: dataPoints.values[seriesType]
+              }
+            };
+          });
+        });
+    }
+
     function prepareQueries(targets, range, rawData) {
       let result = [];
       targets.forEach((target) => {
@@ -139,6 +205,30 @@ class NetCrunchDatasource {
     }
 
     function prepareTargetQuery (target, range, series) {
+      let targetDataQuery = null;
+
+      if ((target.hide !== true) && (target.counterDataComplete === true)) {
+        targetDataQuery = validateCounterData(target)
+          .then((counterData) => {
+            let query = null,
+                seriesName = prepareSeriesName(target, counterData),
+                seriesDataQuery,
+                seriesTypes;
+
+            if (counterData != null) {
+              query = [Promise.resolve(seriesName)];
+              seriesTypes = (series == null) ? Object.create(null) : series;
+              seriesTypes = self.validateSeriesTypes(seriesTypes);
+              seriesDataQuery = prepareSeriesDataQuery(target, range, seriesTypes);
+              query.push(seriesDataQuery);
+              query = Promise.all(query);
+            }
+
+            return query;
+        });
+      }
+
+      return targetDataQuery;
     }
 
     function prepareChartData(targetsChartData, rawData) {
@@ -195,6 +285,13 @@ class NetCrunchDatasource {
   getCounters(nodeId, fromCache = true) {
     return this.datasourceReady()
       .then(() => this.netCrunchConnection.counters.getCountersForMonitors(nodeId, fromCache));
+  };
+
+  validateSeriesTypes(series) {
+    let types = ['min', 'avg', 'max', 'avail', 'delta', 'equal', 'distr' ];
+
+    types.forEach(type => series[type] = (series[type] == null) ? false : series[type]);
+    return series;
   };
 
 }
