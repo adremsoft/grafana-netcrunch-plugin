@@ -6,9 +6,9 @@
  * found in the LICENSE file.
  */
 
-import {NetCrunchNetworkData} from './netCrunchNetworkData/netCrunchNetworkData';
-import {NetCrunchCountersData} from './netCrunchCountersData';
-import {NetCrunchTrendData} from './netCrunchTrendData';
+import {NetCrunchNetworkData} from './networkData/networkData';
+import {NetCrunchCountersData} from './countersData';
+import {NetCrunchTrendData} from './trendData';
 
 const CONNECTION_CONSTS = {
   API_NAME: '/ncapi/',

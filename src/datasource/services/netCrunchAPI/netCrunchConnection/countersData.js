@@ -7,7 +7,7 @@
  */
 
 import {NetCrunchCounters, NETCRUNCH_COUNTER_CONST} from '../adrem/module';
-import {NetCrunchSessionCache} from './netCrunchSessionCache';
+import {NetCrunchSessionCache} from './sessionCache';
 
 function NetCrunchCountersData(adremClient, netCrunchServerConnection) {
 
