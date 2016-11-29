@@ -225,11 +225,12 @@ class NetCrunchDatasource {
         targetDataQuery = validateCounterData(target)
           .then((counterData) => {
             let query = null,
-                seriesName = prepareSeriesName(target, counterData),
+                seriesName,
                 seriesDataQuery,
                 seriesTypes;
 
             if (counterData != null) {
+              seriesName = prepareSeriesName(target, counterData);
               query = [Promise.resolve(seriesName)];
               seriesTypes = (series == null) ? Object.create(null) : series;
               seriesTypes = self.validateSeriesTypes(seriesTypes);
