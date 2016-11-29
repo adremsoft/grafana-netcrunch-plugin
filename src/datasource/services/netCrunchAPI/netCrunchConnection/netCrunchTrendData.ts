@@ -47,7 +47,11 @@ function NetCrunchTrendData(netCrunchConnection) {
     },
     QUERY_RESULT_MASKS = NETCRUNCH_TREND_DATA_CONST.QUERY_RESULT_MASKS,
     QUERY_RESULT_ORDER = NETCRUNCH_TREND_DATA_CONST.QUERY_RESULT_ORDER,
-    MAX_SAMPLE_COUNT = NETCRUNCH_TREND_DATA_CONST.MAX_SAMPLE_COUNT;
+    MAX_SAMPLE_COUNT = NETCRUNCH_TREND_DATA_CONST.MAX_SAMPLE_COUNT,
+    RAW_DATA_MAX_RANGE = {
+      periodInterval : 2,
+      periodName : PERIOD_NAMES[PERIOD_TYPE.tpDays]
+    };
 
   function convertPeriodTypeToName(periodType) {
     return PERIOD_NAMES[periodType];
@@ -65,6 +69,60 @@ function NetCrunchTrendData(netCrunchConnection) {
     }
 
     return result;
+  }
+
+  function floorTime(time, period) {                //period: minutes, hours, days, months
+    const MINUTES_SLOT = 5;
+    let minuteRemains,
+        result;
+
+    period = period.toUpperCase();
+    if (period === 'MINUTES') {
+      minuteRemains = time.minute() % MINUTES_SLOT;
+      result = time.subtract(minuteRemains, 'minutes');
+    } else {
+      if (period === 'HOURS') {
+        period = 'hour';
+      } else if (period === 'DAYS') {
+        period = 'day';
+      } else if (period === 'MONTHS') {
+        period = 'month';
+      }
+      result = time.startOf(period);
+    }
+    return result.startOf('minute');
+  }
+
+  function addMarginsToTimeRange (rangeFrom, rangeTo, period) {
+
+    rangeFrom = moment(rangeFrom).subtract(period.periodInterval, period.periodName);
+    rangeTo = moment(rangeTo).add(period.periodInterval, period.periodName);
+
+    if (rangeTo > moment()) {
+      rangeTo = moment();
+    }
+
+    return {
+      from : floorTime(rangeFrom, period.periodName),
+      to : rangeTo,
+      periodInterval : period.periodInterval,
+      periodType : period.periodType,
+      periodName : period.periodName
+    };
+  }
+
+  function calculateTimeRange(rangeFrom, rangeTo, maxDataPoints) {
+    let period = calculateChartDataInterval(rangeFrom, rangeTo, maxDataPoints);
+    return addMarginsToTimeRange(rangeFrom, rangeTo, period);
+  }
+
+  function calculateRAWTimeRange(rangeFrom, rangeTo) {
+    let period = {
+          periodType : PERIOD_TYPE.tpMinutes,
+          periodName : convertPeriodTypeToName(PERIOD_TYPE.tpMinutes),
+          periodInterval : 1
+        };
+    return addMarginsToTimeRange(rangeFrom, rangeTo, period);
   }
 
   function calculateChartDataInterval (dateStart, dateEnd, maxSampleCount) {
@@ -114,6 +172,7 @@ function NetCrunchTrendData(netCrunchConnection) {
 
     return {
       periodType: periods[periodIndex].type,
+      periodName: convertPeriodTypeToName(periods[periodIndex].type),
       periodInterval: periods[periodIndex].interval
     };
   }
@@ -175,6 +234,32 @@ function NetCrunchTrendData(netCrunchConnection) {
     return convertedData;
   }
 
+  function prepareTimeRange (rangeFrom, rangeTo, rawData, maxDataPoints = null) {
+    let range = null;
+
+    maxDataPoints = calculateMaxDataPoints(maxDataPoints);
+    if (rawData === true) {
+      if (moment(rangeTo).subtract(RAW_DATA_MAX_RANGE.periodInterval, RAW_DATA_MAX_RANGE.periodName) <= rangeFrom) {
+        range = {
+          result: calculateRAWTimeRange(rangeFrom, rangeTo)
+        };
+      } else {
+        range = {
+          error: {
+            periodInterval: RAW_DATA_MAX_RANGE.periodInterval,
+            periodName: RAW_DATA_MAX_RANGE.periodName
+          }
+        };
+      }
+    } else {
+      range = {
+        result: calculateTimeRange(rangeFrom, rangeTo, maxDataPoints)
+      };
+    }
+
+    return range;
+  }
+
   function getCounterTrendData (nodeID, counter, dateFrom, dateTo, periodType = PERIOD_TYPE.tpHours,
                                 periodInterval = 1, resultType) {
 
@@ -229,6 +314,7 @@ function NetCrunchTrendData(netCrunchConnection) {
 
   return {
     MAX_SAMPLE_COUNT : MAX_SAMPLE_COUNT,
+    prepareTimeRange : prepareTimeRange,
     getCounterTrendData : getCounterTrendData,
     getCounterTrendRAWData : getCounterTrendRAWData,
     getCounterData: getCounterData,
