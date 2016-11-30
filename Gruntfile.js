@@ -5,6 +5,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-execute');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks("gruntify-eslint");
+  grunt.loadNpmTasks('grunt-contrib-uglify');
 
   var productionDest = 'dist',
       developmentDest = '../Projects/Go/src/github.com/grafana/grafana/data/plugins/grafana-netcrunch/';
@@ -51,6 +52,17 @@ module.exports = function(grunt) {
     }
   }
 
+  function createUglifyTask(destination) {
+    return {
+      files: [{
+        expand: true,
+        cwd: destination,
+        src: ['**/*.js', '!**/*.min.js'],
+        dest: destination
+      }]
+    }
+  }
+
   grunt.initConfig({
 
     clean: {
@@ -87,7 +99,13 @@ module.exports = function(grunt) {
       },
       prod: createBabelTask(productionDest),
       dev: createBabelTask(developmentDest)
+    },
+
+    uglify: {
+      prod: createUglifyTask(productionDest),
+      dev: createUglifyTask(developmentDest)
     }
+
   });
 
   grunt.registerTask('default', ['clean:prod', 'copy:prod', 'eslint', 'babel:prod']);
