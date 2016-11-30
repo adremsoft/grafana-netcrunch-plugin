@@ -1,0 +1,14 @@
+{
+  "parser": "babel-eslint",
+  "extends": "airbnb",
+  "rules": {
+    "linebreak-style": 0,
+    "max-len": [1, 120, 2, { "ignoreComments": true }],
+    "space-before-function-paren": ["error", "never"],
+    "comma-dangle": ["error", "never"],
+    "padded-blocks": ["error", {
+      "blocks": "never",
+      "classes": "always"
+    }]
+  }
+}
