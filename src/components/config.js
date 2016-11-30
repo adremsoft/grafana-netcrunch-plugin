@@ -7,9 +7,8 @@
  */
 
 class NetCrunchAppConfigCtrl {
-  constructor() {}
 }
 
 export {
-  NetCrunchAppConfigCtrl as NetCrunchAppConfigCtrl
-}
+  NetCrunchAppConfigCtrl
+};

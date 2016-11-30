@@ -9,6 +9,7 @@
     "padded-blocks": ["error", {
       "blocks": "never",
       "classes": "always"
-    }]
+    }],
+    "import/prefer-default-export": 0
   }
 }

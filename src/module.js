@@ -6,8 +6,8 @@
  * found in the LICENSE file.
  */
 
-import {NetCrunchAppConfigCtrl} from './components/config';
+import { NetCrunchAppConfigCtrl } from './components/config';
 
 export {
   NetCrunchAppConfigCtrl as ConfigCtrl
-}
+};
