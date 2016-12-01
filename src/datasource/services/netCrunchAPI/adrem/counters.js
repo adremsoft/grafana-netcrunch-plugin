@@ -6,6 +6,8 @@
  * found in the LICENSE file.
  */
 
+/* eslint-disable no-param-reassign */
+
 const
   C_PERSEC = '/sec',
   CNT_SEPARATOR = '|',
@@ -14,74 +16,73 @@ const
   XML_CNT_SRC_ID = 'XML',
 
   // Overall counter instances
-  OVERALL_TOTAL   = '_Total',
+  OVERALL_TOTAL = '_Total',
   OVERALL_MAXIMUM = '_Maximum',
   OVERALL_MINIMUM = '_Minimum',
   OVERALL_AVERAGE = '_Average',
-  OVERALL_COUNT   = '_Count',
+  OVERALL_COUNT = '_Count',
 
-  knownMSCounters = ['load time', 'check time', 'round trip time'];
+  knownMSCounters = ['load time', 'check time', 'round trip time'],
 
-const NETCRUNCH_COUNTER_CONST = {
-  CNT_TYPE: {
-    cstXML: 1,
-    cstMIB: 2,
-    cstSimple: 3
+  NETCRUNCH_COUNTER_CONST = {
+    CNT_TYPE: {
+      cstXML: 1,
+      cstMIB: 2,
+      cstSimple: 3
+    },
+
+    SNMP_INSTANCE_TYPE: {
+      sitValue: 1,
+      sitNone: 2,
+      sitByIndex: 3,
+      sitByLookup: 4,
+      sitComputable: 5
+    },
+
+    SNMP_FUNC: {
+      scfUnknown: 1,
+      scfSum: 2,
+      scfMin: 3,
+      scfMax: 4,
+      scfAvg: 5,
+      scfCount: 6
+    }
   },
 
-  SNMP_INSTANCE_TYPE: {
-    sitValue: 1,
-    sitNone: 2,
-    sitByIndex: 3,
-    sitByLookup: 4,
-    sitComputable: 5
-  },
-
-  SNMP_FUNC: {
-    scfUnknown: 1,
-    scfSum: 2,
-    scfMin: 3,
-    scfMax: 4,
-    scfAvg: 5,
-    scfCount: 6
-  }
-};
-
-const NETCRUNCH_COUNTER_TYPES = {
-  percentage: "%",
-  milliseconds: "ms",
-  bytesBitsPS: "bps",
-  bytesBps: "Bps",
-  bytes: "bytes"
-};
+  NETCRUNCH_COUNTER_TYPES = {
+    percentage: '%',
+    milliseconds: 'ms',
+    bytesBitsPS: 'bps',
+    bytesBps: 'Bps',
+    bytes: 'bytes'
+  };
 
 function NetCrunchCounters(adremClient, netCrunchConnection) {
 
-  let snmpMibData = null,
-      shortOidPathsCache = Object.create(null),
-      fullOidPathsCache = Object.create(null),
-      cn_SCT = 'Check Time',
-      cn_RTT = 'Round Trip Time',
-      resources = Object.create(null),
-      counterTypes = NETCRUNCH_COUNTER_TYPES,
-      counterConsts = NETCRUNCH_COUNTER_CONST;
+  let snmpMibData = null;
+  const
+    shortOidPathsCache = Object.create(null),
+    fullOidPathsCache = Object.create(null),
+    cnSCT = 'Check Time',
+    cnRTT = 'Round Trip Time',
+    resources = Object.create(null),
+    counterTypes = NETCRUNCH_COUNTER_TYPES,
+    counterConsts = NETCRUNCH_COUNTER_CONST;
 
-  function isOid (stringData) {
+  function isOid(stringData) {
     if (stringData.indexOf(C_PERSEC) >= 0) {
       stringData = stringData.replace(C_PERSEC, '');
     }
     return (stringData.match(/^((([0-9]+)\.)+[0-9]+)$/) != null);
   }
 
-  function isMIBCnt (obj, cnt) {
+  function isMIBCnt(obj, cnt) {
     return (((isOid(obj) === true) && ((cnt === '') || (isOid(cnt) === true))) ||
             ((obj === '') && (isOid(cnt) === true)));
   }
 
-  function counterPathObject (counter, counterType) {
-    if (counterType === counterConsts.CNT_TYPE.cstSimple) {
-      return counter;
-    } else {
+  function counterPathObject(counter, counterType) {
+    if (counterType !== counterConsts.CNT_TYPE.cstSimple) {
       if (counterType === counterConsts.CNT_TYPE.cstXML) {
         return XML_CNT_SRC_ID + CNT_SRC_SEPARATOR + counter;
       }
@@ -89,17 +90,17 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
         return MIB_CNT_SRC_ID + CNT_SRC_SEPARATOR + counter;
       }
     }
+    return counter;
   }
 
-  function stringToCntType (type) {
+  function stringToCntType(type) {
     if (type === MIB_CNT_SRC_ID) {
       return counterConsts.CNT_TYPE.cstMIB;
-    } else {
-      return counterConsts.CNT_TYPE.cstXML;
     }
+    return counterConsts.CNT_TYPE.cstXML;
   }
 
-  function getCounterPathType (counterPath) {
+  function getCounterPathType(counterPath) {
     let pathType;
 
     pathType = counterConsts.CNT_TYPE.cstSimple;
@@ -110,7 +111,7 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
     return pathType;
   }
 
-  function removeCounterPathType (counterPath) {
+  function removeCounterPathType(counterPath) {
     let resultPath = counterPath;
 
     if (counterPath.indexOf(CNT_SRC_SEPARATOR) > 0) {
@@ -120,14 +121,15 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
     return resultPath;
   }
 
-  function removePerSecond (stringData) {
+  function removePerSecond(stringData) {
     return stringData.replace(C_PERSEC, '');
   }
 
-  function parseSNMPPath (snmpPath) {
-    let objectType,
-        objectValue,
-        snmpPathParts;
+  function parseSNMPPath(snmpPath) {
+    let
+      objectType,
+      objectValue,
+      snmpPathParts;
 
     if (snmpPath.indexOf(CNT_SRC_SEPARATOR) < 0) {
       objectType = counterConsts.CNT_TYPE.cstXML;
@@ -144,9 +146,9 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
     };
   }
 
-  function displayStringToSnmpFunc (stringData) {
-    let result = counterConsts.SNMP_FUNC.scfUnknown,
-        functionMap = {};
+  function displayStringToSnmpFunc(stringData) {
+    const functionMap = {};
+    let result = counterConsts.SNMP_FUNC.scfUnknown;
 
     functionMap[OVERALL_TOTAL] = counterConsts.SNMP_FUNC.scfSum;
     functionMap[OVERALL_AVERAGE] = counterConsts.SNMP_FUNC.scfAvg;
@@ -160,18 +162,21 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
     return result;
   }
 
-  function parseShortPath (counterPath) {
+  function parseShortPath(counterPath) {
+    // eslint-disable-next-line
     return decodePath(counterPath);
   }
 
-  function parseOIDPath (oidPath) {
-    let decodedPath = parseShortPath(oidPath),
-        instOID = decodedPath.obj,
-        objOID = decodedPath.cnt,
-        inst = decodedPath.inst,
-        instType,
-        isPerSec = (objOID.indexOf(C_PERSEC) >= 0),
-        decodedObjOID;
+  function parseOIDPath(oidPath) {
+    const
+      decodedPath = parseShortPath(oidPath),
+      instOID = decodedPath.obj;
+    let
+      objOID = decodedPath.cnt,
+      inst = decodedPath.inst,
+      instType,
+      isPerSec = (objOID.indexOf(C_PERSEC) >= 0),     //eslint-disable-line
+      decodedObjOID;
 
     if (isPerSec === true) {
       objOID = objOID.replace(C_PERSEC, '');
@@ -189,32 +194,29 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
       } else {
         instType = counterConsts.SNMP_INSTANCE_TYPE.sitByIndex;
       }
+    } else if (inst.charAt(0) === '#') {
+      inst = inst.substr(1);
+      instType = counterConsts.SNMP_INSTANCE_TYPE.sitByIndex;
+    } else if ((inst.charAt(0) === '_') && (displayStringToSnmpFunc(inst) !== counterConsts.SNMP_FUNC.scfUnknown)) {
+      instType = counterConsts.SNMP_INSTANCE_TYPE.sitComputable;
     } else {
-      if (inst.charAt(0) === '#') {
-        inst = inst.substr(1);
-        instType = counterConsts.SNMP_INSTANCE_TYPE.sitByIndex;
-      } else {
-        if ((inst.charAt(0) === '_') && (displayStringToSnmpFunc(inst) !== counterConsts.SNMP_FUNC.scfUnknown)) {
-          instType = counterConsts.SNMP_INSTANCE_TYPE.sitComputable;
-        } else {
-          instType = counterConsts.SNMP_INSTANCE_TYPE.sitByLookup;
-        }
-      }
+      instType = counterConsts.SNMP_INSTANCE_TYPE.sitByLookup;
     }
 
     return {
-      objOID: objOID,
-      instOID: instOID,
-      inst: inst,
-      type: instType,
-      isPerSec: isPerSec
+      objOID,
+      instOID,
+      inst,
+      isPerSec,
+      type: instType
     };
   }
 
   function parseXMLPath(xmlPath, hasInstance) {
-    let decodedPath = parseShortPath(xmlPath),
-        inst = decodedPath.inst,
-        instType;
+    const decodedPath = parseShortPath(xmlPath);
+    let
+      inst = decodedPath.inst,
+      instType;
 
     if (hasInstance === true) {
       instType = counterConsts.SNMP_INSTANCE_TYPE.sitByLookup;
@@ -223,17 +225,13 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
         if (inst.charAt(0) === '#') {
           inst = inst.substr(1);
           instType = counterConsts.SNMP_INSTANCE_TYPE.sitByIndex;
-        } else {
-          if (inst.charAt(0) === '_') {
-            instType = counterConsts.SNMP_INSTANCE_TYPE.sitComputable;
-          }
+        } else if (inst.charAt(0) === '_') {
+          instType = counterConsts.SNMP_INSTANCE_TYPE.sitComputable;
         }
+      } else if ((inst === '') || (inst === '-')) {
+        instType = counterConsts.SNMP_INSTANCE_TYPE.sitNone;
       } else {
-        if ((inst === '') || (inst === '-')) {
-          instType = counterConsts.SNMP_INSTANCE_TYPE.sitNone;
-        } else {
-          instType = counterConsts.SNMP_INSTANCE_TYPE.sitByLookup;
-        }
+        instType = counterConsts.SNMP_INSTANCE_TYPE.sitByLookup;
       }
 
       decodedPath.inst = inst;
@@ -243,45 +241,39 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
     return decodedPath;
   }
 
-  function parseCounterPath (counterPath) {
-    let parsedCounterPath,
-        counterPathType = getCounterPathType(counterPath);
+  function parseCounterPath(counterPath) {
+    const counterPathType = getCounterPathType(counterPath);
+    let parsedCounterPath;
 
     if (counterPathType === counterConsts.CNT_TYPE.cstXML) {
       parsedCounterPath = parseXMLPath(counterPath, true);
-    } else {
-      if (counterPathType === counterConsts.CNT_TYPE.cstMIB) {
-        parsedCounterPath = parseOIDPath(removeCounterPathType(counterPath));
-        parsedCounterPath.obj = parsedCounterPath.objOID;
-        parsedCounterPath.cnt = '';
-        if (parsedCounterPath.inst === '') {
-          parsedCounterPath.inst = parsedCounterPath.instOID;
-        }
-      } else {
-        if (counterPathType === counterConsts.CNT_TYPE.cstSimple) {
-          parsedCounterPath = parseShortPath(counterPath);
-        }
+    } else if (counterPathType === counterConsts.CNT_TYPE.cstMIB) {
+      parsedCounterPath = parseOIDPath(removeCounterPathType(counterPath));
+      parsedCounterPath.obj = parsedCounterPath.objOID;
+      parsedCounterPath.cnt = '';
+      if (parsedCounterPath.inst === '') {
+        parsedCounterPath.inst = parsedCounterPath.instOID;
       }
+    } else if (counterPathType === counterConsts.CNT_TYPE.cstSimple) {
+      parsedCounterPath = parseShortPath(counterPath);
     }
 
     return parsedCounterPath;
   }
 
-  function getOidPath (oid, oidCache, getOidFunc) {
+  function getOidPath(oid, oidCache, getOidFunc) {
     let updateOidPath = false;
 
     return new Promise((resolve) => {
       if (oidCache[oid] == null) {
         oidCache[oid] = oid;
         updateOidPath = true;
-      } else {
-        if (oidCache[oid] === oid) {
-            updateOidPath = true;
-        }
+      } else if (oidCache[oid] === oid) {
+        updateOidPath = true;
       }
 
       if (updateOidPath === true) {
-        getOidFunc({oid: oid}, function (oidPath) {
+        getOidFunc({ oid }, (oidPath) => {
           oidCache[oid] = oidPath;
           resolve(oidPath);
         });
@@ -291,39 +283,41 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
     });
   }
 
-  function initSnmpMibData () {
+  function initSnmpMibData() {
     if (snmpMibData == null) {
-      snmpMibData = new adremClient.NetCrunch.SnmpMibData('ncSrv', function() {}, netCrunchConnection);
+      snmpMibData = new adremClient.NetCrunch.SnmpMibData('ncSrv', () => {}, netCrunchConnection);
     }
   }
 
-  function getShortOidPath (oid) {
+  function getShortOidPath(oid) {
     initSnmpMibData();
     return getOidPath(oid, shortOidPathsCache, snmpMibData.getShortOidPath);
   }
 
-  function getFullOidPath (oid) {
+  function getFullOidPath(oid) {
     initSnmpMibData();
     return getOidPath(oid, fullOidPathsCache, snmpMibData.getFullOidPath);
   }
 
   function decodePath(path) {
-    let parts = path.split(CNT_SEPARATOR), result = {};
+    const
+      parts = path.split(CNT_SEPARATOR),
+      result = {};
 
     result.obj = parts[0];
-    result.cnt = parts.length > 1 ? parts[1] : "";
+    result.cnt = parts.length > 1 ? parts[1] : '';
     if (parts.length === 3) {
       result.inst = parts[2];
     } else if (parts.length > 3) {
       result.inst = parts.slice(2).join(CNT_SEPARATOR);
     } else {
-      result.inst = "";
+      result.inst = '';
     }
     return result;
   }
 
   function encodePath(parts) {
-    let p = [parts.obj, parts.cnt];
+    const p = [parts.obj, parts.cnt];
     if (parts.inst !== '') {
       p.push(parts.inst);
     }
@@ -331,41 +325,39 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
   }
 
   function decodeDisplayPath(displayPath) {
-    let result = {obj: '', cnt: '', inst: ''},
-        objParts,
-        ix,
-        perSec;
+    const
+      result = { obj: '', cnt: '', inst: '' },
+      ix = displayPath.indexOf(C_PERSEC),
+      perSec = (ix >= 0);
+    let objParts;
 
-    ix = displayPath.indexOf(C_PERSEC);
-    perSec = (ix >= 0);
     if (perSec) {
       displayPath = displayPath.substr(0, ix);
     }
 
     if (![
-          {fmt: new RegExp("(.+)\\((.+)\\)\\\\(.+)"), parts: ["obj", "inst", "cnt"]},// obj(inst)\cnt
-          {fmt: new RegExp("(.+)\\((.+)\\)"), parts: ["obj", "inst"]}, // obj(inst)
-          {fmt: new RegExp("(.+)\\\\(.+)"), parts: ["obj", "cnt"]} // obj\cnt
-        ].some(function (s) {
-          let parts = displayPath.match(s.fmt);
+          { fmt: new RegExp('(.+)\\((.+)\\)\\\\(.+)'), parts: ['obj', 'inst', 'cnt'] }, // obj(inst)\cnt
+          { fmt: new RegExp('(.+)\\((.+)\\)'), parts: ['obj', 'inst'] }, // obj(inst)
+          { fmt: new RegExp('(.+)\\\\(.+)'), parts: ['obj', 'cnt'] } // obj\cnt
+        ].some((s) => {                             //eslint-disable-line
+          const parts = displayPath.match(s.fmt);
           if (parts != null) {
-            s.parts.forEach(function (p, i) {
+            s.parts.forEach((p, i) => {
               result[p] = parts[i + 1];
             });
             return true;
-          } else {
-            return false;
           }
+          return false;
         })) {
       // formats do not match
       result.obj = displayPath;
     }
     // Fix SNMP column path
     if (result.cnt === '' && result.obj !== '') {
-      if (result.obj.match("^[0-9\\.]+(\\.[0-9]+)$")) {
+      if (result.obj.match('^[0-9\\.]+(\\.[0-9]+)$')) {
         result.cnt = '';
         if (result.inst !== '') {
-          result.obj = result.obj + '.' + result.inst;
+          result.obj = `${result.obj}.${result.inst}`;
           result.inst = '';
         }
       } else if (result.obj.indexOf('.') >= 0) {
@@ -379,98 +371,94 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
     }
     result.perSec = perSec;
     if (perSec) {
-      result.cnt = result.cnt + C_PERSEC;
+      result.cnt += C_PERSEC;
     }
     return result;
   }
 
   function removePerSec(displayName) {
-    let ix = displayName.indexOf(C_PERSEC);
-    //todo: check if ix == displayName.length - C_PERSEC.length
+    const ix = displayName.indexOf(C_PERSEC);
+    // todo: check if ix == displayName.length - C_PERSEC.length
     return displayName.substr(0, ix);
   }
 
   function encodeDisplayPath(parts, withPerSec) {
-    let result = parts.obj, ix;
+    let
+      result = parts.obj,
+      ix;
     withPerSec = (withPerSec == null) ? true : withPerSec;
 
     if (parts.inst !== '' && parts.inst != null) {
-      result = parts.obj + '(' + parts.inst + ')';
+      result = `${parts.obj}(${parts.inst})`;
     }
 
     if (parts.cnt !== '' && parts.cnt != null) {
       if (!withPerSec && parts.perSec) { // remove /sec from counter name
         ix = parts.cnt.indexOf(C_PERSEC);
-        result = result + '\\' + parts.cnt.substr(0, ix);
+        result = `${result}\\${parts.cnt.substr(0, ix)}`;
       } else {
-        result = result + '\\' + parts.cnt;
+        result = `${result}\\${parts.cnt}`;
       }
     }
     return result;
   }
 
-  function counterToString (counterPath) {
-    let decodedCounter;
-
-    decodedCounter = decodePath(counterPath);
+  function counterToString(counterPath) {
+    const decodedCounter = decodePath(counterPath);
     return encodeDisplayPath(decodedCounter, true);
   }
 
-  function makeShortPath (object, counter, instance){
+  function makeShortPath(object, counter, instance) {
     if (instance === '') {
       return object + CNT_SEPARATOR + counter;
-    } else {
-      return object + CNT_SEPARATOR + counter + CNT_SEPARATOR + instance;
     }
+    return object + CNT_SEPARATOR + counter + CNT_SEPARATOR + instance;
   }
 
-  function getSNMPDisplayPath (counterPath, shortPath, showPerSecondValue) {
-    let snmpPath,
-        oidPath,
-        displayPath = Promise.resolve(null);
+  function getSNMPDisplayPath(counterPath, shortPath, showPerSecondValue) {
+    const snmpPath = parseSNMPPath(counterPath);
+    let
+      oidPath,
+      displayPath = Promise.resolve(null);
 
-    snmpPath = parseSNMPPath(counterPath);
     if (snmpPath.type === counterConsts.CNT_TYPE.cstXML) {
       displayPath = Promise.resolve(counterToString(snmpPath.value));
-    } else {
-      if (snmpPath.type === counterConsts.CNT_TYPE.cstMIB) {
-        oidPath = parseOIDPath(counterPath);
-        if (shortPath === true) {
-          displayPath = getShortOidPath(oidPath.objOID);
-        } else {
-          displayPath = getFullOidPath(oidPath.objOID);
-        }
-
-        return displayPath
-          .then((resolvedPath) => {
-            if ((resolvedPath == null) || (resolvedPath === '')){
-              resolvedPath = oidPath.objOID;
-            }
-            if (oidPath.inst === '0') {
-              oidPath.inst = '';
-            }
-
-            resolvedPath = counterToString(makeShortPath(resolvedPath, '', oidPath.inst));
-
-            if ((showPerSecondValue === true) && (oidPath.isPerSec === true)) {
-              resolvedPath = resolvedPath + C_PERSEC;
-            }
-            return resolvedPath;
-          });
+    } else if (snmpPath.type === counterConsts.CNT_TYPE.cstMIB) {
+      oidPath = parseOIDPath(counterPath);
+      if (shortPath === true) {
+        displayPath = getShortOidPath(oidPath.objOID);
+      } else {
+        displayPath = getFullOidPath(oidPath.objOID);
       }
+
+      return displayPath
+        .then((resolvedPath) => {
+          if ((resolvedPath == null) || (resolvedPath === '')) {
+            resolvedPath = oidPath.objOID;
+          }
+          if (oidPath.inst === '0') {
+            oidPath.inst = '';
+          }
+
+          resolvedPath = counterToString(makeShortPath(resolvedPath, '', oidPath.inst));
+
+          if ((showPerSecondValue === true) && (oidPath.isPerSec === true)) {
+            resolvedPath += C_PERSEC;
+          }
+          return resolvedPath;
+        });
     }
 
     return displayPath;
   }
 
-  function counterPathToDisplayStr (counterPath, shortPath, showPerSecValue) {
-    let pathType = getCounterPathType(counterPath);
+  function counterPathToDisplayStr(counterPath, shortPath, showPerSecValue) {
+    const pathType = getCounterPathType(counterPath);
 
     if ((pathType === counterConsts.CNT_TYPE.cstXML) || (pathType === counterConsts.CNT_TYPE.cstMIB)) {
       return getSNMPDisplayPath(counterPath, shortPath, showPerSecValue);
-    } else {
-      return Promise.resolve(counterToString(counterPath));
     }
+    return Promise.resolve(counterToString(counterPath));
   }
 
   function isKnownMillisecondCounter(cnt) {
@@ -483,8 +471,8 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
    * @returns {boolean}
    */
   function isMillisecondsCounter(counter) {
-    let c = decodePath(counter);
-    return ((c.cnt === cn_RTT) || (c.cnt === cn_SCT) ||
+    const c = decodePath(counter);
+    return ((c.cnt === cnRTT) || (c.cnt === cnSCT) ||
             (c.cnt.toUpperCase().indexOf('MILLISECOND') >= 0) || isKnownMillisecondCounter(c.cnt));
   }
 
@@ -498,24 +486,24 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
    * @returns {null|''|'M'|'K'}
    */
   function isBytesCounter(displayName) {
-    let result = '', cnt = displayName.toLowerCase();
+    const cnt = displayName.toLowerCase();
+    let result = '';
 
-    if (contains(cnt, resources.metrics.bytes) || contains(cnt, resources.metrics.memory) || contains(cnt, "octet")) {
+    if (contains(cnt, resources.metrics.bytes) || contains(cnt, resources.metrics.memory) || contains(cnt, 'octet')) {
       if (contains(cnt, resources.metrics.mbytes) || contains(cnt, 'mega')) {
         result = 'M';
       } else if (contains(cnt, resources.metrics.kbytes) || contains(cnt, 'kilo')) {
         result = 'K';
       }
       return result;
-    } else {
-      return null;
     }
+    return null;
   }
 
   function getValueFormatting(value, base1, base, units = ['K', 'M', 'G']) {
     let range = '';
     if (value >= 1 * base1 && value < base1 * base) {
-      value = value / base1;
+      value /= base1;
       range = units[0];
     } else if (value >= base1 * base && value < base1 * base * base) {
       value = value / base1 / base;
@@ -525,7 +513,7 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
       range = units[2];
     }
     return {
-      value: value,
+      value,
       units: range
     };
   }
@@ -539,7 +527,7 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
   }
 
   return {
-    unitsToMetric : function (units, counterName, counterDisplayName) {
+    unitsToMetric: (units, counterName, counterDisplayName) => {
       if (units === 'bytestobps') {
         return 'bps';
       } else if (units === 'percentage') {
@@ -548,9 +536,8 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
         return 'Bps';
       } else if (units === 'bytes') {
         return 'bytes';
-      } else {
-        return this.getMetric(counterName, counterDisplayName);
       }
+      return this.getMetric(counterName, counterDisplayName);
     },
 
     /**
@@ -559,43 +546,42 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
      * @param displayName
      * @returns {*}
      */
-    getMetric: function (counterPath, displayName) {
+    getMetric: (counterPath, displayName) => {
       let multiplier;
       if (contains(displayName, '%')) {
         return counterTypes.percentage;
-      } else {
-        if (isMillisecondsCounter(counterPath)) {
-          return counterTypes.milliseconds;
-        } else {
-          multiplier = isBytesCounter(displayName);
-          if (multiplier !== null) {
-            if (multiplier !== '') {
-              multiplier = '#' + multiplier;
-            }
-            if (contains(displayName, C_PERSEC) || contains(displayName, 'per sec.')) { //ESX counters are "per sec."
-              return counterTypes.bytesBitsPS + multiplier;
-            } else {
-              return counterTypes.bytes + multiplier;
-            }
-          } else {
-            return '';
+      } else if (!isMillisecondsCounter(counterPath)) {
+        multiplier = isBytesCounter(displayName);
+        if (multiplier !== null) {
+          if (multiplier !== '') {
+            multiplier = `'#${multiplier}`;
           }
+          if (contains(displayName, C_PERSEC) || contains(displayName, 'per sec.')) { // ESX counters are "per sec."
+            return counterTypes.bytesBitsPS + multiplier;
+          }
+          return counterTypes.bytes + multiplier;
         }
+        return '';
       }
+      return counterTypes.milliseconds;
     },
 
-    getDisplayValue: function (value, metric) {
-      let mparts = metric.split('#'), m = mparts[0],
-          multiplier = mparts.length > 1 ? mparts[1] : "",
-          v, isBPS = (m === counterTypes.bytesBitsPS), isBytes = (m === counterTypes.bytes) || isBPS || (m === counterTypes.bytesBps),
-          isMS = (m === counterTypes.milliseconds),
-          isNoUnits = (m === '');
+    getDisplayValue: (value, metric) => {
+      const
+        mparts = metric.split('#'),
+        m = mparts[0],
+        multiplier = mparts.length > 1 ? mparts[1] : '',
+        isBPS = (m === counterTypes.bytesBitsPS),
+        isBytes = (m === counterTypes.bytes) || isBPS || (m === counterTypes.bytesBps),
+        isMS = (m === counterTypes.milliseconds),
+        isNoUnits = (m === '');
+      let v;
 
       if (value == null || isNaN(value)) {
-        return {value: value, units: ''};
-      } else {
+        return { value, units: '' };
+      } else {                                            //eslint-disable-line
         if (isBPS) {
-          value = value * 8;
+          value *= 8;
         }
         if (multiplier !== '') {
           return {
@@ -606,24 +592,22 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
         if (isBytes) {
           v = getValueRange(value, 1024);
           if (m === counterTypes.bytes) {
-            v.units = v.units + 'B';
+            v.units += 'B';
           } else {
-            v.units = v.units + m;
+            v.units += m;
           }
         } else if (isNoUnits) {
           v = getValueRange(value, 1000);
-        } else {
-          if (isMS) {
-            v = getTimeRange(value);
-            if (v.units === '') {
-              v.units = counterTypes.milliseconds;
-            }
-          } else {
-            v = {
-              value: value,
-              units: m
-            };
+        } else if (isMS) {
+          v = getTimeRange(value);
+          if (v.units === '') {
+            v.units = counterTypes.milliseconds;
           }
+        } else {
+          v = {
+            value,
+            units: m
+          };
         }
         return {
           value: v.value,
@@ -632,38 +616,37 @@ function NetCrunchCounters(adremClient, netCrunchConnection) {
       }
     },
 
-    isOid: isOid,
-    isMIBCnt: isMIBCnt,
-    counterPathObject: counterPathObject,
-    stringToCntType: stringToCntType,
-    getCounterPathType: getCounterPathType,
-    removeCounterPathType: removeCounterPathType,
-    removePerSecond: removePerSecond,
-    parseSNMPPath: parseSNMPPath,
-    parseOIDPath: parseOIDPath,
-    parseXMLPath: parseXMLPath,
-    parseCounterPath: parseCounterPath,
-    getShortOidPath: getShortOidPath,
-    getFullOidPath: getFullOidPath,
-    decodePath: decodePath,
-    encodePath: encodePath,
-    addInstance: function (path, inst) {
+    isOid,
+    isMIBCnt,
+    counterPathObject,
+    stringToCntType,
+    getCounterPathType,
+    removeCounterPathType,
+    removePerSecond,
+    parseSNMPPath,
+    parseOIDPath,
+    parseXMLPath,
+    parseCounterPath,
+    getShortOidPath,
+    getFullOidPath,
+    decodePath,
+    encodePath,
+    addInstance: (path, inst) => {
       if (inst !== '') {
         return path + CNT_SEPARATOR + inst;
-      } else {
-        return path;
       }
+      return path;
     },
-    decodeDisplayPath: decodeDisplayPath,
-    encodeDisplayPath: encodeDisplayPath,
-    removePerSec: removePerSec,
-    getSNMPDisplayPath: getSNMPDisplayPath,
-    counterPathToDisplayStr: counterPathToDisplayStr
+    decodeDisplayPath,
+    encodeDisplayPath,
+    removePerSec,
+    getSNMPDisplayPath,
+    counterPathToDisplayStr
   };
 }
 
 export {
-  NETCRUNCH_COUNTER_CONST as NETCRUNCH_COUNTER_CONST,
-  NETCRUNCH_COUNTER_TYPES as NETCRUNCH_COUNTER_TYPES,
-  NetCrunchCounters as NetCrunchCounters
-}
+  NETCRUNCH_COUNTER_CONST,
+  NETCRUNCH_COUNTER_TYPES,
+  NetCrunchCounters
+};
