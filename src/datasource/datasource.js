@@ -104,7 +104,7 @@ class NetCrunchDatasource {
       atlasReady = resolve;
     });
 
-    this.datasourceReady = function() {
+    this.datasourceReady = () => {
       if (datasourceInitialization == null) {
         datasourceInitialization = initDatasource();
       }

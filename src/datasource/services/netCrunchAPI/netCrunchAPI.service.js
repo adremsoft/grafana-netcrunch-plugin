@@ -6,18 +6,20 @@
  * found in the LICENSE file.
  */
 
+/* eslint-disable no-shadow, no-param-reassign */
+
 import angular from 'angular';
-import {servicesModule} from '../../common';
+import { servicesModule } from '../../common';
 import './adrem/module';
-import {NetCrunchConnectionCache} from './connectionCache';
-import {NetCrunchConnection, CONNECTION_CONSTS} from './netCrunchConnection/connection';
+import { NetCrunchConnectionCache } from './connectionCache';
+import { NetCrunchConnection, CONNECTION_CONSTS } from './netCrunchConnection/connection';
 
 const CONNECTION_ERROR_MESSAGES = CONNECTION_CONSTS.ERROR_MESSAGES;
 
 class NetCrunchAPIService {
 
   /** @ngInject */
-  constructor (adrem, alertSrv, backendSrv, $rootScope) {
+  constructor(adrem, alertSrv, backendSrv, $rootScope) {
     this.adrem = adrem;
     this.alertSrv = alertSrv;
     this.backendSrv = backendSrv;
@@ -27,14 +29,12 @@ class NetCrunchAPIService {
 
   testConnection(datasource) {
     return this.clearConnection(datasource)
-      .then(() => {
-        return this.getConnection(datasource, true); })
-      .then(() => {
-        return this.clearConnection(datasource); });
+      .then(() => this.getConnection(datasource, true))
+      .then(() => this.clearConnection(datasource));
   }
 
   clearConnection(datasource) {
-    let self = this;
+    const self = this;
     return new Promise((resolve) => {
       if (self.cache.connectionExist(datasource)) {
         self.cache.getConnection(datasource)
@@ -52,7 +52,7 @@ class NetCrunchAPIService {
   }
 
   getConnection(datasource, withoutNetworkAtlas = false) {
-    let self = this;
+    const self = this;
 
     function getConnectionFromCache(datasource) {
       return self.cache.getConnection(datasource)
@@ -64,7 +64,7 @@ class NetCrunchAPIService {
 
     function getServerApi(connection) {
       return new Promise((resolve, reject) => {
-        self.backendSrv.get(connection.apiURL + 'api.json')
+        self.backendSrv.get(`${connection.apiURL}api.json`)
           .then((api) => {
             resolve(api);
           })
@@ -77,16 +77,16 @@ class NetCrunchAPIService {
 
     function addConnectionHandlers(datasource, connection) {
 
-      connection.onError = function(error) {
+      connection.onError = (error) => {
         self.alertSrv.set(error.connectionName, error.message, 'error');
       };
 
-      connection.onNodesChanged = function() {
-        self.$rootScope.$broadcast('netcrunch-nodes-data-changed(' + datasource.name + ')');
+      connection.onNodesChanged = () => {
+        self.$rootScope.$broadcast(`netcrunch-nodes-data-changed(${datasource.name})`);
       };
 
-      connection.onNetworksChanged = function() {
-        self.$rootScope.$broadcast('netcrunch-networks-data-changed(' + datasource.name + ')');
+      connection.onNetworksChanged = () => {
+        self.$rootScope.$broadcast(`netcrunch-networks-data-changed(${datasource.name})`);
       };
 
       return connection;
@@ -107,35 +107,34 @@ class NetCrunchAPIService {
       });
     }
 
-    if (this.cache.connectionExist(datasource)) {
-      return getConnectionFromCache(datasource);
-    } else {
+    if (!this.cache.connectionExist(datasource)) {
       let connection = new NetCrunchConnection(this.adrem, datasource.url, datasource.name);
 
       return getServerApi(connection)
-        .then((serverApi) => {
-          return new Promise((resolve, reject) => {
-            let checkStatus = connection.checkApiVersion(serverApi);
+        .then(serverApi =>
+          new Promise((resolve, reject) => {
+            const checkStatus = NetCrunchConnection.checkApiVersion(serverApi);
             if (checkStatus.status === 0) {
               resolve(checkStatus.version);
             } else {
               reject(checkStatus.status);
             }
-          });
-        })
+          })
+        )
         .then(() => {
           connection = addConnectionHandlers(datasource, connection);
           self.cache.addConnection(datasource, createSession(datasource, connection));
           return self.cache.getConnection(datasource);
         });
     }
+    return getConnectionFromCache(datasource);
   }
 
 }
 
 export {
-  CONNECTION_ERROR_MESSAGES as CONNECTION_ERROR_MESSAGES
-}
+  CONNECTION_ERROR_MESSAGES
+};
 
 angular
   .module(servicesModule)
