@@ -6,8 +6,10 @@
  * found in the LICENSE file.
  */
 
-import {NetCrunchAtlasTree} from './atlasTree';
-import {AdremWebWorker} from '../../adrem/module';
+/* eslint-disable func-names, object-shorthand, no-param-reassign, no-shadow, prefer-template */
+
+import { NetCrunchAtlasTree } from './atlasTree';
+import { AdremWebWorker } from '../../adrem/module';
 
 const THREAD_WORKER_NODES_NUMBER = 1000;
 
@@ -15,16 +17,17 @@ let orderingWebWorkerSingleton = null;
 
 function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
 
-  let atlasTree = new NetCrunchAtlasTree(netCrunchServerConnection),
-      initialized = null;
+  const atlasTree = new NetCrunchAtlasTree(netCrunchServerConnection);
+  let initialized = null;
 
   function openRemoteData(table, query, processFunction, notifyFunction) {
-    let dataList = new adremClient.RemoteDataListStore('ncSrv', 1000, netCrunchServerConnection),
-        self = this;
+    const
+      dataList = new adremClient.RemoteDataListStore('ncSrv', 1000, netCrunchServerConnection),
+      self = this;
 
     return new Promise((resolve) => {
       if (typeof processFunction === 'function') {
-        dataList.on('record-changed', function (data) {
+        dataList.on('record-changed', (data) => {
           if ((dataList.data != null) && (dataList.data.length > 0)) {
             data.forEach(processFunction, self);
           }
@@ -32,7 +35,7 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       }
 
       if (typeof notifyFunction === 'function') {
-        dataList.on('changed', function () {
+        dataList.on('changed', () => {
           notifyFunction();
         });
       }
@@ -44,30 +47,25 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
   }
 
   function processHostsData(data) {
-    let host = Object.create(null);
+    const host = Object.create(null);
     host.local = Object.create(null);
     host.values = data.getValues();
     atlasTree.addNode(host);
-  }
-
-  function processMapData(data) {
-    let map = Object.create(null);
-    map.local = data.local;
-    map.values = data.getValues();
-    atlasTree.addMapToIndex(decodeNetworkData(map));
   }
 
   function decodeNetworkData(record) {
     let mapsData;
 
     function addNodesToNetwork(network) {
-      let nodeData,
-          len, i;
+      const
+        len = network.values.HostMapData[0];
+      let
+        nodeData,
+        i;
 
       network.local.nodes = [];
-      len = network.values.HostMapData[0];
 
-      for (i = 1; i <= len; i++) {
+      for (i = 1; i <= len; i += 1) {
         nodeData = network.values.HostMapData[i];
         if ((nodeData[0] === 0) || (nodeData[0] === 5)) {
           network.local.nodes.push(parseInt(nodeData[1], 10));
@@ -81,17 +79,16 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       record.local.parentId = '';
     }
 
-    record.local.isFolder = ((record.values.MapClassTag === 'dynfolder') || Array.isArray(record.values.NetworkData[1]));
+    record.local.isFolder = ((record.values.MapClassTag === 'dynfolder') ||
+                              Array.isArray(record.values.NetworkData[1]));
 
     if (record.local.isFolder) {
       mapsData = record.values.NetworkData[1];
       if (Array.isArray(mapsData)) {                          // otherwise it can be empty object instead of empty array
-        record.local.maps = mapsData.map(function (id) {
-          return parseInt(id, 10);
-        });
+        record.local.maps = mapsData.map(id => parseInt(id, 10));
       }
 
-      if (record.values.MapClassTag === 'fnet') {             //Add nodes into physical segments map
+      if (record.values.MapClassTag === 'fnet') {             // Add nodes into physical segments map
         addNodesToNetwork(record);
       }
     } else {
@@ -101,11 +98,14 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
     return record;
   }
 
-  function filterAndOrderMapNodes(nodes, map) {
-    return orderNodes(mapNodes(nodes, map));
+  function processMapData(data) {
+    const map = Object.create(null);
+    map.local = data.local;
+    map.values = data.getValues();
+    atlasTree.addMapToIndex(decodeNetworkData(map));
   }
 
-  function nodeAddress(address) {
+  function nodeAddress(address) {                   // eslint-disable-line
     let result = address;
 
     if ((address != null) && (address !== '')) {
@@ -115,8 +115,9 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
   }
 
   function mapNodes(nodes, map) {
-    let mapNodes = [],
-        nodesIndex = new Map();
+    const
+      mapNodes = [],
+      nodesIndex = new Map();
 
     function pushUniqueValueToArray(destination, value) {
       if (destination.indexOf(value) < 0) {
@@ -124,7 +125,7 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       }
     }
 
-    function getMapNodes (map) {
+    function getMapNodes(map) {
       let nodes;
 
       if (map.data.local.isFolder === false) {
@@ -132,7 +133,7 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       } else {
         nodes = [];
 
-        if (map.data.values.MapClassTag === 'fnet') {       //Add nodes into physical segment map
+        if (map.data.values.MapClassTag === 'fnet') {       // Add nodes into physical segment map
           map.data.local.nodes.forEach((node) => {
             pushUniqueValueToArray(nodes, node);
           });
@@ -161,22 +162,24 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       });
 
       return mapNodes;
-    } else {
-      return nodes;
     }
+
+    return nodes;
   }
 
   function orderNodes(nodes = []) {
 
     function compareAddressIP(addressOne, addressTwo) {
-      let addressOneItems = addressOne.split('.'),
-          addressTwoItems = addressTwo.split('.');
+      const
+        addressOneItems = addressOne.split('.'),
+        addressTwoItems = addressTwo.split('.');
 
       for (let i = 0, n = Math.max(addressOneItems.length, addressTwoItems.length); i < n; i += 1) {
         if (addressOneItems[i] !== addressTwoItems[i]) {
           return (addressOneItems[i] - addressTwoItems[i]);
         }
       }
+      return 0;
     }
 
     function getNodeProperty(node, propertyName) {
@@ -184,11 +187,12 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
     }
 
     function compareNodeData(nodeA, nodeB) {
-      let result = 0,
-          nodeAName = getNodeProperty(nodeA, 'Name').toLowerCase(),
-          nodeBName = getNodeProperty(nodeB, 'Name').toLowerCase(),
-          nodeAAddress = getNodeProperty(nodeA, 'Address'),
-          nodeBAddress = getNodeProperty(nodeB, 'Address');
+      const
+        nodeAName = getNodeProperty(nodeA, 'Name').toLowerCase(),
+        nodeBName = getNodeProperty(nodeB, 'Name').toLowerCase(),
+        nodeAAddress = getNodeProperty(nodeA, 'Address'),
+        nodeBAddress = getNodeProperty(nodeB, 'Address');
+      let result = 0;
 
       if ((nodeAName !== '') && (nodeBName !== '')) {
         if (nodeAName === nodeBName) {
@@ -196,26 +200,26 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
         } else {
           result = (nodeAName < nodeBName) ? -1 : 1;
         }
+      } else if ((nodeAName === '') && (nodeBName === '')) {
+        result = compareAddressIP(nodeAAddress, nodeBAddress);
       } else {
-        if ((nodeAName === '') && (nodeBName === '')) {
-          result = compareAddressIP(nodeAAddress, nodeBAddress);
-        } else {
-          if (nodeAName !== '') { result = -1; }
-          if (nodeBName !== '') { result = 1; }
-        }
+        if (nodeAName !== '') { result = -1; }
+        if (nodeBName !== '') { result = 1; }
       }
       return result;
     }
 
-    nodes = nodes.filter((node) => {
-      return (node.values != null);
-    });
+    nodes = nodes.filter(node => (node.values != null));
     return nodes.sort(compareNodeData);
+  }
+
+  function filterAndOrderMapNodes(nodes, map) {
+    return orderNodes(mapNodes(nodes, map));
   }
 
   function getOrderingWebWorker() {
     if (orderingWebWorkerSingleton == null) {
-      let workerBuilder = AdremWebWorker.webWorkerBuilder();
+      const workerBuilder = AdremWebWorker.webWorkerBuilder();
       workerBuilder.addFunctionCode(mapNodes);
       workerBuilder.addFunctionCode(orderNodes);
       workerBuilder.addFunctionCode(filterAndOrderMapNodes, true);
@@ -230,20 +234,23 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
     networksReceived: false,
     nodesReceived: false,
 
-    init : function () {
-      const PERFORMANCE_VIEWS_NET_INT_ID = 2,
-            MONITORING_PACKS_NET_INT_ID = 3,
-            HOSTS_QUERY = 'Select Id, Name, Address, DeviceType, GlobalDataNode ',
-            NETWORKS_QUERY = 'Select NetIntId, DisplayName, HostMapData, IconId, ' +
-                             'MapType, NetworkData, MapClassTag ' +
-                             'where (MapClassTag != \'policynet\') && (MapClassTag != \'pnet\') && ' +
-                             '(MapClassTag != \'dependencynet\') && ' +
-                             '(MapClassTag != \'issuesnet\') && (MapClassTag != \'all\') && ' +
-                             '(NetIntId != ' + PERFORMANCE_VIEWS_NET_INT_ID + ') && ' +
-                             '(NetIntId != ' + MONITORING_PACKS_NET_INT_ID + ')';
-      let self = this,
-          hostsData,
-          networkData;
+    init: function() {
+      const
+        PERFORMANCE_VIEWS_NET_INT_ID = 2,
+        MONITORING_PACKS_NET_INT_ID = 3,
+        HOSTS_QUERY = 'Select Id, Name, Address, DeviceType, GlobalDataNode ',
+        NETWORKS_QUERY = 'Select NetIntId, DisplayName, HostMapData, IconId, ' +
+                         'MapType, NetworkData, MapClassTag ' +
+                         'where (MapClassTag != \'policynet\') && (MapClassTag != \'pnet\') && ' +
+                         '(MapClassTag != \'dependencynet\') && ' +
+                         '(MapClassTag != \'issuesnet\') && (MapClassTag != \'all\') && ' +
+                         '(NetIntId != ' + PERFORMANCE_VIEWS_NET_INT_ID + ') && ' +
+                         '(NetIntId != ' + MONITORING_PACKS_NET_INT_ID + ')',
+        self = this;
+
+      let
+        hostsData,
+        networkData;
 
       function hostsChanged() {
         self.nodesReceived = true;
@@ -255,7 +262,7 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       function networksChanged() {
         self.networksReceived = true;
         if (typeof self.onNetworksChanged === 'function') {
-           self.onNetworksChanged();
+          self.onNetworksChanged();
         }
       }
 
@@ -263,8 +270,10 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
         return initialized;
       }
 
+      // eslint-disable-next-line
       hostsData = openRemoteData('Hosts', HOSTS_QUERY, processHostsData, hostsChanged);
 
+      // eslint-disable-next-line
       networkData = openRemoteData('Networks', NETWORKS_QUERY, processMapData, networksChanged);
 
       initialized = Promise.all([hostsData, networkData]);
@@ -272,13 +281,11 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       return initialized;
     },
 
-    getNodesTable : function() {
-      return Object.keys(this.networkNodes).map((nodeId) => {
-        return this.networkNodes[nodeId];
-      });
+    getNodesTable: function() {
+      return Object.keys(this.networkNodes).map(nodeId => this.networkNodes[nodeId]);
     },
 
-    getOrderedNodes : function(map = null) {
+    getOrderedNodes: function(map = null) {
       let nodes = this.getNodesTable() || [];
       return new Promise((resolve) => {
         if (nodes.length < THREAD_WORKER_NODES_NUMBER) {
@@ -302,5 +309,5 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
 }
 
 export {
-  NetCrunchNetworkData as NetCrunchNetworkData
-}
+  NetCrunchNetworkData
+};

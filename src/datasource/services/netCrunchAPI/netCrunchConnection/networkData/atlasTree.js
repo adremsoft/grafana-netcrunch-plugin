@@ -6,30 +6,33 @@
  * found in the LICENSE file.
  */
 
+/* global window */
+
 function NetCrunchAtlasTree(netCrunchServerConnection) {
 
-  let mapTree = {
-          '' : {
-              children : []
-          }
-      },
-      orphans = [],
-      nodes = {},
-      iconSize = 25,
+  const
+    mapTree = {
+      '': {
+        children: []
+      }
+    },
+    nodes = {},
+    iconSize = 25,
 
-      MAP_ICON_ID_UNKNOWN = 100;
+    MAP_ICON_ID_UNKNOWN = 100;
+
+  let orphans = [];
 
   function parseXML(data) {
     let xml;
 
-    if ( !data || typeof data !== "string" ) {
+    if (!data || typeof data !== 'string') {
       return null;
     }
 
     try {
-      //noinspection TypeScriptUnresolvedFunction
-        xml = ( new window.DOMParser() ).parseFromString( data, "text/xml" );
-    } catch ( e ) {
+      xml = (new window.DOMParser()).parseFromString(data, 'text/xml');
+    } catch (e) {
       xml = undefined;
     }
 
@@ -38,31 +41,26 @@ function NetCrunchAtlasTree(netCrunchServerConnection) {
 
   function getDeviceIcon(deviceTypeXML) {
     if (deviceTypeXML !== '' && deviceTypeXML != null) {
-      let doc = parseXML(deviceTypeXML),
-          devtype = doc.getElementsByTagName('devtype'),
-          result = MAP_ICON_ID_UNKNOWN;
+      const
+        doc = parseXML(deviceTypeXML),
+        devtype = doc.getElementsByTagName('devtype');
+      let result = MAP_ICON_ID_UNKNOWN;
+
       if (devtype[0] != null) {
         result = devtype[0].getAttribute('iconid') || result;
       }
       return result;
-    } else {
-      return 0;
     }
+    return 0;
   }
 
-  function getMapIconUrl (iconId, size) {
-    let iconUrl;
-    size = size || 32;
-    iconUrl = netCrunchServerConnection.ncSrv.IMapIcons.GetIcon.asURL(iconId, size);
+  function getMapIconUrl(iconId, size) {
+    const iconUrl = netCrunchServerConnection.ncSrv.IMapIcons.GetIcon.asURL(iconId, (size || 32));
     return netCrunchServerConnection.Client.urlFilter(iconUrl);
   }
 
-  function pushUniqueChildToMap (map, child) {
-    let isUnique;
-
-    isUnique = map.children.every((mapChild) => {
-      return (mapChild.data.values.NetIntId !== child.data.values.NetIntId);
-    });
+  function pushUniqueChildToMap(map, child) {
+    const isUnique = map.children.every(mapChild => (mapChild.data.values.NetIntId !== child.data.values.NetIntId));
 
     if (isUnique === true) {
       map.children.push(child);
@@ -70,16 +68,17 @@ function NetCrunchAtlasTree(netCrunchServerConnection) {
   }
 
   return {
-    tree : mapTree,
-    nodes : nodes,
+    tree: mapTree,
+    nodes,
 
-    addMapToIndex : function (mapRec) {
-      let parentId = mapRec.local.parentId,
-          netId = mapRec.values.NetIntId;
+    addMapToIndex: (mapRec) => {
+      const
+        parentId = mapRec.local.parentId,
+        netId = mapRec.values.NetIntId;
 
       mapTree[netId] = {
-        data : mapRec,
-        children : []
+        data: mapRec,
+        children: []
       };
 
       orphans = orphans.filter((orphan) => {
@@ -97,32 +96,31 @@ function NetCrunchAtlasTree(netCrunchServerConnection) {
       }
     },
 
-    addNode : function (nodeRec) {
+    addNode: (nodeRec) => {
+      // eslint-disable-next-line
       nodeRec.local.iconUrl = getMapIconUrl(getDeviceIcon(nodeRec.values.DeviceType), iconSize);
       nodes[nodeRec.values.Id] = nodeRec;
     },
 
-    generateMapList : function() {
+    generateMapList: () => {
 
-      let mapList = [];
+      const mapList = [];
 
-      function sortMaps(first, second){
-        if (first.data.values.DisplayName === second.data.values.DisplayName) {
-          return 0;
-        } else {
+      function sortMaps(first, second) {
+        if (first.data.values.DisplayName !== second.data.values.DisplayName) {
           if (first.data.values.DisplayName < second.data.values.DisplayName) {
             return -1;
-          } else {
-            return 1;
           }
+          return 1;
         }
+        return 0;
       }
 
-      function performMapList(maps, innerLevel, parentIndex){
+      function performMapList(maps, innerLevel, parentIndex) {
         maps.sort(sortMaps);
         maps.forEach((map) => {
-          map.data.local.innerLevel = innerLevel;
-          map.data.local.parentLinearIndex = parentIndex;
+          map.data.local.innerLevel = innerLevel;           // eslint-disable-line
+          map.data.local.parentLinearIndex = parentIndex;   // eslint-disable-line
           if (map.data.local.isFolder === true) {
             mapList.push(map);
             performMapList(map.children, innerLevel + 1, mapList.length - 1);
@@ -139,5 +137,5 @@ function NetCrunchAtlasTree(netCrunchServerConnection) {
 }
 
 export {
-  NetCrunchAtlasTree as NetCrunchAtlasTree
-}
+  NetCrunchAtlasTree
+};
