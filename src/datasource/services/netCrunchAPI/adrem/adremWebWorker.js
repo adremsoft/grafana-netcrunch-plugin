@@ -6,11 +6,14 @@
  * found in the LICENSE file.
  */
 
+/* global Worker, Blob, URL */
+
 class AdremWebWorker {
 
   constructor(workerUrl) {
-    let tasks = new Map(),
-        webWorker;
+    const
+      tasks = new Map(),
+      webWorker = new Worker(workerUrl);
 
     function getTaskId() {
       let taskId = (new Date()).getTime();
@@ -20,37 +23,39 @@ class AdremWebWorker {
       return taskId;
     }
 
-    webWorker = new Worker(workerUrl);
-    webWorker.onmessage = function(event) {
-      let taskId = event.data.taskId;
+    webWorker.onmessage = (event) => {
+      const taskId = event.data.taskId;
       if (tasks.has(taskId)) {
-        let resolve = tasks.get(taskId);
+        const resolve = tasks.get(taskId);
         tasks.delete(taskId);
         resolve(event.data.result);
       }
     };
 
-    this.executeTask = function(taskData) {
-      let taskId = getTaskId();
-      taskData.taskId = taskId;
+    this.executeTask = (taskData) => {
+      const
+        taskId = getTaskId(),
+        data = taskData;
+      data.taskId = taskId;
       return new Promise((resolve) => {
         tasks.set(taskId, resolve);
-        webWorker.postMessage(taskData);
+        webWorker.postMessage(data);
       });
     };
 
   }
 
   addTask(taskSpec) {
+    // eslint-disable-next-line
     this[taskSpec.name] = function(...args) {
-      let task = {
+      const task = {
         funcName: taskSpec.name,
-        args: args,
+        args,
         async: taskSpec.async
       };
 
       if (taskSpec.async === true) {
-        let self = this;
+        const self = this;
         return new Promise((resolve, reject) => {
           self.executeTask(task)
             .then((result) => {
@@ -69,58 +74,61 @@ class AdremWebWorker {
   }
 
   static webWorkerBuilder() {
-    let workerCode = [],
-        taskInterfaces = [];
+    const
+      workerCode = [],
+      taskInterfaces = [];
 
     function getCodeBlob() {
 
-      function getTaskDispatchingSetup() {
-        return `this.onmessage = ${getAdremTaskDispatcher.name}().bind(this);\n\n`;
-      }
-
       function getAdremTaskDispatcher() {
-        let globalScope = this;
+        const globalScope = this;
 
         function postResult(taskId, result) {
           globalScope.postMessage({
-            taskId: taskId,
-            result: result
+            taskId,
+            result
           });
         }
 
         function executeSyncFunc(taskId, funcName, args) {
+          // eslint-disable-next-line
           postResult(taskId, globalScope[funcName].apply(globalScope, args));
         }
 
         function executeAsyncFunc(taskId, funcName, args) {
+          // eslint-disable-next-line
           globalScope[funcName].apply(globalScope, args)
-            .then((result) => postResult(taskId, {
+            .then(result => postResult(taskId, {
               type: 'resolve',
-              result: result
+              result
             }))
-            .catch((error) => postResult(taskId, {
+            .catch(error => postResult(taskId, {
               type: 'reject',
-              error: error
+              error
             }));
         }
 
         function taskDispatcher(event) {
-          event = event.data;
-          if (event.async !== true) {
-            executeSyncFunc(event.taskId, event.funcName, event.args);
+          const eventData = event.data;
+          if (eventData.async !== true) {
+            executeSyncFunc(eventData.taskId, eventData.funcName, eventData.args);
           } else {
-            executeAsyncFunc(event.taskId, event.funcName, event.args);
+            executeAsyncFunc(eventData.taskId, eventData.funcName, eventData.args);
           }
         }
 
         return taskDispatcher;
       }
 
+      function getTaskDispatchingSetup() {
+        return `this.onmessage = ${getAdremTaskDispatcher.name}().bind(this);\n\n`;
+      }
+
       let bundledCode;
       bundledCode = getTaskDispatchingSetup();
-      bundledCode += getAdremTaskDispatcher.toString() + '\n';
-      bundledCode += workerCode.reduce((prev, curr) => prev + '\n' + curr, '');
-      return new Blob([bundledCode], {type: 'application/javascript'});
+      bundledCode += `${getAdremTaskDispatcher.toString()}\n`;
+      bundledCode += workerCode.reduce((prev, curr) => `${prev}\n${curr}`, '');
+      return new Blob([bundledCode], { type: 'application/javascript' });
     }
 
     function getBlobURL() {
@@ -133,7 +141,7 @@ class AdremWebWorker {
         if ((createInterface === true) && (code.name != null) && (code.name !== '')) {
           taskInterfaces.push({
             name: code.name,
-            async: async
+            async
           });
         }
         return true;
@@ -142,7 +150,7 @@ class AdremWebWorker {
     }
 
     function getWebWorker() {
-      let webWorker = new AdremWebWorker(getBlobURL());
+      const webWorker = new AdremWebWorker(getBlobURL());
       taskInterfaces.forEach((taskSpec) => {
         webWorker.addTask(taskSpec);
       });
@@ -150,13 +158,13 @@ class AdremWebWorker {
     }
 
     return {
-      addFunctionCode: addFunctionCode,
-      getWebWorker: getWebWorker
+      addFunctionCode,
+      getWebWorker
     };
   }
 
 }
 
 export {
-  AdremWebWorker as AdremWebWorker
-}
+  AdremWebWorker
+};

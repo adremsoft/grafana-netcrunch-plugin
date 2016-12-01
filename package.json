@@ -16,13 +16,13 @@
     "url": "https://github.com/adremsoft/grafana-netcrunch/issues"
   },
   "dependencies": {
+    "angular": "^1.5.8"
   },
   "devDependencies": {
     "@types/systemjs": "^0.19.31",
     "@types/angular": "^1.5.20",
     "@types/moment": "^2.13.0",
 
-    "angular": "^1.5.8",
     "babel": "~6.5.1",
     "babel-plugin-transform-es2015-modules-systemjs": "^6.5.0",
     "babel-preset-es2015": "^6.5.0",
