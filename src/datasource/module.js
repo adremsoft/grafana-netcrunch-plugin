@@ -6,9 +6,9 @@
  * found in the LICENSE file.
  */
 
-import {NetCrunchDatasource} from './datasource';
-import {NetCrunchDatasourceConfigCtrl} from './config/datasourceConfig.controller';
-import {NetCrunchQueryController} from './query/query.controller';
+import { NetCrunchDatasource } from './datasource';
+import { NetCrunchDatasourceConfigCtrl } from './config/datasourceConfig.controller';
+import { NetCrunchQueryController } from './query/query.controller';
 
 export {
   NetCrunchDatasource as Datasource,

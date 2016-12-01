@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-import {datasourceURL} from '../common';
+import { datasourceURL } from '../common';
 
 class NetCrunchDatasourceConfigCtrl {
 
@@ -40,10 +40,11 @@ class NetCrunchDatasourceConfigCtrl {
   }
 
   static get templateUrl() {
-      return datasourceURL + 'config/config.html';
-  };
+    return `${datasourceURL}config/config.html`;
+  }
+
 }
 
 export {
   NetCrunchDatasourceConfigCtrl
-}
+};

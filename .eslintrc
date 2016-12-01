@@ -10,6 +10,11 @@
       "blocks": "never",
       "classes": "always"
     }],
-    "import/prefer-default-export": 0
+    "import/prefer-default-export": 0,
+    "one-var": ["error", {
+      "var": "always",
+      "let": "always",
+      "const": "always"
+    }]
   }
 }

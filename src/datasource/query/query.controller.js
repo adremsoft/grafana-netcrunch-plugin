@@ -6,11 +6,9 @@
  * found in the LICENSE file.
  */
 
-//noinspection TypeScriptCheckImport
-import {QueryCtrl} from 'app/plugins/sdk';
-import {datasourceURL} from '../common';
+import { QueryCtrl } from 'app/plugins/sdk';  // eslint-disable-line
+import { datasourceURL } from '../common';
 
-//noinspection TypeScriptValidateTypes
 class NetCrunchQueryController extends QueryCtrl {
 
   constructor() {
@@ -18,11 +16,11 @@ class NetCrunchQueryController extends QueryCtrl {
   }
 
   static get templateUrl() {
-    return datasourceURL + 'query/query.editor.html';
-  };
+    return `${datasourceURL}query/query.editor.html`;
+  }
 
 }
 
 export {
-  NetCrunchQueryController as NetCrunchQueryController
-}
+  NetCrunchQueryController
+};

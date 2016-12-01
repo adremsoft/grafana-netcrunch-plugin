@@ -6,13 +6,14 @@
  * found in the LICENSE file.
  */
 
-const baseDatasourceURL = 'plugins/grafana-netcrunch/datasource/',
-      datasourceURL = 'public/' + baseDatasourceURL,
-      systemJSDatasourceURL = baseDatasourceURL,
-      servicesModule = 'grafana.services';
+const
+  baseDatasourceURL = 'plugins/grafana-netcrunch/datasource/',
+  datasourceURL = `public/${baseDatasourceURL}`,
+  systemJSDatasourceURL = baseDatasourceURL,
+  servicesModule = 'grafana.services';
 
 export {
-  datasourceURL as datasourceURL,
-  systemJSDatasourceURL as systemJSDatasourceURL,
-  servicesModule as servicesModule
-}
+  datasourceURL,
+  systemJSDatasourceURL,
+  servicesModule
+};
