@@ -6,22 +6,22 @@
  * found in the LICENSE file.
  */
 
-import {NetCrunchNetworkData} from './networkData/networkData';
-import {NetCrunchCountersData} from './countersData';
-import {NetCrunchTrendData} from './trendData';
+import { NetCrunchNetworkData } from './networkData/networkData';
+import { NetCrunchCountersData } from './countersData';
+import { NetCrunchTrendData } from './trendData';
 
 const CONNECTION_CONSTS = {
   API_NAME: '/ncapi/',
 
-  NC_SERVER_VER_MAJOR : 9,
-  NC_SERVER_VER_MINOR : 3,
+  NC_SERVER_VER_MAJOR: 9,
+  NC_SERVER_VER_MINOR: 3,
 
-  STATUS_OK : 0,
-  ERROR_SERVER_API : 1,
-  ERROR_SERVER_VER : 2,
-  ERROR_CONNECTION_INIT : 3,
-  ERROR_AUTHENTICATION : 4,
-  ERROR_MESSAGES : [
+  STATUS_OK: 0,
+  ERROR_SERVER_API: 1,
+  ERROR_SERVER_VER: 2,
+  ERROR_CONNECTION_INIT: 3,
+  ERROR_AUTHENTICATION: 4,
+  ERROR_MESSAGES: [
     '',
     'Server connection failed',
     'NetCrunch server version should be 9.3 or greater',
@@ -36,7 +36,7 @@ class NetCrunchConnection {
     this.adrem = adrem;
     this.apiName = CONNECTION_CONSTS.API_NAME;
     this.apiURL = serverURL + this.apiName;
-    this.connectionName =connectionName;
+    this.connectionName = connectionName;
     this.serverConnection = null;
     this.serverConnectionReady = null;
     this.netCrunchClient = null;
@@ -49,22 +49,23 @@ class NetCrunchConnection {
     this.trends = null;
   }
 
-  checkApiVersion(serverApi) {
+  static checkApiVersion(serverApi) {
 
     function parseVersion(version) {
-      let versionPattern = /^(\d+).(\d+).(\d+)(.(\d+))*$/,
-          versionElements = versionPattern.exec(version);
+      const
+        versionPattern = /^(\d+).(\d+).(\d+)(.(\d+))*$/,
+        versionElements = versionPattern.exec(version);
 
       if (versionElements != null) {
         return {
-          major : versionElements[1],
-          minor : versionElements[2],
-          bugfix : versionElements[3],
-          text : version
+          major: versionElements[1],
+          minor: versionElements[2],
+          bugfix: versionElements[3],
+          text: version
         };
-      } else {
-        return null;
       }
+
+      return null;
     }
 
     function versionGreaterEqualThan(version, major, minor) {
@@ -73,10 +74,8 @@ class NetCrunchConnection {
       if (parseInt(version.major, 10) >= parseInt(major, 10)) {
         if (parseInt(version.major, 10) > parseInt(major, 10)) {
           result = true;
-        } else {
-          if (parseInt(version.minor, 10) >= parseInt(minor, 10)) {
-            result = true;
-          }
+        } else if (parseInt(version.minor, 10) >= parseInt(minor, 10)) {
+          result = true;
         }
       }
 
@@ -85,29 +84,26 @@ class NetCrunchConnection {
 
     function createResult(status, version = null) {
       return {
-        status: status,
-        version: version
+        status,
+        version
       };
     }
 
     if ((serverApi.api != null) && (serverApi.api[0] != null) && (serverApi.api[0].ver != null)) {
-      let version,
-          minMajor = CONNECTION_CONSTS.NC_SERVER_VER_MAJOR,
-          minMinor = CONNECTION_CONSTS.NC_SERVER_VER_MINOR;
+      const
+        minMajor = CONNECTION_CONSTS.NC_SERVER_VER_MAJOR,
+        minMinor = CONNECTION_CONSTS.NC_SERVER_VER_MINOR,
+        version = parseVersion(serverApi.api[0].ver);
 
-      version = parseVersion(serverApi.api[0].ver);
       if (version != null) {
         if (versionGreaterEqualThan(version, minMajor, minMinor)) {
           return createResult(CONNECTION_CONSTS.STATUS_OK, version);
-        } else {
-          return createResult(CONNECTION_CONSTS.ERROR_SERVER_VER, version);
         }
-      } else {
-        return createResult(CONNECTION_CONSTS.ERROR_SERVER_VER);
+        return createResult(CONNECTION_CONSTS.ERROR_SERVER_VER, version);
       }
-    } else {
       return createResult(CONNECTION_CONSTS.ERROR_SERVER_VER);
     }
+    return createResult(CONNECTION_CONSTS.ERROR_SERVER_VER);
   }
 
   login(userName, password, ignoreDownloadNetworkAtlas = false) {
@@ -128,29 +124,28 @@ class NetCrunchConnection {
       this.serverConnectionReady = this.establishConnection();
     }
     return this.serverConnectionReady
-      .then(() => {
-        return this.authenticateUser(userName, password)
+      .then(() =>
+        this.authenticateUser(userName, password)
           .then(() => {
             this.networkAtlas = new NetCrunchNetworkData(this.adremClient, this.serverConnection);
             this.networkAtlas.onNodesChanged = nodesChanged.bind(this);
             this.networkAtlas.onNetworksChanged = networksChanged.bind(this);
             this.counters = new NetCrunchCountersData(this.adremClient, this.serverConnection);
-            this.trends =  new NetCrunchTrendData(this);
+            this.trends = new NetCrunchTrendData(this);
 
             if (ignoreDownloadNetworkAtlas !== true) {
               this.networkAtlas.init()
                 .then(() => {
-                  //noinspection TypeScriptUnresolvedFunction
                   this.networkAtlasReadyResolve(this.networkAtlas);
                 });
             }
             return true;
-          });
-      });
+          })
+      );
   }
 
   logout() {
-    let self = this;
+    const self = this;
     return new Promise((resolve) => {
       if (self.serverConnectionReady != null) {
         self.serverConnectionReady
@@ -168,12 +163,13 @@ class NetCrunchConnection {
     });
   }
 
-  establishConnection () {
-    let self = this;
+  establishConnection() {
+    const self = this;
     return new Promise((resolve, reject) => {
       self.adrem.then((adrem) => {
-        let apiName = self.apiName,
-            apiURL = self.apiURL;
+        const
+          apiName = self.apiName,
+          apiURL = self.apiURL;
 
         self.adremClient = adrem;
 
@@ -183,15 +179,10 @@ class NetCrunchConnection {
 
         self.netCrunchClient = self.serverConnection.Client;
 
-        self.netCrunchClient.urlFilter = function(url) {
-          url = url.replace(apiName, '');
-          url = apiURL + url;
-          return url;
-        };
+        self.netCrunchClient.urlFilter = url => apiURL + url.replace(apiName, '');
 
         self.netCrunchClient.on('exception', (e) => {
           if (typeof self.onError === 'function') {
-            //noinspection TypeScriptUnresolvedFunction
             self.onError({
               connectionName: self.connectionName,
               message: e.message
@@ -212,30 +203,29 @@ class NetCrunchConnection {
   }
 
   authenticateUser(userName, password) {
-    const MAX_LOGIN_ATTEMPTS = 3,
-          BASE_LOGIN_TIMEOUT = 5000;
-    let netCrunchClient = this.netCrunchClient,
-        loginProcess;
+    const
+      MAX_LOGIN_ATTEMPTS = 3,
+      BASE_LOGIN_TIMEOUT = 5000,
+      netCrunchClient = this.netCrunchClient;
+    let loginProcess;
 
     function loginTimeout(attempt) {
-      return (MAX_LOGIN_ATTEMPTS - attempt + 1) * BASE_LOGIN_TIMEOUT;
+      return ((MAX_LOGIN_ATTEMPTS - attempt) + 1) * BASE_LOGIN_TIMEOUT;
     }
 
-    function tryAuthenticate(userName, password, attempt) {
+    function tryAuthenticate(userName, password, attempt) {           // eslint-disable-line
       return new Promise((resolve, reject) => {
         netCrunchClient.login(userName, password, (status) => {
           if (status === true) {
             resolve();
+          } else if (attempt > 1) {
+            setTimeout(() => {
+              tryAuthenticate(userName, password, attempt - 1)
+                .then(() => { resolve(); })
+                .catch(() => { reject(); });
+            }, loginTimeout(attempt));
           } else {
-            if (attempt > 1) {
-              setTimeout(function() {
-                tryAuthenticate(userName, password, attempt - 1)
-                  .then(() => { resolve(); })
-                  .catch(() => { reject(); });
-              }, loginTimeout(attempt));
-            } else {
-              reject();
-            }
+            reject();
           }
         });
       });
@@ -243,7 +233,7 @@ class NetCrunchConnection {
 
     if (this.loggedIn() === false) {
       if (this.loginInProgress === false) {
-        let self = this;
+        const self = this;
         this.loginInProgress = true;
         loginProcess = new Promise((resolve, reject) => {
           tryAuthenticate(userName, password, MAX_LOGIN_ATTEMPTS)
@@ -277,14 +267,15 @@ class NetCrunchConnection {
     if (this.trendQuery == null) {
       this.trendQuery = new this.serverConnection.ncSrv.ITrendQuery();
     }
-    return this.callApi(this.trendQuery.AnalyzeGetData, arguments);
+    return this.callApi(this.trendQuery.AnalyzeGetData, arguments);       // eslint-disable-line
   }
 
-  callApi (apiCall, args, acceptEmpty = true) {
-    let self = this;
+  callApi(apiCall, args, acceptEmpty = true) {
+    const self = this;
     return new Promise((resolve, reject) => {
+      // eslint-disable-next-line
       args = Array.prototype.slice.call(args, 0);   // convert arguments to Array
-      apiCall.apply(self, args.concat([function (data) {
+      apiCall.apply(self, args.concat([(data) => {
         if ((data !== undefined) || acceptEmpty) {
           resolve(data);
         } else {
@@ -297,6 +288,6 @@ class NetCrunchConnection {
 }
 
 export {
-  CONNECTION_CONSTS as CONNECTION_CONSTS,
-  NetCrunchConnection as NetCrunchConnection
-}
+  CONNECTION_CONSTS,
+  NetCrunchConnection
+};

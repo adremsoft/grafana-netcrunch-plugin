@@ -8,9 +8,6 @@
 
 class NetCrunchSessionCache {
 
-  constructor() {
-  }
-
   addSection(sectionName) {
     this[sectionName] = new Map();
   }
@@ -27,7 +24,7 @@ class NetCrunchSessionCache {
 
     this.getSection(sectionName).set(key, {
       timeStamp: new Date().getTime(),
-      value: value
+      value
     });
   }
 
@@ -44,5 +41,5 @@ class NetCrunchSessionCache {
 }
 
 export {
-  NetCrunchSessionCache as NetCrunchSessionCache
-}
+  NetCrunchSessionCache
+};
