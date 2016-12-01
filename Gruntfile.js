@@ -110,6 +110,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', ['clean:prod', 'copy:prod', 'eslint', 'babel:prod']);
   grunt.registerTask('build', ['default']);
-  grunt.registerTask('develop', ['clean:dev', 'copy:dev', 'eslint', 'babel:dev']);
+  grunt.registerTask('develop', ['clean:dev', 'copy:dev', 'babel:dev']);
 
 };
