@@ -8,12 +8,12 @@
 
 class NetCrunchConnectionCache {
 
-  constructor () {
+  constructor() {
     this.connectionCache = new Map();
   }
 
-  getConnectionKey(datasource) {
-    return datasource.serverUrl + ':' + datasource.username;
+  getConnectionKey(datasource) {    // eslint-disable-line
+    return `${datasource.serverUrl}:${datasource.username}`;
   }
 
   addConnection(datasource, connection) {
@@ -34,5 +34,5 @@ class NetCrunchConnectionCache {
 }
 
 export {
-  NetCrunchConnectionCache as NetCrunchConnectionCache
-}
+  NetCrunchConnectionCache
+};

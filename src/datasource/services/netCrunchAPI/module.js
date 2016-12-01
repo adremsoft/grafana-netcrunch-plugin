@@ -6,10 +6,10 @@
  * found in the LICENSE file.
  */
 
-import {adrem} from './adrem/module';
-import {CONNECTION_ERROR_MESSAGES} from './netCrunchAPI.service';
+import { adrem } from './adrem/module';
+import { CONNECTION_ERROR_MESSAGES } from './netCrunchAPI.service';
 
 export {
-  adrem as adrem,
-  CONNECTION_ERROR_MESSAGES as CONNECTION_ERROR_MESSAGES
-}
+  adrem,
+  CONNECTION_ERROR_MESSAGES
+};
