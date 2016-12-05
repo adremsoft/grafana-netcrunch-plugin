@@ -11,6 +11,23 @@ import { datasourceURL } from '../common';
 
 class NetCrunchQueryOptionsController extends QueryCtrl {
 
+  constructor() {
+    super();
+    this.MAX_SAMPLE_COUNT = this.panelCtrl.datasource.MAX_SAMPLE_COUNT;
+    this.checkMaxDataPoints();
+  }
+
+  checkMaxDataPoints() {
+    if (!((this.panel.scopedVars.maxDataPoints >= this.MAX_SAMPLE_COUNT.MIN) &&
+          (this.panel.scopedVars.maxDataPoints <= this.MAX_SAMPLE_COUNT.MAX))) {
+      this.panel.scopedVars.maxDataPoints = this.MAX_SAMPLE_COUNT.DEFAULT;
+    }
+  }
+
+  metricOptionsChange() {
+    this.panelCtrl.refresh();
+  }
+
   static get templateUrl() {
     return `${datasourceURL}query/query.options.html`;
   }
