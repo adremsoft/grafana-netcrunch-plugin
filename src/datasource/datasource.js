@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-import { CONNECTION_ERROR_MESSAGES } from './services/netCrunchAPI/module';
+import { CONNECTION_ERROR_MESSAGES, MAX_SAMPLE_COUNT } from './services/netCrunchAPI/module';
 
 const
   SERIES_TYPES_DISPLAY_NAMES = {
@@ -94,6 +94,7 @@ class NetCrunchDatasource {
     this.serverUrl = instanceSettings.jsonData.simpleUrl;
     this.username = instanceSettings.jsonData.user;
     this.password = instanceSettings.jsonData.password;
+    this.MAX_SAMPLE_COUNT = MAX_SAMPLE_COUNT;
 
     this.netCrunchAPI = netCrunchAPIService;
     this.alertSrv = alertSrv;

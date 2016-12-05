@@ -12,9 +12,11 @@ import angular from 'angular';
 import { servicesModule } from '../../common';
 import './adrem/module';
 import { NetCrunchConnectionCache } from './connectionCache';
-import { NetCrunchConnection, CONNECTION_CONSTS } from './netCrunchConnection/connection';
+import { NetCrunchConnection, CONNECTION_CONSTS, NETCRUNCH_TREND_DATA_CONST } from './netCrunchConnection/connection';
 
-const CONNECTION_ERROR_MESSAGES = CONNECTION_CONSTS.ERROR_MESSAGES;
+const
+  CONNECTION_ERROR_MESSAGES = CONNECTION_CONSTS.ERROR_MESSAGES,
+  MAX_SAMPLE_COUNT = NETCRUNCH_TREND_DATA_CONST.MAX_SAMPLE_COUNT;;
 
 class NetCrunchAPIService {
 
@@ -133,7 +135,8 @@ class NetCrunchAPIService {
 }
 
 export {
-  CONNECTION_ERROR_MESSAGES
+  CONNECTION_ERROR_MESSAGES,
+  MAX_SAMPLE_COUNT
 };
 
 angular

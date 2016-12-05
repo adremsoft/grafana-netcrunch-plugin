@@ -7,9 +7,10 @@
  */
 
 import { adrem } from './adrem/module';
-import { CONNECTION_ERROR_MESSAGES } from './netCrunchAPI.service';
+import { CONNECTION_ERROR_MESSAGES, MAX_SAMPLE_COUNT } from './netCrunchAPI.service';
 
 export {
   adrem,
-  CONNECTION_ERROR_MESSAGES
+  CONNECTION_ERROR_MESSAGES,
+  MAX_SAMPLE_COUNT
 };
