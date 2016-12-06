@@ -105,15 +105,6 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
     atlasTree.addMapToIndex(decodeNetworkData(map));
   }
 
-  function nodeAddress(address) {                   // eslint-disable-line
-    let result = address;
-
-    if ((address != null) && (address !== '')) {
-      result = `(${address})`;
-    }
-    return result;
-  }
-
   function mapNodes(nodes, map) {
     const
       mapNodes = [],
@@ -150,7 +141,7 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
 
     if (map != null) {
       nodes.forEach((node) => {
-        if ((node != null) && (node.Id != null)) {
+        if ((node != null) && (node.id != null)) {
           nodesIndex.set(node.id, node);
         }
       });
@@ -209,7 +200,8 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       return result;
     }
 
-    nodes = nodes.filter(node => ((node != null) && (node.id != null)));
+    nodes = nodes.filter(node => ((node != null) && ((node.id != null) &&
+                                  ((node.name != null) && (node.address != null)))));
     return nodes.sort(compareNodeData);
   }
 
@@ -226,6 +218,18 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       orderingWebWorkerSingleton = workerBuilder.getWebWorker();
     }
     return orderingWebWorkerSingleton;
+  }
+
+  function sortNodes(nodes, map = null) {
+    return new Promise((resolve) => {
+      if (nodes.length < THREAD_WORKER_NODES_NUMBER) {
+        nodes = filterAndOrderMapNodes(nodes, map);
+        resolve(nodes);
+      } else {
+        getOrderingWebWorker().filterAndOrderMapNodes(nodes, map)
+          .then(nodes => resolve(nodes));
+      }
+    });
   }
 
   return {
@@ -286,16 +290,8 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
     },
 
     getOrderedNodes: function(map = null) {
-      let nodes = this.getNodesTable() || [];
-      return new Promise((resolve) => {
-        if (nodes.length < THREAD_WORKER_NODES_NUMBER) {
-          nodes = filterAndOrderMapNodes(nodes, map);
-          resolve(nodes);
-        } else {
-          getOrderingWebWorker().filterAndOrderMapNodes(nodes, map)
-            .then(nodes => resolve(nodes));
-        }
-      });
+      const nodes = this.getNodesTable() || [];
+      return sortNodes(nodes, map);
     },
 
     addNodesMap(nodes) {
