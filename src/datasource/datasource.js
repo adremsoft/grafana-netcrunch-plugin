@@ -139,7 +139,7 @@ class NetCrunchDatasource {
       const
         countersAPI = self.netCrunchConnection.counters,
         nodeName = self.getNodeById(target.nodeID).then((nodeData) => {
-          const result = (nodeData != null) ? nodeData.values.Name : null;
+          const result = (nodeData != null) ? nodeData.name : null;
           return result;
         }),
         counterDisplayName = self.getCounters(target.nodeID).then((counterList) => {

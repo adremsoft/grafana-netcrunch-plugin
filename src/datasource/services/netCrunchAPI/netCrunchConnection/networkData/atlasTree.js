@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-/* global window */
+import { NetCrunchNode } from './node';
 
 function NetCrunchAtlasTree(netCrunchServerConnection) {
 
@@ -16,48 +16,9 @@ function NetCrunchAtlasTree(netCrunchServerConnection) {
         children: []
       }
     },
-    nodes = {},
-    iconSize = 25,
-
-    MAP_ICON_ID_UNKNOWN = 100;
+    nodes = {};
 
   let orphans = [];
-
-  function parseXML(data) {
-    let xml;
-
-    if (!data || typeof data !== 'string') {
-      return null;
-    }
-
-    try {
-      xml = (new window.DOMParser()).parseFromString(data, 'text/xml');
-    } catch (e) {
-      xml = undefined;
-    }
-
-    return xml;
-  }
-
-  function getDeviceIcon(deviceTypeXML) {
-    if (deviceTypeXML !== '' && deviceTypeXML != null) {
-      const
-        doc = parseXML(deviceTypeXML),
-        devtype = doc.getElementsByTagName('devtype');
-      let result = MAP_ICON_ID_UNKNOWN;
-
-      if (devtype[0] != null) {
-        result = devtype[0].getAttribute('iconid') || result;
-      }
-      return result;
-    }
-    return 0;
-  }
-
-  function getMapIconUrl(iconId, size) {
-    const iconUrl = netCrunchServerConnection.ncSrv.IMapIcons.GetIcon.asURL(iconId, (size || 32));
-    return netCrunchServerConnection.Client.urlFilter(iconUrl);
-  }
 
   function pushUniqueChildToMap(map, child) {
     const isUnique = map.children.every(mapChild => (mapChild.data.values.NetIntId !== child.data.values.NetIntId));
@@ -97,9 +58,8 @@ function NetCrunchAtlasTree(netCrunchServerConnection) {
     },
 
     addNode: (nodeRec) => {
-      // eslint-disable-next-line
-      nodeRec.local.iconUrl = getMapIconUrl(getDeviceIcon(nodeRec.values.DeviceType), iconSize);
-      nodes[nodeRec.values.Id] = nodeRec;
+      const newNode = new NetCrunchNode(nodeRec, netCrunchServerConnection);
+      nodes[newNode.id] = newNode;
     },
 
     generateMapList: () => {

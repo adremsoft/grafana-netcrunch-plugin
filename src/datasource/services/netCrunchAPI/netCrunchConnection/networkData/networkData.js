@@ -150,8 +150,8 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
 
     if (map != null) {
       nodes.forEach((node) => {
-        if ((node.values != null) && (node.values.Id != null)) {
-          nodesIndex.set(node.values.Id, node);
+        if ((node != null) && (node.Id != null)) {
+          nodesIndex.set(node.id, node);
         }
       });
 
@@ -183,15 +183,15 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
     }
 
     function getNodeProperty(node, propertyName) {
-      return ((node.values != null) && (node.values[propertyName] != null)) ? node.values[propertyName] : '';
+      return ((node != null) && (node[propertyName] != null)) ? node[propertyName] : '';
     }
 
     function compareNodeData(nodeA, nodeB) {
       const
-        nodeAName = getNodeProperty(nodeA, 'Name').toLowerCase(),
-        nodeBName = getNodeProperty(nodeB, 'Name').toLowerCase(),
-        nodeAAddress = getNodeProperty(nodeA, 'Address'),
-        nodeBAddress = getNodeProperty(nodeB, 'Address');
+        nodeAName = getNodeProperty(nodeA, 'name').toLowerCase(),
+        nodeBName = getNodeProperty(nodeB, 'name').toLowerCase(),
+        nodeAAddress = getNodeProperty(nodeA, 'address'),
+        nodeBAddress = getNodeProperty(nodeB, 'address');
       let result = 0;
 
       if ((nodeAName !== '') && (nodeBName !== '')) {
@@ -209,7 +209,7 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       return result;
     }
 
-    nodes = nodes.filter(node => (node.values != null));
+    nodes = nodes.filter(node => ((node != null) && (node.id != null)));
     return nodes.sort(compareNodeData);
   }
 
@@ -300,7 +300,7 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
 
     addNodesMap(nodes) {
       nodes.nodesMap = new Map();
-      nodes.forEach(node => nodes.nodesMap.set(node.values.Id, node));
+      nodes.forEach(node => nodes.nodesMap.set(node.id, node));
       return nodes;
     }
 
