@@ -7,6 +7,7 @@
  */
 
 import { CONNECTION_ERROR_MESSAGES, MAX_SAMPLE_COUNT } from './services/netCrunchAPI/module';
+import { NetCrunchMetricFindQuery } from './metricFindQuery';
 
 const
   SERIES_TYPES_DISPLAY_NAMES = {
@@ -322,6 +323,15 @@ class NetCrunchDatasource {
     } catch (error) {
       return Promise.reject(error);
     }
+  }
+
+  metricFindQuery(query) {
+
+    if (query == null) {
+      return Promise.resolve([]);
+    }
+
+    return new NetCrunchMetricFindQuery(this, query).process();
   }
 
   getNodeById(nodeID) {
