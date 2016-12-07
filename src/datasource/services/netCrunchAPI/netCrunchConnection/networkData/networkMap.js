@@ -91,6 +91,10 @@ class NetCrunchNetworkMap {
     return this[PRIVATE_PROPERTIES.local].children;
   }
 
+  get displayName() {
+    return this[PRIVATE_PROPERTIES.values].DisplayName || '';
+  }
+
   addChild(networkMap) {
     const isUnique = this.children.every(child => (child.netId !== networkMap.netId));
     if (isUnique === true) {

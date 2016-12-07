@@ -7,93 +7,65 @@
  */
 
 import { NetCrunchNetworkNode } from './networkNode';
+import { NetCrunchNetworkMap } from './networkMap';
 
-function NetCrunchAtlasTree(netCrunchServerConnection) {
+const
+  PRIVATE_PROPERTIES = {
+    connection: Symbol('connection'),
+    nodes: Symbol('nodes'),
+    atlas: Symbol('atlas'),
+    orphans: Symbol('orphans')
+  };
 
-  const
-    mapTree = {
-      '': {
-        children: []
-      }
-    },
-    nodes = {};
+class NetCrunchAtlasTree {
 
-  let orphans = [];
-
-  function pushUniqueChildToMap(map, child) {
-    const isUnique = map.children.every(mapChild => (mapChild.data.values.NetIntId !== child.data.values.NetIntId));
-
-    if (isUnique === true) {
-      map.children.push(child);
-    }
+  constructor(netCrunchServerConnection) {
+    this[PRIVATE_PROPERTIES.connection] = netCrunchServerConnection;
+    this[PRIVATE_PROPERTIES.nodes] = {};
+    this[PRIVATE_PROPERTIES.atlas] = new Map();
+    this[PRIVATE_PROPERTIES.atlas].set('', new NetCrunchNetworkMap());
+    this[PRIVATE_PROPERTIES.orphans] = [];
   }
 
-  return {
-    tree: mapTree,
-    nodes,
+  addMap(mapRec) {
+    const
+      networkMap = new NetCrunchNetworkMap(mapRec);
 
-    addMapToIndex: (mapRec) => {
-      const
-        parentId = mapRec.local.parentId,
-        netId = mapRec.values.NetIntId;
+    this[PRIVATE_PROPERTIES.atlas].set(networkMap.netId, networkMap);
 
-      mapTree[netId] = {
-        data: mapRec,
-        children: []
-      };
-
-      orphans = orphans.filter((orphan) => {
-        if (orphan.data.local.parentId === netId) {
-          pushUniqueChildToMap(mapTree[netId], orphan);
+    this[PRIVATE_PROPERTIES.orphans] = this[PRIVATE_PROPERTIES.orphans]
+      .filter((orphan) => {
+        if (orphan.parentId === networkMap.netId) {
+          this[PRIVATE_PROPERTIES.atlas]
+            .get(networkMap.netId)
+            .addChild(orphan);
           return false;
         }
         return true;
       });
 
-      if (mapTree[parentId] != null) {
-        pushUniqueChildToMap(mapTree[parentId], mapTree[netId]);
-      } else {
-        orphans.push(mapTree[netId]);
-      }
-    },
-
-    addNode: (nodeRec) => {
-      const newNode = new NetCrunchNetworkNode(nodeRec, netCrunchServerConnection);
-      nodes[newNode.id] = newNode;
-    },
-
-    generateMapList: () => {
-
-      const mapList = [];
-
-      function sortMaps(first, second) {
-        if (first.data.values.DisplayName !== second.data.values.DisplayName) {
-          if (first.data.values.DisplayName < second.data.values.DisplayName) {
-            return -1;
-          }
-          return 1;
-        }
-        return 0;
-      }
-
-      function performMapList(maps, innerLevel, parentIndex) {
-        maps.sort(sortMaps);
-        maps.forEach((map) => {
-          map.data.local.innerLevel = innerLevel;           // eslint-disable-line
-          map.data.local.parentLinearIndex = parentIndex;   // eslint-disable-line
-          if (map.data.local.isFolder === true) {
-            mapList.push(map);
-            performMapList(map.children, innerLevel + 1, mapList.length - 1);
-          } else {
-            mapList.push(map);
-          }
-        });
-      }
-
-      performMapList(mapTree[''].children, 1, 'root');
-      return mapList;
+    if (this[PRIVATE_PROPERTIES.atlas].has(networkMap.parentId)) {
+      this[PRIVATE_PROPERTIES.atlas]
+        .get(networkMap.parentId)
+        .addChild(networkMap);
+    } else {
+      this[PRIVATE_PROPERTIES.orphans].push(networkMap);
     }
-  };
+  }
+
+  addNode(nodeRec) {
+    const newNode = new NetCrunchNetworkNode(nodeRec, this[PRIVATE_PROPERTIES.connection]);
+    this[PRIVATE_PROPERTIES.nodes][newNode.id] = newNode;
+  }
+
+  get nodes() {
+    return this[PRIVATE_PROPERTIES.nodes];
+  }
+
+  get atlas() {
+    return this[PRIVATE_PROPERTIES.atlas];
+  }
+
 }
 
 export {
