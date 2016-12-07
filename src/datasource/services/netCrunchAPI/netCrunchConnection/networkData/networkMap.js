@@ -114,7 +114,7 @@ class NetCrunchNetworkMap {
           });
 
           if ((map.isFolder) && (innerLevel <= 2)) {
-            const currentIndex = isNaN(parentIndex) ? mapList.length - 1 : parentIndex + (mapList.length - 1);
+            const currentIndex = isNaN(parentIndex) ? mapList.length - 1 : parentIndex + mapList.length;
             mapList = mapList.concat(createMapList(child, innerLevel + 1, currentIndex));
           }
         });
