@@ -10,7 +10,11 @@
 
 const
   MAP_ICON_ID_UNKNOWN = 100,
-  ICON_SIZE = 25;
+  ICON_SIZE = 25,
+  PRIVATE_PROPERTIES = {
+    local: Symbol('local'),
+    values: Symbol('values')
+  };
 
 class NetCrunchNode {
 
@@ -18,12 +22,29 @@ class NetCrunchNode {
     const
       deviceType = NetCrunchNode.parseDeviceType(nodeRec.values.DeviceType);
 
-    this.id = nodeRec.values.Id;
-    this.name = nodeRec.values.Name;
-    this.address = nodeRec.values.Address;
-    this.globalDataNode = nodeRec.values.GlobalDataNode;
-    Object.assign(this, deviceType);
-    this.iconUrl = NetCrunchNode.getIconUrl(this.iconId, netCrunchServerConnection);
+    this[PRIVATE_PROPERTIES.values] = nodeRec.values;
+    this[PRIVATE_PROPERTIES.local] = Object.assign({}, deviceType);
+    this[PRIVATE_PROPERTIES.local].iconUrl = NetCrunchNode.getIconUrl(this.iconId, netCrunchServerConnection);
+  }
+
+  get id() {
+    return this[PRIVATE_PROPERTIES.values].Id;
+  }
+
+  get name() {
+    return this[PRIVATE_PROPERTIES.values].Name;
+  }
+
+  get address() {
+    return this[PRIVATE_PROPERTIES.values].Address;
+  }
+
+  get globalDataNode() {
+    return this[PRIVATE_PROPERTIES.values].GlobalDataNode;
+  }
+
+  get iconUrl() {
+    return this[PRIVATE_PROPERTIES.local].iconUrl;
   }
 
   static parseXML(data) {
