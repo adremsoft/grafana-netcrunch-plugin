@@ -95,6 +95,33 @@ class NetCrunchNetworkMap {
     return this[PRIVATE_PROPERTIES.values].DisplayName || '';
   }
 
+  get childList() {
+
+    function sortMapsByName(first, second) {
+      return first.displayName.localeCompare(second.displayName);
+    }
+
+    function createMapList(map, innerLevel, parentIndex) {
+      let mapList = [];
+
+      map.children.sort(sortMapsByName);
+      map.children.forEach((child) => {
+        mapList.push({
+          map: child,
+          innerLevel,
+          parentIndex
+        });
+
+        if (map.isFolder) {
+          mapList = mapList.concat(createMapList(child, innerLevel + 1, mapList.length - 1));
+        }
+      });
+      return mapList;
+    }
+
+    return createMapList(this, 1, 'root');
+  }
+
   addChild(networkMap) {
     const isUnique = this.children.every(child => (child.netId !== networkMap.netId));
     if (isUnique === true) {
