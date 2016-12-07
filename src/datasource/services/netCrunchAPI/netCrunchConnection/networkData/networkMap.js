@@ -22,22 +22,27 @@ class NetCrunchNetworkMap {
 
       local.nodesId = [];
 
-      for (let i = 1, len = values.HostMapData[0]; i <= len; i += 1) {
-        const nodeData = values.HostMapData[i];
-        if ((nodeData[0] === 0) || (nodeData[0] === 5)) {
-          local.nodesId.push(parseInt(nodeData[1], 10));
+      if (values.HostMapData != null) {
+        for (let i = 1, len = values.HostMapData[0]; i <= len; i += 1) {
+          const nodeData = values.HostMapData[i];
+          if ((nodeData[0] === 0) || (nodeData[0] === 5)) {
+            local.nodesId.push(parseInt(nodeData[1], 10));
+          }
         }
       }
     }
 
     function decodeNetworkMapData(local, values) {
 
-      local.parentId = parseInt(values.NetworkData[0], 10);
+      local.netId = values.NetIntId || '';
+
+      local.parentId = (values.NetworkData != null) ? parseInt(values.NetworkData[0], 10) : '';
       if (isNaN(local.parentId)) {
         local.parentId = '';
       }
 
-      local.isFolder = ((values.MapClassTag === 'dynfolder') || Array.isArray(values.NetworkData[1]));
+      local.isFolder = ((values.MapClassTag === 'dynfolder') ||
+                        ((values.NetworkData != null) && Array.isArray(values.NetworkData[1])));
 
       if (local.isFolder) {
         const mapsData = values.NetworkData[1];
@@ -55,14 +60,19 @@ class NetCrunchNetworkMap {
     }
 
     /* eslint-enable no-param-reassign */
-
-    this[PRIVATE_PROPERTIES.local] = mapRec.local;
-    this[PRIVATE_PROPERTIES.values] = mapRec.getValues();
+    if (mapRec != null) {
+      this[PRIVATE_PROPERTIES.local] = mapRec.local;
+      this[PRIVATE_PROPERTIES.values] = mapRec.getValues();
+    } else {
+      this[PRIVATE_PROPERTIES.local] = {};
+      this[PRIVATE_PROPERTIES.values] = {};
+    }
     decodeNetworkMapData(this[PRIVATE_PROPERTIES.local], this[PRIVATE_PROPERTIES.values]);
+    this[PRIVATE_PROPERTIES.local].children = [];
   }
 
   get netId() {
-    return this[PRIVATE_PROPERTIES.values].NetIntId;
+    return this[PRIVATE_PROPERTIES.local].netId;
   }
 
   get parentId() {
@@ -75,6 +85,17 @@ class NetCrunchNetworkMap {
 
   get isFolder() {
     return this[PRIVATE_PROPERTIES.local].isFolder;
+  }
+
+  get children() {
+    return this[PRIVATE_PROPERTIES.local].children;
+  }
+
+  addChild(networkMap) {
+    const isUnique = this.children.every(child => (child.netId !== networkMap.netId));
+    if (isUnique === true) {
+      this.children.push(networkMap);
+    }
   }
 
 }
