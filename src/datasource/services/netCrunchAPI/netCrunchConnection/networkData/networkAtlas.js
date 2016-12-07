@@ -15,15 +15,25 @@ const
     nodes: Symbol('nodes'),
     atlas: Symbol('atlas'),
     orphans: Symbol('orphans')
+  },
+  ROOT_MAP_REC = {
+    local: {},
+    getValues: () => {                  // eslint-disable-line
+      return {
+        DisplayName: 'Network Atlas',
+        MapClassTag: 'dynfolder',
+        NetIntId: ''
+      };
+    }
   };
 
-class NetCrunchAtlasTree {
+class NetCrunchNetworkAtlas {
 
   constructor(netCrunchServerConnection) {
     this[PRIVATE_PROPERTIES.connection] = netCrunchServerConnection;
     this[PRIVATE_PROPERTIES.nodes] = {};
     this[PRIVATE_PROPERTIES.atlas] = new Map();
-    this[PRIVATE_PROPERTIES.atlas].set('', new NetCrunchNetworkMap());
+    this[PRIVATE_PROPERTIES.atlas].set('', new NetCrunchNetworkMap(ROOT_MAP_REC));
     this[PRIVATE_PROPERTIES.orphans] = [];
   }
 
@@ -69,5 +79,5 @@ class NetCrunchAtlasTree {
 }
 
 export {
-  NetCrunchAtlasTree
+  NetCrunchNetworkAtlas
 };
