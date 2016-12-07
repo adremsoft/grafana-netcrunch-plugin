@@ -19,9 +19,6 @@ class NetCrunchNetworkMap {
     /* eslint-disable no-param-reassign */
 
     function addNodesToNetworkMap(local, values) {
-
-      local.nodesId = [];
-
       if (values.HostMapData != null) {
         for (let i = 1, len = values.HostMapData[0]; i <= len; i += 1) {
           const nodeData = values.HostMapData[i];
@@ -60,6 +57,7 @@ class NetCrunchNetworkMap {
     }
 
     /* eslint-enable no-param-reassign */
+
     if (mapRec != null) {
       this[PRIVATE_PROPERTIES.local] = mapRec.local;
       this[PRIVATE_PROPERTIES.values] = mapRec.getValues();
@@ -67,6 +65,8 @@ class NetCrunchNetworkMap {
       this[PRIVATE_PROPERTIES.local] = {};
       this[PRIVATE_PROPERTIES.values] = {};
     }
+
+    this[PRIVATE_PROPERTIES.local].nodesId = [];
     decodeNetworkMapData(this[PRIVATE_PROPERTIES.local], this[PRIVATE_PROPERTIES.values]);
     this[PRIVATE_PROPERTIES.local].children = [];
   }
