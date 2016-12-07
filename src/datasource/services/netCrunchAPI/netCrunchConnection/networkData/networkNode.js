@@ -16,15 +16,15 @@ const
     values: Symbol('values')
   };
 
-class NetCrunchNode {
+class NetCrunchNetworkNode {
 
   constructor(nodeRec, netCrunchServerConnection) {
     const
-      deviceType = NetCrunchNode.parseDeviceType(nodeRec.values.DeviceType);
+      deviceType = NetCrunchNetworkNode.parseDeviceType(nodeRec.values.DeviceType);
 
     this[PRIVATE_PROPERTIES.values] = nodeRec.values;
     this[PRIVATE_PROPERTIES.local] = Object.assign({}, deviceType);
-    this[PRIVATE_PROPERTIES.local].iconUrl = NetCrunchNode.getIconUrl(this.iconId, netCrunchServerConnection);
+    this[PRIVATE_PROPERTIES.local].iconUrl = NetCrunchNetworkNode.getIconUrl(this.iconId, netCrunchServerConnection);
   }
 
   get id() {
@@ -77,11 +77,11 @@ class NetCrunchNode {
 
     if ((deviceTypeXML !== '') && (deviceTypeXML != null)) {
       const
-        doc = NetCrunchNode.parseXML(deviceTypeXML),
+        doc = NetCrunchNetworkNode.parseXML(deviceTypeXML),
         deviceType = doc.getElementsByTagName('devtype');
 
       if (deviceType[0] != null) {
-        return NetCrunchNode.createDeviceType(
+        return NetCrunchNetworkNode.createDeviceType(
           deviceType[0].getAttribute('iconid') || MAP_ICON_ID_UNKNOWN,
           deviceType[0].getAttribute('classid'),
           deviceType[0].getAttribute('CategoryId'),
@@ -89,10 +89,10 @@ class NetCrunchNode {
           deviceType[0].getAttribute('ManufacturerId')
         );
       }
-      return NetCrunchNode.createDeviceType();
+      return NetCrunchNetworkNode.createDeviceType();
     }
 
-    return NetCrunchNode.createDeviceType();
+    return NetCrunchNetworkNode.createDeviceType();
   }
 
   static getIconUrl(iconId, serverConnection) {
@@ -103,5 +103,5 @@ class NetCrunchNode {
 }
 
 export {
-  NetCrunchNode
+  NetCrunchNetworkNode
 };

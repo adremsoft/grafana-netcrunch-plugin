@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-import { NetCrunchNode } from './node';
+import { NetCrunchNetworkNode } from './networkNode';
 
 function NetCrunchAtlasTree(netCrunchServerConnection) {
 
@@ -58,7 +58,7 @@ function NetCrunchAtlasTree(netCrunchServerConnection) {
     },
 
     addNode: (nodeRec) => {
-      const newNode = new NetCrunchNode(nodeRec, netCrunchServerConnection);
+      const newNode = new NetCrunchNetworkNode(nodeRec, netCrunchServerConnection);
       nodes[newNode.id] = newNode;
     },
 
