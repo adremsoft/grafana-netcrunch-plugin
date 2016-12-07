@@ -42,7 +42,7 @@ class NetCrunchNetworkMap {
                         ((values.NetworkData != null) && Array.isArray(values.NetworkData[1])));
 
       if (local.isFolder) {
-        const mapsData = values.NetworkData[1];
+        const mapsData = (values.NetworkData != null) ? values.NetworkData[1] : [];
 
         if (Array.isArray(mapsData)) {                        // otherwise it can be empty object instead of empty array
           local.maps = mapsData.map(id => parseInt(id, 10));
@@ -104,18 +104,20 @@ class NetCrunchNetworkMap {
     function createMapList(map, innerLevel, parentIndex) {
       let mapList = [];
 
-      map.children.sort(sortMapsByName);
-      map.children.forEach((child) => {
-        mapList.push({
-          map: child,
-          innerLevel,
-          parentIndex
-        });
+      map.children
+        .sort(sortMapsByName)
+        .forEach((child) => {
+          mapList.push({
+            map: child,
+            innerLevel,
+            parentIndex
+          });
 
-        if (map.isFolder) {
-          mapList = mapList.concat(createMapList(child, innerLevel + 1, mapList.length - 1));
-        }
-      });
+          if ((map.isFolder) && (innerLevel <= 2)) {
+            const currentIndex = isNaN(parentIndex) ? mapList.length - 1 : parentIndex + (mapList.length - 1);
+            mapList = mapList.concat(createMapList(child, innerLevel + 1, currentIndex));
+          }
+        });
       return mapList;
     }
 
