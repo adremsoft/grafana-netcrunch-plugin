@@ -10,7 +10,7 @@ import { AdremWebWorker } from '../../adrem/module';
 
 const THREAD_WORKER_NODES_NUMBER = 1000;
 
-let sortingWebWorkerSingleton = null;
+let webWorkerSingleton = null;
 
 function sortNodesByNameAndAddress(nodes) {
 
@@ -56,13 +56,13 @@ function sortNodesByNameAndAddress(nodes) {
 
 }
 
-function getSortByNameAndAddressWebWorker() {
-  if (sortingWebWorkerSingleton == null) {
+function getWebWorker() {
+  if (webWorkerSingleton == null) {
     const workerBuilder = AdremWebWorker.webWorkerBuilder();
     workerBuilder.addFunctionCode(sortNodesByNameAndAddress, true);
-    sortingWebWorkerSingleton = workerBuilder.getWebWorker();
+    webWorkerSingleton = workerBuilder.getWebWorker();
   }
-  return sortingWebWorkerSingleton;
+  return webWorkerSingleton;
 }
 
 // Babel doesn't support extends from native class like Array, Map, Set
@@ -71,7 +71,7 @@ function NetCrunchNodesArray() {}
 
 NetCrunchNodesArray.prototype = Object.create(Array.prototype);
 
-NetCrunchNodesArray.prototype.sortByNameAndAddress = function() {   // eslint-disable-line
+NetCrunchNodesArray.prototype.asyncSortByNameAndAddress = function() {   // eslint-disable-line
   return new Promise((resolve) => {
     if (this.length < THREAD_WORKER_NODES_NUMBER) {
       const result = sortNodesByNameAndAddress(this);
@@ -88,7 +88,7 @@ NetCrunchNodesArray.prototype.sortByNameAndAddress = function() {   // eslint-di
         });
       });
 
-      getSortByNameAndAddressWebWorker().sortNodesByNameAndAddress(nodesRemoteBuffer)
+      getWebWorker().sortNodesByNameAndAddress(nodesRemoteBuffer)
         .then((nodes) => {
           const result = new NetCrunchNodesArray();
           nodes.forEach(node => result.push(this[node.index]));
