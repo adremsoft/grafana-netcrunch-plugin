@@ -83,6 +83,31 @@ class NetCrunchNetworkMap {
     return this[PRIVATE_PROPERTIES.local].nodesId;
   }
 
+  get allNodesId() {
+    const nodesSet = new Set();
+
+    function addArrayToSet(array, set) {
+      array.forEach(item => set.add(item));
+      return set;
+    }
+
+    if (this.isFolder) {
+
+      if (this[PRIVATE_PROPERTIES.values].MapClassTag === 'fnet') {     // Add nodes into physical segment map
+        addArrayToSet(this.nodesId, nodesSet);
+      }
+
+      this.children.forEach((child) => {
+        addArrayToSet(child.allNodesId, nodesSet);
+      });
+
+    } else {
+      addArrayToSet(this.nodesId, nodesSet);
+    }
+
+    return Array.from(nodesSet);
+  }
+
   get isFolder() {
     return this[PRIVATE_PROPERTIES.local].isFolder;
   }
