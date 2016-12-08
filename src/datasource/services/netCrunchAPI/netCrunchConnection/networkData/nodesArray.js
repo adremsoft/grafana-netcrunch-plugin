@@ -74,10 +74,26 @@ NetCrunchNodesArray.prototype = Object.create(Array.prototype);
 NetCrunchNodesArray.prototype.sortByNameAndAddress = function() {
   return new Promise((resolve) => {
     if (this.length < THREAD_WORKER_NODES_NUMBER) {
-      resolve(sortNodesByNameAndAddress(this));
+      const result = sortNodesByNameAndAddress(this);
+      resolve(result);
     } else {
-      getSortByNameAndAddressWebWorker().sortNodesByNameAndAddress(this)
-        .then(nodes => resolve(nodes));
+      const nodesRemoteBuffer = [];
+
+      this.forEach((node, index) => {
+        nodesRemoteBuffer.push({
+          id: node.id,
+          name: node.name,
+          address: node.address,
+          index
+        });
+      });
+
+      getSortByNameAndAddressWebWorker().sortNodesByNameAndAddress(nodesRemoteBuffer)
+        .then((nodes) => {
+          const result = new NetCrunchNodesArray();
+          nodes.forEach(node => result.push(this[node.index]));
+          resolve(result);
+        });
     }
   });
 };
