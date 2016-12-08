@@ -6,23 +6,19 @@
  * found in the LICENSE file.
  */
 
+import { NetCrunchNodesArray } from './nodesArray';
+
 const
   PRIVATE_PROPERTIES = {
     map: Symbol('map'),
     array: Symbol('array')
   };
 
-// Babel doesn't support extends from native class like Array, Map, Set
-
-function NodesArray() {}
-
-NodesArray.prototype = Object.create(Array.prototype);
-
 class NetCrunchNodes {
 
   constructor() {
     this[PRIVATE_PROPERTIES.map] = new Map();
-    this[PRIVATE_PROPERTIES.array] = new NodesArray();
+    this[PRIVATE_PROPERTIES.array] = new NetCrunchNodesArray();
   }
 
   add(node) {
@@ -33,7 +29,7 @@ class NetCrunchNodes {
   mapNodes(map = null) {
 
     if (map != null) {
-      const result = new NodesArray();
+      const result = new NetCrunchNodesArray();
 
       map.allNodesId.forEach((nodeId) => {
         if (this[PRIVATE_PROPERTIES.map].has(nodeId)) {
