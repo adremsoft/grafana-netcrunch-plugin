@@ -8,6 +8,7 @@
 
 import { NetCrunchNetworkNode } from './networkNode';
 import { NetCrunchNetworkMap } from './networkMap';
+import { NetCrunchNodes } from './networkNodes';
 
 const
   ATLAS_ROOT_ID = '',
@@ -32,7 +33,7 @@ class NetCrunchNetworkAtlas {
 
   constructor(netCrunchServerConnection) {
     this[PRIVATE_PROPERTIES.connection] = netCrunchServerConnection;
-    this[PRIVATE_PROPERTIES.nodes] = new Map();
+    this[PRIVATE_PROPERTIES.nodes] = new NetCrunchNodes();
     this[PRIVATE_PROPERTIES.atlas] = new Map();
     this[PRIVATE_PROPERTIES.atlas].set(ATLAS_ROOT_ID, new NetCrunchNetworkMap(ROOT_MAP_REC));
     this[PRIVATE_PROPERTIES.orphans] = [];
@@ -66,7 +67,7 @@ class NetCrunchNetworkAtlas {
 
   addNode(nodeRec) {
     const newNode = new NetCrunchNetworkNode(nodeRec, this[PRIVATE_PROPERTIES.connection]);
-    this[PRIVATE_PROPERTIES.nodes].set(newNode.id, newNode);
+    this[PRIVATE_PROPERTIES.nodes].add(newNode);
   }
 
   get nodes() {
@@ -79,17 +80,6 @@ class NetCrunchNetworkAtlas {
 
   get atlasRoot() {
     return this.atlas.get(ATLAS_ROOT_ID);
-  }
-
-  mapNodes(map = null) {
-
-    if (map != null) {
-      return map.allNodesId
-        .filter(nodeId => this.nodes.has(nodeId))
-        .map(nodeId => this.nodes.get(nodeId));
-    }
-
-    return Array.from(this.nodes, value => value[1]);
   }
 
 }
