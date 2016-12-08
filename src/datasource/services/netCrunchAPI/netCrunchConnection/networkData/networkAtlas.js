@@ -81,7 +81,7 @@ class NetCrunchNetworkAtlas {
     return this.atlas.get(ATLAS_ROOT_ID);
   }
 
-  mapNodes(map) {
+  mapNodes(map = null) {
 
     if (map != null) {
       return map.allNodesId
@@ -89,7 +89,7 @@ class NetCrunchNetworkAtlas {
         .map(nodeId => this.nodes.get(nodeId));
     }
 
-    return [];
+    return Array.from(this.nodes, value => value[1]);
   }
 
 }
