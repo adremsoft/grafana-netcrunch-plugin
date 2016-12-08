@@ -71,7 +71,7 @@ function NetCrunchNodesArray() {}
 
 NetCrunchNodesArray.prototype = Object.create(Array.prototype);
 
-NetCrunchNodesArray.prototype.sortByNameAndAddress = function() {
+NetCrunchNodesArray.prototype.sortByNameAndAddress = function() {   // eslint-disable-line
   return new Promise((resolve) => {
     if (this.length < THREAD_WORKER_NODES_NUMBER) {
       const result = sortNodesByNameAndAddress(this);
