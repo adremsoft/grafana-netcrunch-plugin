@@ -95,7 +95,7 @@ class NetCrunchNetworkMap {
     return this[PRIVATE_PROPERTIES.values].DisplayName || '';
   }
 
-  get childList() {
+  get allChildren() {
 
     function sortMapsByName(first, second) {
       return first.displayName.localeCompare(second.displayName);
