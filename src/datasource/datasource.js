@@ -10,6 +10,13 @@ import { CONNECTION_ERROR_MESSAGES, MAX_SAMPLE_COUNT } from './services/netCrunc
 import { NetCrunchMetricFindQuery } from './metricFindQuery';
 
 const
+  PRIVATE_PROPERTIES = {
+    netCrunchAPI: Symbol('netCrunchAPI'),
+    atlas: Symbol('atlas'),
+    nodes: Symbol('nodes'),
+    processedNodes: Symbol('processedNodes'),
+    alertSrv: Symbol('alertSrv')
+  },
   SERIES_TYPES_DISPLAY_NAMES = {
     min: 'Min',
     avg: 'Avg',
@@ -25,27 +32,30 @@ class NetCrunchDatasource {
   /** @ngInject */
   constructor(instanceSettings, netCrunchAPIService, alertSrv, $rootScope) {
     const
-      self = this;
+      self = this,
+      nodesBuffer = {};
     let
-      nodesReady,
       atlasReady,
+      nodesReady,
+      processedNodesReady,
       datasourceInitialization = null;
 
     function initNodesUpdating(networkAtlas, fromCache) {
 
-      function prepareNodeList(netAtlas) {
-        return netAtlas.getOrderedNodes()
-          .then(nodes => netAtlas.addNodesMap(nodes));
-      }
-
       function updateNodes() {
-        prepareNodeList(networkAtlas)
-          .then((preparedNodes) => {
-            nodesReady(preparedNodes);
-          });
+        networkAtlas.atlas().then((atlas) => {
+          nodesReady(atlas.nodes);
+          atlas.nodes
+            .getAllNodes()
+            .asyncSortByNameAndAddress()
+              .then((sorted) => {
+                nodesBuffer.all = sorted;
+                processedNodesReady(nodesBuffer);
+              });
+        });
       }
 
-      if ((fromCache === true) && (networkAtlas.nodesReceived === true)) {
+      if (fromCache) {
         updateNodes();
       }
 
@@ -54,19 +64,24 @@ class NetCrunchDatasource {
 
     function initAtlasUpdating(networkAtlas, fromCache) {
 
-      if ((fromCache === true) && (networkAtlas.networksReceived === true)) {
-        atlasReady(networkAtlas);
+      function initAtlas() {
+        networkAtlas.atlas()
+          .then(atlas => atlasReady(atlas));
       }
 
-      $rootScope.$on(`netcrunch-networks-data-changed(${self.name})`, () => atlasReady(networkAtlas));
+      if (fromCache) {
+        initAtlas();
+      }
+
+      $rootScope.$on(`netcrunch-networks-data-changed(${self.name})`, initAtlas);
     }
 
     function initDatasource() {
-      let netCrunchSession;
-
       return new Promise((resolve, reject) => {
+        let netCrunchSession;
+
         if (self.url != null) {
-          netCrunchSession = self.netCrunchAPI.getConnection(self);
+          netCrunchSession = self[PRIVATE_PROPERTIES.netCrunchAPI].getConnection(self);
           netCrunchSession
             .then((connection) => {
               const fromCache = connection.fromCache;
@@ -76,19 +91,25 @@ class NetCrunchDatasource {
               resolve();
             })
             .catch((error) => {
-              self.alertSrv.set(self.name, CONNECTION_ERROR_MESSAGES[error], 'error');
+              self[PRIVATE_PROPERTIES.alertSrv].set(self.name, CONNECTION_ERROR_MESSAGES[error], 'error');
               /* eslint-disable no-console */
               console.log('');
               console.log('NetCrunch datasource');
               console.log(`${self.name}: ${CONNECTION_ERROR_MESSAGES[error]}`);
               /* eslint-enable no-console */
-              reject();
+              reject(CONNECTION_ERROR_MESSAGES[error]);
             });
         } else {
-          reject();
+          reject('');
         }
       });
     }
+
+    this[PRIVATE_PROPERTIES.netCrunchAPI] = netCrunchAPIService;
+    this[PRIVATE_PROPERTIES.atlas] = new Promise(resolve => (atlasReady = resolve));
+    this[PRIVATE_PROPERTIES.nodes] = new Promise(resolve => (nodesReady = resolve));
+    this[PRIVATE_PROPERTIES.processedNodes] = new Promise(resolve => (processedNodesReady = resolve));
+    this[PRIVATE_PROPERTIES.alertSrv] = alertSrv;
 
     this.name = instanceSettings.name;
     this.url = instanceSettings.url;
@@ -97,26 +118,18 @@ class NetCrunchDatasource {
     this.password = instanceSettings.jsonData.password;
     this.MAX_SAMPLE_COUNT = MAX_SAMPLE_COUNT;
 
-    this.netCrunchAPI = netCrunchAPIService;
-    this.alertSrv = alertSrv;
-    this.nodes = new Promise((resolve) => {
-      nodesReady = resolve;
-    });
-    this.networkAtlas = new Promise((resolve) => {
-      atlasReady = resolve;
-    });
-
     this.datasourceReady = () => {
       if (datasourceInitialization == null) {
         datasourceInitialization = initDatasource();
       }
       return datasourceInitialization;
     };
+
   }
 
   testDatasource() {
     return new Promise((resolve) => {
-      this.netCrunchAPI.testConnection(this)
+      this[PRIVATE_PROPERTIES.netCrunchAPI].testConnection(this)
         .then(() => {
           resolve({
             status: 'success',
@@ -310,7 +323,7 @@ class NetCrunchDatasource {
         // eslint-disable-next-line
         const ERROR_MESSAGE = RAW_TIME_RANGE_EXCEEDED_WARNING_TEXT + ' ' + range.error.periodInterval + ' ' +
                               range.error.periodName + '.';
-        self.alertSrv.set(RAW_TIME_RANGE_EXCEEDED_WARNING_TITLE, ERROR_MESSAGE, 'warning');
+        self[PRIVATE_PROPERTIES.alertSrv].set(RAW_TIME_RANGE_EXCEEDED_WARNING_TITLE, ERROR_MESSAGE, 'warning');
       }
 
       return Promise.all(dataQueries)
@@ -334,9 +347,18 @@ class NetCrunchDatasource {
     return new NetCrunchMetricFindQuery(this, query).process();
   }
 
+  atlas() {
+    return this[PRIVATE_PROPERTIES.atlas];
+  }
+
+  nodes() {
+    return this[PRIVATE_PROPERTIES.processedNodes];
+  }
+
   getNodeById(nodeID) {
     return this.datasourceReady()
-      .then(() => this.nodes.then(nodes => nodes.nodesMap.get(nodeID)));
+      .then(() => this[PRIVATE_PROPERTIES.nodes])
+      .then(nodes => nodes.getNodeById(nodeID));
   }
 
   getCounters(nodeId, fromCache = true) {
