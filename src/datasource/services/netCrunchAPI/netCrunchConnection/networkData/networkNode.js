@@ -20,9 +20,9 @@ class NetCrunchNetworkNode {
 
   constructor(nodeRec, netCrunchServerConnection) {
     const
-      deviceType = NetCrunchNetworkNode.parseDeviceType(nodeRec.values.DeviceType);
+      deviceType = NetCrunchNetworkNode.parseDeviceType(nodeRec.getValues().DeviceType);
 
-    this[PRIVATE_PROPERTIES.values] = nodeRec.values;
+    this[PRIVATE_PROPERTIES.values] = nodeRec.getValues();
     this[PRIVATE_PROPERTIES.local] = Object.assign({}, deviceType);
     this[PRIVATE_PROPERTIES.local].iconUrl = NetCrunchNetworkNode.getIconUrl(this.iconId, netCrunchServerConnection);
   }
