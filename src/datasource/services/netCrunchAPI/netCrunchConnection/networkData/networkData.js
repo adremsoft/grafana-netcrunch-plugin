@@ -6,19 +6,21 @@
  * found in the LICENSE file.
  */
 
-/* eslint-disable func-names, object-shorthand, no-param-reassign, no-shadow, prefer-template */
+/* eslint-disable func-names, object-shorthand, prefer-template */
 
-import { NetCrunchAtlasTree } from './atlasTree';
-import { AdremWebWorker } from '../../adrem/module';
-
-const THREAD_WORKER_NODES_NUMBER = 1000;
-
-let orderingWebWorkerSingleton = null;
+import { NetCrunchNetworkAtlas } from './networkAtlas';
 
 function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
 
-  const atlasTree = new NetCrunchAtlasTree(netCrunchServerConnection);
-  let initialized = null;
+  const
+    networkAtlas = new NetCrunchNetworkAtlas(netCrunchServerConnection),
+    nodesReady = {},
+    networksReady = {};
+
+  let remoteDataInitialized = null;
+
+  nodesReady.promise = new Promise(resolve => (nodesReady.resolve = resolve));
+  networksReady.promise = new Promise(resolve => (networksReady.resolve = resolve));
 
   function openRemoteData(table, query, processFunction, notifyFunction) {
     const
@@ -46,197 +48,20 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
     });
   }
 
-  function processHostsData(data) {
-    const host = Object.create(null);
-    host.local = Object.create(null);
-    host.values = data.getValues();
-    atlasTree.addNode(host);
+  function processHostsData(nodeRec) {
+    networkAtlas.addNode(nodeRec);
   }
 
-  function decodeNetworkData(record) {
-    let mapsData;
-
-    function addNodesToNetwork(network) {
-      const
-        len = network.values.HostMapData[0];
-      let
-        nodeData,
-        i;
-
-      network.local.nodes = [];
-
-      for (i = 1; i <= len; i += 1) {
-        nodeData = network.values.HostMapData[i];
-        if ((nodeData[0] === 0) || (nodeData[0] === 5)) {
-          network.local.nodes.push(parseInt(nodeData[1], 10));
-        }
-      }
-      return network;
-    }
-
-    record.local.parentId = parseInt(record.values.NetworkData[0], 10);
-    if (isNaN(record.local.parentId) === true) {
-      record.local.parentId = '';
-    }
-
-    record.local.isFolder = ((record.values.MapClassTag === 'dynfolder') ||
-                              Array.isArray(record.values.NetworkData[1]));
-
-    if (record.local.isFolder) {
-      mapsData = record.values.NetworkData[1];
-      if (Array.isArray(mapsData)) {                          // otherwise it can be empty object instead of empty array
-        record.local.maps = mapsData.map(id => parseInt(id, 10));
-      }
-
-      if (record.values.MapClassTag === 'fnet') {             // Add nodes into physical segments map
-        addNodesToNetwork(record);
-      }
-    } else {
-      addNodesToNetwork(record);
-    }
-
-    return record;
-  }
-
-  function processMapData(data) {
-    const map = Object.create(null);
-    map.local = data.local;
-    map.values = data.getValues();
-    atlasTree.addMapToIndex(decodeNetworkData(map));
-  }
-
-  function mapNodes(nodes, map) {
-    const
-      mapNodes = [],
-      nodesIndex = new Map();
-
-    function pushUniqueValueToArray(destination, value) {
-      if (destination.indexOf(value) < 0) {
-        destination.push(value);
-      }
-    }
-
-    function getMapNodes(map) {
-      let nodes;
-
-      if (map.data.local.isFolder === false) {
-        nodes = map.data.local.nodes;
-      } else {
-        nodes = [];
-
-        if (map.data.values.MapClassTag === 'fnet') {       // Add nodes into physical segment map
-          map.data.local.nodes.forEach((node) => {
-            pushUniqueValueToArray(nodes, node);
-          });
-        }
-
-        map.children.forEach((subMap) => {
-          getMapNodes(subMap).forEach((node) => {
-            pushUniqueValueToArray(nodes, node);
-          });
-        });
-      }
-      return nodes;
-    }
-
-    if (map != null) {
-      nodes.forEach((node) => {
-        if ((node != null) && (node.id != null)) {
-          nodesIndex.set(node.id, node);
-        }
-      });
-
-      getMapNodes(map).forEach((nodeId) => {
-        if (nodesIndex.has(nodeId)) {
-          mapNodes.push(nodesIndex.get(nodeId));
-        }
-      });
-
-      return mapNodes;
-    }
-
-    return nodes;
-  }
-
-  function orderNodes(nodes = []) {
-
-    function compareAddressIP(addressOne, addressTwo) {
-      const
-        addressOneItems = addressOne.split('.'),
-        addressTwoItems = addressTwo.split('.');
-
-      for (let i = 0, n = Math.max(addressOneItems.length, addressTwoItems.length); i < n; i += 1) {
-        if (addressOneItems[i] !== addressTwoItems[i]) {
-          return (addressOneItems[i] - addressTwoItems[i]);
-        }
-      }
-      return 0;
-    }
-
-    function getNodeProperty(node, propertyName) {
-      return ((node != null) && (node[propertyName] != null)) ? node[propertyName] : '';
-    }
-
-    function compareNodeData(nodeA, nodeB) {
-      const
-        nodeAName = getNodeProperty(nodeA, 'name').toLowerCase(),
-        nodeBName = getNodeProperty(nodeB, 'name').toLowerCase(),
-        nodeAAddress = getNodeProperty(nodeA, 'address'),
-        nodeBAddress = getNodeProperty(nodeB, 'address');
-      let result = 0;
-
-      if ((nodeAName !== '') && (nodeBName !== '')) {
-        if (nodeAName === nodeBName) {
-          result = 0;
-        } else {
-          result = (nodeAName < nodeBName) ? -1 : 1;
-        }
-      } else if ((nodeAName === '') && (nodeBName === '')) {
-        result = compareAddressIP(nodeAAddress, nodeBAddress);
-      } else {
-        if (nodeAName !== '') { result = -1; }
-        if (nodeBName !== '') { result = 1; }
-      }
-      return result;
-    }
-
-    nodes = nodes.filter(node => ((node != null) && ((node.id != null) &&
-                                  ((node.name != null) && (node.address != null)))));
-    return nodes.sort(compareNodeData);
-  }
-
-  function filterAndOrderMapNodes(nodes, map) {
-    return orderNodes(mapNodes(nodes, map));
-  }
-
-  function getOrderingWebWorker() {
-    if (orderingWebWorkerSingleton == null) {
-      const workerBuilder = AdremWebWorker.webWorkerBuilder();
-      workerBuilder.addFunctionCode(mapNodes);
-      workerBuilder.addFunctionCode(orderNodes);
-      workerBuilder.addFunctionCode(filterAndOrderMapNodes, true);
-      orderingWebWorkerSingleton = workerBuilder.getWebWorker();
-    }
-    return orderingWebWorkerSingleton;
-  }
-
-  function sortNodes(nodes, map = null) {
-    return new Promise((resolve) => {
-      if (nodes.length < THREAD_WORKER_NODES_NUMBER) {
-        nodes = filterAndOrderMapNodes(nodes, map);
-        resolve(nodes);
-      } else {
-        getOrderingWebWorker().filterAndOrderMapNodes(nodes, map)
-          .then(nodes => resolve(nodes));
-      }
-    });
+  function processMapData(mapRec) {
+    networkAtlas.addMap(mapRec);
   }
 
   return {
-    networkNodes: atlasTree.nodes,
-    networkTree: atlasTree.tree,
-    networksReceived: false,
-    nodesReceived: false,
+    nodes: nodesReady.promise,
+    networks: networksReady.promise,
+    atlasReady: Promise
+      .all([nodesReady.promise, networksReady.promise])
+      .then(() => networkAtlas),
 
     init: function() {
       const
@@ -257,21 +82,22 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
         networkData;
 
       function hostsChanged() {
-        self.nodesReceived = true;
+        nodesReady.resolve(networkAtlas.nodes);
         if (typeof self.onNodesChanged === 'function') {
           self.onNodesChanged();
         }
       }
 
       function networksChanged() {
-        self.networksReceived = true;
+        networksReady.resolve(networkAtlas.atlas);
+
         if (typeof self.onNetworksChanged === 'function') {
           self.onNetworksChanged();
         }
       }
 
-      if (initialized != null) {
-        return initialized;
+      if (remoteDataInitialized != null) {
+        return remoteDataInitialized;
       }
 
       // eslint-disable-next-line
@@ -280,24 +106,9 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       // eslint-disable-next-line
       networkData = openRemoteData('Networks', NETWORKS_QUERY, processMapData, networksChanged);
 
-      initialized = Promise.all([hostsData, networkData]);
+      remoteDataInitialized = Promise.all([hostsData, networkData]);
 
-      return initialized;
-    },
-
-    getNodesTable: function() {
-      return Object.keys(this.networkNodes).map(nodeId => this.networkNodes[nodeId]);
-    },
-
-    getOrderedNodes: function(map = null) {
-      const nodes = this.getNodesTable() || [];
-      return sortNodes(nodes, map);
-    },
-
-    addNodesMap(nodes) {
-      nodes.nodesMap = new Map();
-      nodes.forEach(node => nodes.nodesMap.set(node.id, node));
-      return nodes;
+      return remoteDataInitialized;
     }
 
   };
