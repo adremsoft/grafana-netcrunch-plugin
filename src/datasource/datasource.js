@@ -12,6 +12,7 @@ import { NetCrunchMetricFindQuery } from './metricFindQuery';
 const
   PRIVATE_PROPERTIES = {
     netCrunchAPI: Symbol('netCrunchAPI'),
+    netCrunchConnection: Symbol('netCrunchConnection'),
     atlas: Symbol('atlas'),
     nodes: Symbol('nodes'),
     processedNodes: Symbol('processedNodes'),
@@ -85,7 +86,7 @@ class NetCrunchDatasource {
           netCrunchSession
             .then((connection) => {
               const fromCache = connection.fromCache;
-              self.netCrunchConnection = connection;
+              self[PRIVATE_PROPERTIES.netCrunchConnection] = connection;
               initNodesUpdating(connection.networkAtlas, fromCache);
               initAtlasUpdating(connection.networkAtlas, fromCache);
               resolve();
@@ -150,7 +151,7 @@ class NetCrunchDatasource {
 
     function validateCounterData(target) {
       const
-        countersAPI = self.netCrunchConnection.counters,
+        countersAPI = self[PRIVATE_PROPERTIES.netCrunchConnection].counters,
         nodeName = self.getNodeById(target.nodeID).then((nodeData) => {
           const result = (nodeData != null) ? nodeData.name : null;
           return result;
@@ -197,7 +198,7 @@ class NetCrunchDatasource {
     }
 
     function prepareSeriesDataQuery(target, range, series) {
-      const trendsAPI = self.netCrunchConnection.trends;
+      const trendsAPI = self[PRIVATE_PROPERTIES.netCrunchConnection].trends;
 
       if (seriesTypesSelected(series) === false) {
         return Promise.resolve([]);
@@ -265,7 +266,7 @@ class NetCrunchDatasource {
     function prepareChartData(targetsChartData, rawData) {
       const
         counterSeries = Object.create(null),
-        trendsAPI = self.netCrunchConnection.trends;
+        trendsAPI = self[PRIVATE_PROPERTIES.netCrunchConnection].trends;
 
       counterSeries.data = [];
 
@@ -301,7 +302,7 @@ class NetCrunchDatasource {
       const
         RAW_TIME_RANGE_EXCEEDED_WARNING_TITLE = 'Time range is too long.',
         RAW_TIME_RANGE_EXCEEDED_WARNING_TEXT = 'Maximum allowed length of time range for RAW data is ',
-        trends = self.netCrunchConnection.trends,
+        trends = self[PRIVATE_PROPERTIES.netCrunchConnection].trends,
         targets = queryOptions.targets || [],
         globalOptions = queryOptions.scopedVars || {},
         rawData = (globalOptions.rawData == null) ? false : globalOptions.rawData,
@@ -363,7 +364,7 @@ class NetCrunchDatasource {
 
   getCounters(nodeId, fromCache = true) {
     return this.datasourceReady()
-      .then(() => this.netCrunchConnection.counters.getCountersForMonitors(nodeId, fromCache));
+      .then(() => this[PRIVATE_PROPERTIES.netCrunchConnection].counters.getCountersForMonitors(nodeId, fromCache));
   }
 
   static validateSeriesTypes(series) {
