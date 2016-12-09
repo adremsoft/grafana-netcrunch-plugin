@@ -340,20 +340,26 @@ class NetCrunchDatasource {
   }
 
   metricFindQuery(query) {
+    return this.datasourceReady()
+      .then(() => {
 
-    if (query == null) {
-      return Promise.resolve([]);
-    }
+        if (query == null) {
+          return Promise.resolve([]);
+        }
 
-    return new NetCrunchMetricFindQuery(this, query).process();
+        return new NetCrunchMetricFindQuery(this, query).process();
+
+      });
   }
 
   atlas() {
-    return this[PRIVATE_PROPERTIES.atlas];
+    return this.datasourceReady()
+      .then(() => this[PRIVATE_PROPERTIES.atlas]);
   }
 
   nodes() {
-    return this[PRIVATE_PROPERTIES.processedNodes];
+    return this.datasourceReady()
+      .then(() => this[PRIVATE_PROPERTIES.processedNodes]);
   }
 
   getNodeById(nodeID) {
