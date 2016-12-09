@@ -42,6 +42,10 @@ class NetCrunchNodes {
     return this[PRIVATE_PROPERTIES.array];
   }
 
+  getAllNodes() {
+    return this[PRIVATE_PROPERTIES.array];
+  }
+
   getNodeById(nodeId) {
     return this[PRIVATE_PROPERTIES.map].get(nodeId);
   }
