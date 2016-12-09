@@ -57,9 +57,9 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
   }
 
   return {
-    nodes: nodesReady.promise,
-    networks: networksReady.promise,
-    atlas: Promise
+    nodes: () => nodesReady.promise,
+    networks: () => networksReady.promise,
+    atlas: () => Promise
       .all([nodesReady.promise, networksReady.promise])
       .then(() => networkAtlas),
 
