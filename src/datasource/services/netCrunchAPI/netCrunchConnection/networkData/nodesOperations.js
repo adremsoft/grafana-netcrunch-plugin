@@ -94,6 +94,10 @@ class NetCrunchNodesOperations {
     });
   }
 
+  static deviceTypeFilter(nodes = [], deviceTypePattern) {
+    return nodes.filter(node => node.checkDeviceType(deviceTypePattern));
+  }
+
 }
 
 export {
