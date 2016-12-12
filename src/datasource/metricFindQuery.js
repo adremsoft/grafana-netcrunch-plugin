@@ -13,18 +13,38 @@ class NetCrunchMetricFindQuery {
     this.query = query;
   }
 
-  nodes(...selectors) {
-    const nodeGroup = selectors.filter(selector => (selector != null));
+  nodes(selectors) {
 
-    return Promise.resolve([
-      { text: 'server1', value: 123 }
-    ]);
+    function createQueryResult(nodes) {
+      return nodes.map((node) => {
+        const ipAddress = (node.address != null) ? `(${node.address})` : '';
+        return {
+          text: `${node.name} ${ipAddress}`,
+          value: node.id
+        };
+      });
+    }
+
+    const parameters = selectors.split('.').filter(parameter => parameter !== '');
+
+    return this.datasource
+      .nodes()
+        .then((nodes) => {
+          let result = nodes.all;
+
+          if (parameters.length === 1) {
+            result = nodes.operations.deviceTypeFilter(result, parameters[0]);
+          }
+
+          return createQueryResult(result);
+        });
   }
 
   process() {
-    const nodes = this.query.match(/^nodes\(([^)]+?)(,\s?([^,]+?))?\)/);
+    const nodes = this.query.match(/^[nN][oO][dD][eE][sS]([.\w]*)$/);
+
     if (nodes) {
-      return this.nodes(...nodes[1].split(','), nodes[3]);
+      return this.nodes(nodes[1]);
     }
     return Promise.resolve([]);
   }
