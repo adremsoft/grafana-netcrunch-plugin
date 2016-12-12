@@ -29,7 +29,7 @@ class NetCrunchNodes {
   mapNodes(map = null) {
 
     if (map != null) {
-      const result = new NetCrunchNodesOperations();
+      const result = [];
 
       map.allNodesId.forEach((nodeId) => {
         if (this[PRIVATE_PROPERTIES.map].has(nodeId)) {
