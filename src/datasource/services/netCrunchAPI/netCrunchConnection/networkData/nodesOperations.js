@@ -65,39 +65,37 @@ function getWebWorker() {
   return webWorkerSingleton;
 }
 
-// Babel doesn't support extends from native class like Array, Map, Set
+class NetCrunchNodesOperations {
 
-function NetCrunchNodesArray() {}
+  static asyncSortByNameAndAddress(nodes = []) {
+    return new Promise((resolve) => {
+      if (nodes.length < THREAD_WORKER_NODES_NUMBER) {
+        const result = sortNodesByNameAndAddress(nodes);
+        resolve(result);
+      } else {
+        const nodesRemoteBuffer = [];
 
-NetCrunchNodesArray.prototype = Object.create(Array.prototype);
-
-NetCrunchNodesArray.prototype.asyncSortByNameAndAddress = function() {   // eslint-disable-line
-  return new Promise((resolve) => {
-    if (this.length < THREAD_WORKER_NODES_NUMBER) {
-      const result = sortNodesByNameAndAddress(this);
-      resolve(result);
-    } else {
-      const nodesRemoteBuffer = [];
-
-      this.forEach((node, index) => {
-        nodesRemoteBuffer.push({
-          id: node.id,
-          name: node.name,
-          address: node.address,
-          index
+        nodes.forEach((node, index) => {
+          nodesRemoteBuffer.push({
+            id: node.id,
+            name: node.name,
+            address: node.address,
+            index
+          });
         });
-      });
 
-      getWebWorker().sortNodesByNameAndAddress(nodesRemoteBuffer)
-        .then((nodes) => {
-          const result = new NetCrunchNodesArray();
-          nodes.forEach(node => result.push(this[node.index]));
-          resolve(result);
-        });
-    }
-  });
-};
+        getWebWorker().sortNodesByNameAndAddress(nodesRemoteBuffer)
+          .then((sortedNodes) => {
+            const result = [];
+            sortedNodes.forEach(node => result.push(nodes[node.index]));
+            resolve(result);
+          });
+      }
+    });
+  }
+
+}
 
 export {
-  NetCrunchNodesArray
+  NetCrunchNodesOperations
 };

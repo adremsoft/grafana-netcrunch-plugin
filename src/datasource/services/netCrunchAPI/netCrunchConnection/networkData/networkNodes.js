@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-import { NetCrunchNodesArray } from './nodesArray';
+import { NetCrunchNodesOperations } from './nodesOperations';
 
 const
   PRIVATE_PROPERTIES = {
@@ -18,7 +18,7 @@ class NetCrunchNodes {
 
   constructor() {
     this[PRIVATE_PROPERTIES.map] = new Map();
-    this[PRIVATE_PROPERTIES.array] = new NetCrunchNodesArray();
+    this[PRIVATE_PROPERTIES.array] = [];
   }
 
   add(node) {
@@ -29,7 +29,7 @@ class NetCrunchNodes {
   mapNodes(map = null) {
 
     if (map != null) {
-      const result = new NetCrunchNodesArray();
+      const result = new NetCrunchNodesOperations();
 
       map.allNodesId.forEach((nodeId) => {
         if (this[PRIVATE_PROPERTIES.map].has(nodeId)) {
@@ -48,6 +48,10 @@ class NetCrunchNodes {
 
   getNodeById(nodeId) {
     return this[PRIVATE_PROPERTIES.map].get(nodeId);
+  }
+
+  get operations() {                  // eslint-disable-line
+    return NetCrunchNodesOperations;
   }
 
 }

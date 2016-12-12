@@ -46,9 +46,9 @@ class NetCrunchDatasource {
       function updateNodes() {
         networkAtlas.atlas().then((atlas) => {
           nodesReady(atlas.nodes);
-          atlas.nodes
-            .getAllNodes()
-            .asyncSortByNameAndAddress()
+          nodesBuffer.operations = atlas.nodes.operations;
+          nodesBuffer.operations
+            .asyncSortByNameAndAddress(atlas.nodes.getAllNodes())
               .then((sorted) => {
                 nodesBuffer.all = sorted;
                 processedNodesReady(nodesBuffer);
