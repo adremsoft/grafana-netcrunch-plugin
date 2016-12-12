@@ -41,7 +41,7 @@ class NetCrunchMetricFindQuery {
   }
 
   process() {
-    const nodes = this.query.match(/^[nN][oO][dD][eE][sS]([.\w]*)$/);
+    const nodes = this.query.match(/^[nN][oO][dD][eE][sS]((\.[\w]+)*)$/);
 
     if (nodes) {
       return this.nodes(nodes[1]);
