@@ -376,7 +376,7 @@ class NetCrunchDatasource {
   static validateSeriesTypes(series) {
     const
       types = ['min', 'avg', 'max', 'avail', 'delta', 'equal', 'distr'],
-      buffer = series;
+      buffer = series || Object.create(null);
 
     types.forEach((type) => {
       buffer[type] = (buffer[type] == null) ? false : buffer[type];
