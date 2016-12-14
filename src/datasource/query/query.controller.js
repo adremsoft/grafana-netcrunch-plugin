@@ -15,7 +15,7 @@ class NetCrunchQueryController extends QueryCtrl {
     super();
 
     this.target.series = this.target.series || Object.create(null);
-    this.target.showSeriesOptions = this.target.showSeriesOptions || false;
+    this.target.showSeriesOptions = this.target.showSeriesOptions || true;
 
     this.nodes = [];
 
