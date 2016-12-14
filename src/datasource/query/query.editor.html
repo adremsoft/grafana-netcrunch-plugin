@@ -1,2 +1,64 @@
 <query-editor-row query-ctrl="ctrl" can-collapse="false">
+
+    <div class="gf-form-inline">
+        <div class="gf-form">
+            <label class="gf-form-label query-keyword width-7">Node</label>
+            <input type="text" class="gf-form-input">
+        </div>
+
+        <div class="gf-form gf-form--grow">
+            <div class="gf-form-label gf-form-label--grow"></div>
+        </div>
+    </div>
+
+    <div class="gf-form-inline">
+        <div class="gf-form">
+            <label class="gf-form-label query-keyword width-7">Counter</label>
+            <input type="text" class="gf-form-input">
+        </div>
+
+        <div class="gf-form gf-form--grow" ng-if="!ctrl.panel.scopedVars.rawData">
+            <label class="gf-form-label query-keyword gf-form-label--grow pointer" ng-click="ctrl.toggleSeries()">
+                <span class="query-keyword">
+                    <i class="fa fa-caret-down" ng-if="ctrl.target.showSeriesOptions"></i>
+                    <i class="fa fa-caret-right" ng-if="!ctrl.target.showSeriesOptions"></i>
+                </span>
+                Series
+            </label>
+        </div>
+
+        <div class="gf-form gf-form--grow" ng-if="ctrl.panel.scopedVars.rawData">
+            <div class="gf-form-label gf-form-label--grow"></div>
+        </div>
+    </div>
+
+    <div class="gf-form-inline offset-width-20"
+         ng-if="(!ctrl.panel.scopedVars.rawData && ctrl.target.showSeriesOptions)">
+
+        <gf-form-switch class="gf-form"
+                        label="Min"
+                        label-class="width-4"
+                        switch-class="width-6"
+                        checked="ctrl.target.series.min"
+                        ng-click="ctrl.targetChanged()">
+        </gf-form-switch>
+
+        <gf-form-switch class = "gf-form"
+                        label = "Avg"
+                        label-class="width-4"
+                        switch-class = "width-6"
+                        checked = "ctrl.target.series.avg"
+                        ng-click = "ctrl.targetChanged()">
+        </gf-form-switch>
+
+        <gf-form-switch class = "gf-form"
+                        label = "Max"
+                        label-class="width-4"
+                        switch-class = "width-6"
+                        checked = "ctrl.target.series.max"
+                        ng-click = "ctrl.targetChanged()">
+        </gf-form-switch>
+
+    </div>
+
 </query-editor-row>

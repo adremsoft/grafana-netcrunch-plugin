@@ -13,6 +13,20 @@ class NetCrunchQueryController extends QueryCtrl {
 
   constructor() {
     super();
+
+    this.target.series = this.target.series || Object.create(null);
+    this.target.showSeriesOptions = this.target.showSeriesOptions || false;
+
+    this.nodes = [];
+
+  }
+
+  targetChanged() {
+    this.panelCtrl.refresh();
+  }
+
+  toggleSeries() {
+    this.target.showSeriesOptions = !this.target.showSeriesOptions;
   }
 
   static get templateUrl() {
