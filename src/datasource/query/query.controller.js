@@ -12,7 +12,8 @@ import { datasourceURL } from '../common';
 
 const
   PRIVATE_PROPERTIES = {
-    uiSegmentSrv: Symbol('uiSegmentSrv')
+    uiSegmentSrv: Symbol('uiSegmentSrv'),
+    nodeMap: Symbol('nodeMap')
   },
   DEFAULT_NODE_NAME = 'Select node';
 
@@ -22,9 +23,11 @@ class NetCrunchQueryController extends QueryCtrl {
     super();
 
     this[PRIVATE_PROPERTIES.uiSegmentSrv] = uiSegmentSrv;
+    this[PRIVATE_PROPERTIES.nodeMap] = new Map();
 
     this.target.series = this.target.series || Object.create(null);
     this.target.showSeriesOptions = this.target.showSeriesOptions || true;
+    this.localVars = this.target.localVars;
 
     this.nodeSegment = this.createDefaultSegment(DEFAULT_NODE_NAME);
   }
@@ -70,11 +73,25 @@ class NetCrunchQueryController extends QueryCtrl {
 
   getNodes() {
     return this.datasource
-      .nodes().then(nodes => nodes.all.map(node => this.createNodeSegment(node)));
+      .nodes().then((nodes) => {
+        this[PRIVATE_PROPERTIES.nodeMap].clear();
+        return nodes.all.map((node) => {
+          const nodeSegment = this.createNodeSegment(node);
+          this[PRIVATE_PROPERTIES.nodeMap].set(nodeSegment.value, node);
+          return nodeSegment;
+        });
+      });
   }
 
   nodeChanged() {
-    this.targetChanged();
+    const nodeUpdated = this[PRIVATE_PROPERTIES.nodeMap].has(this.nodeSegment.value);
+
+    this.localVars.nodeUpdated = nodeUpdated;
+
+    if (nodeUpdated) {
+      this.nodeID = this[PRIVATE_PROPERTIES.nodeMap].get(this.nodeSegment.value).id;
+      this.targetChanged();
+    }
   }
 
   static nodeDisplayValue(node) {
