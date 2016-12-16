@@ -3,6 +3,12 @@
   text-overflow: ellipsis;
   overflow: hidden; }
 
+.nc-query-editor-row .dropdown-toggle {
+  margin-bottom: -2px; }
+
+.nc-query-editor-row .gf-form-input {
+  font-size: 0.875rem; }
+
 .nc-reset-segment {
   padding: 0; }
 
