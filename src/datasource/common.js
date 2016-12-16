@@ -7,13 +7,21 @@
  */
 
 const
-  baseDatasourceURL = 'plugins/grafana-netcrunch/datasource/',
-  datasourceURL = `public/${baseDatasourceURL}`,
+  baseURL = 'public/',
+  basePluginURL = 'plugins/grafana-netcrunch/',
+  baseDatasourceURL = `${basePluginURL}datasource/`,
+  pluginURL = `${baseURL}${basePluginURL}`,
+  imagesURL = `${pluginURL}images/`,
+  datasourceURL = `${baseURL}${baseDatasourceURL}`,
   systemJSDatasourceURL = baseDatasourceURL,
-  servicesModule = 'grafana.services';
+  servicesModule = 'grafana.services',
+  directivesModule = 'grafana.directives';
 
 export {
   datasourceURL,
+  pluginURL,
+  imagesURL,
   systemJSDatasourceURL,
-  servicesModule
+  servicesModule,
+  directivesModule
 };
