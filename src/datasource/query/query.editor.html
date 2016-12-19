@@ -34,7 +34,7 @@
         </div>
     </div>
 
-    <div class="gf-form-inline">
+    <div class="gf-form-inline" ng-if="ctrl.counterDataComplete">
         <div class="gf-form">
             <label class="gf-form-label query-keyword width-6">Alias</label>
             <input type="text" class="gf-form-input width-20"
@@ -44,39 +44,35 @@
                    spellcheck='false'>
         </div>
 
-        <div class="gf-form" ng-if="!ctrl.panel.scopedVars.rawData">
-            <label class="gf-form-label query-keyword width-6 gf-form-label--grow pointer"
-                   ng-click="ctrl.toggleSeries()">
-                <span class="query-keyword">
-                    <i class="fa fa-caret-down" ng-if="ctrl.target.showSeriesOptions"></i>
-                    <i class="fa fa-caret-right" ng-if="!ctrl.target.showSeriesOptions"></i>
-                </span>
+        <div class="gf-form" ng-if="!ctrl.rawData">
+            <label class="gf-form-label query-keyword width-6 gf-form-label--grow pointer">
                 Series
             </label>
 
-            <gf-form-switch class="gf-form-inline" ng-if="ctrl.target.showSeriesOptions"
+            <gf-form-switch class="gf-form-inline"
                             label="Min"
                             label-class="width-4"
                             switch-class="width-6"
-                            checked="ctrl.target.series.min"
+                            checked="ctrl.series.min"
                             ng-click="ctrl.targetChanged()">
             </gf-form-switch>
 
-            <gf-form-switch class="gf-form-inline" ng-if="ctrl.target.showSeriesOptions"
+            <gf-form-switch class="gf-form-inline"
                             label="Avg"
                             label-class="width-4"
                             switch-class="width-6"
-                            checked="ctrl.target.series.avg"
+                            checked="ctrl.series.avg"
                             ng-click="ctrl.targetChanged()">
             </gf-form-switch>
 
-            <gf-form-switch class="gf-form-inline" ng-if="ctrl.target.showSeriesOptions"
+            <gf-form-switch class="gf-form-inline"
                             label="Max"
                             label-class="width-4"
                             switch-class="width-6"
-                            checked="ctrl.target.series.max"
+                            checked="ctrl.series.max"
                             ng-click="ctrl.targetChanged()">
             </gf-form-switch>
+
         </div>
 
         <div class="gf-form gf-form--grow">

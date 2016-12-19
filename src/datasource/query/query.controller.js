@@ -54,6 +54,8 @@ class NetCrunchQueryController extends QueryCtrl {
     this.processingCounter = true;
     this.counterReady = false;
 
+    this.target.alias = this.target.alias || '';
+    this.target.series = this.target.series || { min: false, avg: true, max: false };
   }
 
   get localVars() {
@@ -134,6 +136,14 @@ class NetCrunchQueryController extends QueryCtrl {
 
   set alias(value) {
     this.target.alias = value;
+  }
+
+  get rawData() {
+    return this.panel.scopedVars.rawData;
+  }
+
+  get series() {
+    return this.target.series;
   }
 
   createDefaultNodeSegment(segmentName) {
