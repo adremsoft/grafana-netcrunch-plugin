@@ -128,6 +128,14 @@ class NetCrunchQueryController extends QueryCtrl {
     this.target.counterDataComplete = value;
   }
 
+  get alias() {
+    return this.target.alias;
+  }
+
+  set alias(value) {
+    this.target.alias = value;
+  }
+
   createDefaultNodeSegment(segmentName) {
     const segment = {
       cssClass: 'nc-reset-segment',

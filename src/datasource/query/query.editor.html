@@ -25,7 +25,7 @@
                  dropdown-typeahead2="ctrl.counters"
                  dropdown-typeahead-on-select="ctrl.counterChanged($subItem)"
                  link-text={{ctrl.defaultCounterName}}
-                 ng-if="!ctrl.counterSpinner">
+                 ng-if="!ctrl.counterSpinner && !ctrl.hideCounters">
             </div>
         </div>
 
@@ -38,7 +38,7 @@
         <div class="gf-form">
             <label class="gf-form-label query-keyword width-6">Alias</label>
             <input type="text" class="gf-form-input width-20"
-                   ng-model="ctrl.target.alias"
+                   ng-model="ctrl.alias"
                    ng-blur="ctrl.targetChanged()"
                    placeholder="Metric alias"
                    spellcheck='false'>
