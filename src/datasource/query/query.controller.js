@@ -236,6 +236,21 @@ class NetCrunchQueryController extends QueryCtrl {
         });
     }
 
+    function setCountersMenu(countersMenu) {
+      self.hideCounters = true;
+      self.updateView();
+      self[PRIVATE_PROPERTIES.counters] = countersMenu;
+      self.processingCounter = false;
+      self.hideCounters = false;
+    }
+
+    function updateSelectedCounter(counterName) {
+      self[PRIVATE_PROPERTIES.counterName] = counterName;
+      self.counterReady = true;
+      self.counterDataComplete = true;
+      self.targetChanged();
+    }
+
     if (nodeId != null) {
       selectedNode = this.datasource
         .nodes()
@@ -264,14 +279,9 @@ class NetCrunchQueryController extends QueryCtrl {
         nodeSegmentReady
           .then(() => getCounters(selectedNodeId))
           .then((counters) => {
-            this.processingCounter = false;
-            this[PRIVATE_PROPERTIES.counters] = counters.countersMenu;
-
+            setCountersMenu(counters.countersMenu);
             if (counters.countersTable.some(counter => (counter.name === this.target.counterName))) {
-              this[PRIVATE_PROPERTIES.counterName] = this.target.counterName;
-              this.counterReady = true;
-              this.counterDataComplete = true;
-              this.targetChanged();
+              updateSelectedCounter(this.target.counterName);
             } else {
               this.updateView();
             }
