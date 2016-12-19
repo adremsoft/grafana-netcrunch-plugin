@@ -46,6 +46,9 @@ class NetCrunchQueryController extends QueryCtrl {
     this.datasource.nodes().then(() => {
       this.processingNode = false;
       this.updateView();
+      if (this.target.nodeID != null) {
+        this.nodeChanged(this.target.nodeID);
+      }
     });
 
     this.processingCounter = true;
@@ -224,6 +227,15 @@ class NetCrunchQueryController extends QueryCtrl {
           });
     }
 
+    function setNodeSegment(nodeId) {            // eslint-disable-line
+      return self.datasource
+        .nodes().then((nodes) => {
+          const node = nodes.all.find(nodeItem => (nodeItem.id === nodeId));
+          Object.assign(self[PRIVATE_PROPERTIES.nodeSegment], self.createNodeSegment(node));
+          self.updateView();
+        });
+    }
+
     if (nodeId != null) {
       selectedNode = this.datasource
         .nodes()
@@ -242,12 +254,15 @@ class NetCrunchQueryController extends QueryCtrl {
         Object.assign(this[PRIVATE_PROPERTIES.nodeSegment], this.createDefaultNodeSegment(DEFAULT_NODE_NAME));
         this.targetChanged();
       } else {
+        const nodeSegmentReady = (nodeId != null) ? setNodeSegment(nodeId) : Promise.resolve();
+
         this.nodeReady = true;
         this.processingCounter = true;
         this.counterReady = false;
         this.updateView();
 
-        getCounters(selectedNodeId)
+        nodeSegmentReady
+          .then(() => getCounters(selectedNodeId))
           .then((counters) => {
             this.processingCounter = false;
             this[PRIVATE_PROPERTIES.counters] = counters.countersMenu;
