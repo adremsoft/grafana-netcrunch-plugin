@@ -32,9 +32,18 @@
         <div class="gf-form gf-form--grow">
             <div class="gf-form-label gf-form-label--grow"></div>
         </div>
+
+        <div class="gf-form"
+             ng-if="ctrl.counterDataComplete"
+             ng-click="ctrl.toggleShowOptions()">
+            <label class="gf-form-label">
+                <i class="fa fa-level-down" ng-if="!ctrl.showOptions"></i>
+                <i class="fa fa-level-up" ng-if="ctrl.showOptions"></i>
+            </label>
+        </div>
     </div>
 
-    <div class="gf-form-inline" ng-if="ctrl.counterDataComplete">
+    <div class="gf-form-inline" ng-if="ctrl.counterDataComplete && ctrl.showOptions">
         <div class="gf-form">
             <label class="gf-form-label query-keyword width-6">Alias</label>
             <input type="text" class="gf-form-input width-20"

@@ -54,6 +54,8 @@ class NetCrunchQueryController extends QueryCtrl {
     this.processingCounter = true;
     this.counterReady = false;
 
+    this.showOptions = (this.showOptions == null) ? false : this.showOptions;
+
     this.target.alias = this.target.alias || '';
     this.target.series = this.target.series || { min: false, avg: true, max: false };
   }
@@ -144,6 +146,14 @@ class NetCrunchQueryController extends QueryCtrl {
 
   get series() {
     return this.target.series;
+  }
+
+  get showOptions() {
+    return this.localVars.showOptions;
+  }
+
+  set showOptions(value) {
+    this.localVars.showOptions = value;
   }
 
   createDefaultNodeSegment(segmentName) {
@@ -313,6 +323,10 @@ class NetCrunchQueryController extends QueryCtrl {
     this.target.counterName = counter.value;
     this.counterDataComplete = true;
     this.targetChanged();
+  }
+
+  toggleShowOptions() {
+    this.showOptions = !this.showOptions;
   }
 
   static nodeDisplayValue(node) {
