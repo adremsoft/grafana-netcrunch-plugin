@@ -14,6 +14,7 @@ import { datasourceURL } from '../common';
 const
   PRIVATE_PROPERTIES = {
     uiSegmentSrv: Symbol('uiSegmentSrv'),
+    templateSrv: Symbol('templateSrv'),
     scope: Symbol('scope'),
     nodeMap: Symbol('nodeMap'),
     nodeSegment: Symbol('nodeSegment'),
@@ -28,10 +29,11 @@ const
 
 class NetCrunchQueryController extends QueryCtrl {
 
-  constructor(uiSegmentSrv, $scope) {
+  constructor(uiSegmentSrv, templateSrv, $scope) {
     super();
 
     this[PRIVATE_PROPERTIES.uiSegmentSrv] = uiSegmentSrv;
+    this[PRIVATE_PROPERTIES.templateSrv] = templateSrv;
     this[PRIVATE_PROPERTIES.scope] = $scope;
     this[PRIVATE_PROPERTIES.nodeMap] = new Map();
     this[PRIVATE_PROPERTIES.nodeSegment] = this.createDefaultNodeSegment(DEFAULT_NODE_NAME);
@@ -189,6 +191,17 @@ class NetCrunchQueryController extends QueryCtrl {
     });
   }
 
+  createVariableSegment(variableName) {
+    return this[PRIVATE_PROPERTIES.uiSegmentSrv].newSegment({
+      cssClass: 'nc-reset-segment',
+      expandable: true,
+      fake: true,
+      type: 'template',
+      html: `<div class="nc-default-tile">$${variableName}</div>`,
+      value: `$${variableName}`
+    });
+  }
+
   targetChanged() {
     this.refresh();
   }
@@ -206,15 +219,33 @@ class NetCrunchQueryController extends QueryCtrl {
   }
 
   getNodes() {
-    return this.datasource
-      .nodes().then((nodes) => {
-        this[PRIVATE_PROPERTIES.nodeMap].clear();
-        return nodes.all.map((node) => {
-          const nodeSegment = this.createNodeSegment(node);
-          this[PRIVATE_PROPERTIES.nodeMap].set(nodeSegment.value, node);
-          return nodeSegment;
-        });
+    const self = this;
+
+    function createVariableSegments() {
+      const variableSegments = [];
+
+      self[PRIVATE_PROPERTIES.templateSrv].variables
+        .filter(variable => (variable.datasource === self.datasource.name))
+        .filter(variable => (variable.query.match(/^[nN][oO][dD][eE][sS].*/)))
+        .sort((variable1, variable2) => variable1.name.toLocaleString(variable2.name))
+        .forEach(variable => variableSegments.push(self.createVariableSegment(variable.name)));
+
+      return variableSegments;
+    }
+
+    function createNodeSegments(nodes) {
+      self[PRIVATE_PROPERTIES.nodeMap].clear();
+      return nodes.map((node) => {
+        const nodeSegment = self.createNodeSegment(node);
+        self[PRIVATE_PROPERTIES.nodeMap].set(nodeSegment.value, node);
+        return nodeSegment;
       });
+    }
+
+    return this.datasource
+      .nodes().then(nodes => []
+        .concat(createVariableSegments())
+        .concat(createNodeSegments(nodes.all)));
   }
 
   nodeChanged(nodeId = null) {
