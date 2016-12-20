@@ -371,7 +371,8 @@ class NetCrunchDatasource {
   }
 
   isNodeTemplate(nodeId) {
-    return ((!Number.isInteger(nodeId)) && (this.getNodeVariables().indexOf(nodeId) >= 0));
+    return ((!Number.isInteger(nodeId)) &&
+            (this.getNodeVariables().findIndex(variable => (nodeId === `$${variable.name}`)) >= 0));
   }
 
   getNodeById(nodeID) {
