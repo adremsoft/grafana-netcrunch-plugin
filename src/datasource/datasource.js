@@ -16,7 +16,8 @@ const
     atlas: Symbol('atlas'),
     nodes: Symbol('nodes'),
     processedNodes: Symbol('processedNodes'),
-    alertSrv: Symbol('alertSrv')
+    alertSrv: Symbol('alertSrv'),
+    templateSrv: Symbol('templateSrv')
   },
   SERIES_TYPES_DISPLAY_NAMES = {
     min: 'Min',
@@ -31,7 +32,7 @@ const
 class NetCrunchDatasource {
 
   /** @ngInject */
-  constructor(instanceSettings, netCrunchAPIService, alertSrv, $rootScope) {
+  constructor(instanceSettings, netCrunchAPIService, alertSrv, templateSrv, $rootScope) {
     const
       self = this,
       nodesBuffer = {};
@@ -111,6 +112,7 @@ class NetCrunchDatasource {
     this[PRIVATE_PROPERTIES.nodes] = new Promise(resolve => (nodesReady = resolve));
     this[PRIVATE_PROPERTIES.processedNodes] = new Promise(resolve => (processedNodesReady = resolve));
     this[PRIVATE_PROPERTIES.alertSrv] = alertSrv;
+    this[PRIVATE_PROPERTIES.templateSrv] = templateSrv;
 
     this.name = instanceSettings.name;
     this.url = instanceSettings.url;
@@ -360,6 +362,16 @@ class NetCrunchDatasource {
   nodes() {
     return this.datasourceReady()
       .then(() => this[PRIVATE_PROPERTIES.processedNodes]);
+  }
+
+  getNodeVariables() {
+    return this[PRIVATE_PROPERTIES.templateSrv].variables
+      .filter(variable => (variable.datasource === this.name))
+      .filter(variable => (variable.query.match(/^[nN][oO][dD][eE][sS].*/)));
+  }
+
+  isNodeTemplate(nodeId) {
+    return ((!Number.isInteger(nodeId)) && (this.getNodeVariables().indexOf(nodeId) >= 0));
   }
 
   getNodeById(nodeID) {
