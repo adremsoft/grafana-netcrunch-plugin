@@ -23,7 +23,8 @@ const
     counters: Symbol('counters')
   },
   DEFAULT_NODE_NAME = 'Select node',
-  DEFAULT_COUNTER_DISPLAY_NAME = 'Select counter';
+  DEFAULT_COUNTER_DISPLAY_NAME = 'Select counter',
+  COUNTERS_SUBMENU_LENGTH = 25;
 
 class NetCrunchQueryController extends QueryCtrl {
 
@@ -189,7 +190,7 @@ class NetCrunchQueryController extends QueryCtrl {
   }
 
   targetChanged() {
-    this.panelCtrl.refresh();
+    this.refresh();
   }
 
   nodeSpinnerChanged(state) {
@@ -235,16 +236,26 @@ class NetCrunchQueryController extends QueryCtrl {
 
             Object.keys(countersByMonitors).forEach((monitorId) => {
               if (monitorId > 0) {
-                const subMenu = countersByMonitors[monitorId]
-                  .counters.map(counter => ({
-                    text: counter.displayName,
-                    value: counter.name
-                  }));
+                const
+                  subMenu = countersByMonitors[monitorId]
+                    .counters.map(counter => ({
+                      text: counter.displayName,
+                      value: counter.name
+                    })),
+                  subMenuPartsCount = Math.ceil(subMenu.length / COUNTERS_SUBMENU_LENGTH);
 
-                countersMenu.push({
-                  text: countersByMonitors[monitorId].name,
-                  submenu: subMenu
-                });
+                for (let i = 0; i < subMenuPartsCount; i += 1) {
+                  const
+                    startIndex = i * COUNTERS_SUBMENU_LENGTH,
+                    stopIndex = Math.min((i + 1) * COUNTERS_SUBMENU_LENGTH, subMenu.length),
+                    subMenuNameExtension = (subMenuPartsCount > 1) ? ` [${startIndex + 1}..${stopIndex}]` : '',
+                    subMenuName = `${countersByMonitors[monitorId].name}${subMenuNameExtension}`;
+
+                  countersMenu.push({
+                    text: subMenuName,
+                    submenu: subMenu.slice(startIndex, stopIndex)
+                  });
+                }
               }
             });
 
