@@ -14,7 +14,6 @@ import { datasourceURL } from '../common';
 const
   PRIVATE_PROPERTIES = {
     uiSegmentSrv: Symbol('uiSegmentSrv'),
-    templateSrv: Symbol('templateSrv'),
     scope: Symbol('scope'),
     nodeMap: Symbol('nodeMap'),
     nodeSegment: Symbol('nodeSegment'),
@@ -29,11 +28,10 @@ const
 
 class NetCrunchQueryController extends QueryCtrl {
 
-  constructor(uiSegmentSrv, templateSrv, $scope) {
+  constructor(uiSegmentSrv, $scope) {
     super();
 
     this[PRIVATE_PROPERTIES.uiSegmentSrv] = uiSegmentSrv;
-    this[PRIVATE_PROPERTIES.templateSrv] = templateSrv;
     this[PRIVATE_PROPERTIES.scope] = $scope;
     this[PRIVATE_PROPERTIES.nodeMap] = new Map();
     this[PRIVATE_PROPERTIES.nodeSegment] = this.createDefaultNodeSegment(DEFAULT_NODE_NAME);
@@ -222,15 +220,9 @@ class NetCrunchQueryController extends QueryCtrl {
     const self = this;
 
     function createVariableSegments() {
-      const variableSegments = [];
-
-      self[PRIVATE_PROPERTIES.templateSrv].variables
-        .filter(variable => (variable.datasource === self.datasource.name))
-        .filter(variable => (variable.query.match(/^[nN][oO][dD][eE][sS].*/)))
+      return self.datasource.getNodeVariables()
         .sort((variable1, variable2) => variable1.name.toLocaleString(variable2.name))
-        .forEach(variable => variableSegments.push(self.createVariableSegment(variable.name)));
-
-      return variableSegments;
+        .map(variable => self.createVariableSegment(variable.name));
     }
 
     function createNodeSegments(nodes) {
@@ -252,7 +244,7 @@ class NetCrunchQueryController extends QueryCtrl {
     const self = this;
 
     function isNodeTemplate(nodeId) {            // eslint-disable-line
-      return ((!Number.isInteger(nodeId)) && nodeId.match(/^\$\w*$/));
+      return self.datasource.isNodeTemplate(nodeId);
     }
 
     function nodeNotReady() {
@@ -372,7 +364,7 @@ class NetCrunchQueryController extends QueryCtrl {
             if (counters.countersTable.some(counter => (counter.name === this.target.counterName))) {
               updateSelectedCounter(this.target.counterName);
             } else {
-              this.updateView();
+              this.targetChanged();
             }
           });
       }
