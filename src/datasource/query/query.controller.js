@@ -250,7 +250,10 @@ class NetCrunchQueryController extends QueryCtrl {
 
   nodeChanged(nodeId = null) {
     const self = this;
-    let selectedNode;
+
+    function isNodeTemplate(nodeId) {            // eslint-disable-line
+      return ((!Number.isInteger(nodeId)) && nodeId.match(/^\$\w*$/));
+    }
 
     function nodeNotReady() {
       self.nodeReady = false;
@@ -298,6 +301,14 @@ class NetCrunchQueryController extends QueryCtrl {
     }
 
     function setNodeSegment(nodeId) {            // eslint-disable-line
+
+      if (isNodeTemplate(nodeId)) {
+        return Promise.resolve(() => {
+          Object.assign(self[PRIVATE_PROPERTIES.nodeSegment], self.createVariableSegment(nodeId));
+          self.updateView();
+        });
+      }
+
       return self.datasource
         .nodes().then((nodes) => {
           const node = nodes.all.find(nodeItem => (nodeItem.id === nodeId));
@@ -321,17 +332,25 @@ class NetCrunchQueryController extends QueryCtrl {
       self.targetChanged();
     }
 
-    if (nodeId != null) {
-      selectedNode = this.datasource
-        .nodes()
+    function getSelectedNode(nodeId) {           // eslint-disable-line
+
+      if (nodeId != null) {
+        if (isNodeTemplate(nodeId)) {
+          return Promise.resolve(nodeId);
+        }
+        return self.datasource
+          .nodes()
           .then(nodes => ((nodes.all.some(node => (nodeId === node.id))) ? nodeId : null));
-    } else if (this[PRIVATE_PROPERTIES.nodeMap].has(this.nodeSegment.value)) {
-      selectedNode = Promise.resolve(this[PRIVATE_PROPERTIES.nodeMap].get(this.nodeSegment.value).id);
-    } else {
-      selectedNode = Promise.resolve(null);
+      } else if (isNodeTemplate(self.nodeSegment.value)) {
+        return Promise.resolve(self.nodeSegment.value);
+      } else if (self[PRIVATE_PROPERTIES.nodeMap].has(self.nodeSegment.value)) {
+        return Promise.resolve(self[PRIVATE_PROPERTIES.nodeMap].get(self.nodeSegment.value).id);
+      }
+
+      return Promise.resolve(null);
     }
 
-    selectedNode.then((selectedNodeId) => {
+    getSelectedNode(nodeId).then((selectedNodeId) => {
       this.target.nodeID = selectedNodeId;
 
       if (selectedNodeId == null) {
