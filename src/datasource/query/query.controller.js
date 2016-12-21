@@ -28,7 +28,7 @@ const
 
 class NetCrunchQueryController extends QueryCtrl {
 
-  constructor(uiSegmentSrv, $scope, $rootScope) {
+  constructor(uiSegmentSrv, $scope, $rootScope, $timeout) {
     super();
 
     this[PRIVATE_PROPERTIES.uiSegmentSrv] = uiSegmentSrv;
@@ -60,7 +60,7 @@ class NetCrunchQueryController extends QueryCtrl {
     this.target.alias = this.target.alias || '';
     this.target.series = this.target.series || { min: false, avg: true, max: false };
 
-    $rootScope.$on('template-variable-value-updated', this.variableChanged);
+    $rootScope.$on('template-variable-value-updated', () => $timeout(() => this.variableChanged(), 0));
   }
 
   get localVars() {
@@ -330,10 +330,9 @@ class NetCrunchQueryController extends QueryCtrl {
     function setNodeSegment(nodeId) {            // eslint-disable-line
 
       if (isNodeTemplate(nodeId)) {
-        return Promise.resolve(() => {
-          Object.assign(self[PRIVATE_PROPERTIES.nodeSegment], self.createVariableSegment(nodeId));
-          self.updateView();
-        });
+        Object.assign(self[PRIVATE_PROPERTIES.nodeSegment], self.createVariableSegment(nodeId.slice(1)));
+        self.updateView();
+        return Promise.resolve();
       }
 
       return self.datasource
