@@ -28,7 +28,7 @@ const
 
 class NetCrunchQueryController extends QueryCtrl {
 
-  constructor(uiSegmentSrv, $scope) {
+  constructor(uiSegmentSrv, $scope, $rootScope) {
     super();
 
     this[PRIVATE_PROPERTIES.uiSegmentSrv] = uiSegmentSrv;
@@ -59,6 +59,8 @@ class NetCrunchQueryController extends QueryCtrl {
 
     this.target.alias = this.target.alias || '';
     this.target.series = this.target.series || { min: false, avg: true, max: false };
+
+    $rootScope.$on('template-variable-value-updated', this.variableChanged);
   }
 
   get localVars() {
@@ -240,6 +242,77 @@ class NetCrunchQueryController extends QueryCtrl {
         .concat(createNodeSegments(nodes.all)));
   }
 
+  updateCounterList(nodeId = this.target.nodeID) {
+    const self = this;
+
+    function setCounterMenu(counterMenu) {
+      self.hideCounters = true;
+      self.updateView();
+      self[PRIVATE_PROPERTIES.counters] = counterMenu;
+      self.processingCounter = false;
+      self.hideCounters = false;
+    }
+
+    function updateSelectedCounter(counterName) {
+      self[PRIVATE_PROPERTIES.counterName] = counterName;
+      self.counterReady = true;
+      self.counterDataComplete = true;
+      self.targetChanged();
+    }
+
+    function getCounters(nodeId) {               // eslint-disable-line
+      return self.datasource.getCounters(nodeId)
+        .then((countersByMonitors) => {
+          const countersMenu = [];
+
+          Object.keys(countersByMonitors).forEach((monitorId) => {
+            if (monitorId > 0) {
+              const
+                subMenu = countersByMonitors[monitorId]
+                  .counters.map(counter => ({
+                    text: counter.displayName,
+                    value: counter.name
+                  })),
+                subMenuPartsCount = Math.ceil(subMenu.length / COUNTERS_SUBMENU_LENGTH);
+
+              for (let i = 0; i < subMenuPartsCount; i += 1) {
+                const
+                  startIndex = i * COUNTERS_SUBMENU_LENGTH,
+                  stopIndex = Math.min((i + 1) * COUNTERS_SUBMENU_LENGTH, subMenu.length),
+                  subMenuNameExtension = (subMenuPartsCount > 1) ? ` [${startIndex + 1}..${stopIndex}]` : '',
+                  subMenuName = `${countersByMonitors[monitorId].name}${subMenuNameExtension}`;
+
+                countersMenu.push({
+                  text: subMenuName,
+                  submenu: subMenu.slice(startIndex, stopIndex)
+                });
+              }
+            }
+          });
+
+          return {
+            countersMenu,
+            countersTable: countersByMonitors.table
+          };
+        });
+    }
+
+    this.processingCounter = true;
+    this.counterReady = false;
+    this.counterDataComplete = false;
+    this.updateView();
+
+    getCounters(nodeId)
+      .then((counters) => {
+        setCounterMenu(counters.countersMenu);
+        if (counters.countersTable.some(counter => (counter.name === this.target.counterName))) {
+          updateSelectedCounter(this.target.counterName);
+        } else {
+          this.targetChanged();
+        }
+      });
+  }
+
   nodeChanged(nodeId = null) {
     const self = this;
 
@@ -252,44 +325,6 @@ class NetCrunchQueryController extends QueryCtrl {
       self.processingCounter = true;
       self.counterReady = false;
       self.counterDataComplete = false;
-    }
-
-    function getCounters(nodeId) {        // eslint-disable-line
-      return self.datasource
-        .getCounters(nodeId)
-          .then((countersByMonitors) => {
-            const countersMenu = [];
-
-            Object.keys(countersByMonitors).forEach((monitorId) => {
-              if (monitorId > 0) {
-                const
-                  subMenu = countersByMonitors[monitorId]
-                    .counters.map(counter => ({
-                      text: counter.displayName,
-                      value: counter.name
-                    })),
-                  subMenuPartsCount = Math.ceil(subMenu.length / COUNTERS_SUBMENU_LENGTH);
-
-                for (let i = 0; i < subMenuPartsCount; i += 1) {
-                  const
-                    startIndex = i * COUNTERS_SUBMENU_LENGTH,
-                    stopIndex = Math.min((i + 1) * COUNTERS_SUBMENU_LENGTH, subMenu.length),
-                    subMenuNameExtension = (subMenuPartsCount > 1) ? ` [${startIndex + 1}..${stopIndex}]` : '',
-                    subMenuName = `${countersByMonitors[monitorId].name}${subMenuNameExtension}`;
-
-                  countersMenu.push({
-                    text: subMenuName,
-                    submenu: subMenu.slice(startIndex, stopIndex)
-                  });
-                }
-              }
-            });
-
-            return {
-              countersMenu,
-              countersTable: countersByMonitors.table
-            };
-          });
     }
 
     function setNodeSegment(nodeId) {            // eslint-disable-line
@@ -307,21 +342,6 @@ class NetCrunchQueryController extends QueryCtrl {
           Object.assign(self[PRIVATE_PROPERTIES.nodeSegment], self.createNodeSegment(node));
           self.updateView();
         });
-    }
-
-    function setCountersMenu(countersMenu) {
-      self.hideCounters = true;
-      self.updateView();
-      self[PRIVATE_PROPERTIES.counters] = countersMenu;
-      self.processingCounter = false;
-      self.hideCounters = false;
-    }
-
-    function updateSelectedCounter(counterName) {
-      self[PRIVATE_PROPERTIES.counterName] = counterName;
-      self.counterReady = true;
-      self.counterDataComplete = true;
-      self.targetChanged();
     }
 
     function getSelectedNode(nodeId) {           // eslint-disable-line
@@ -358,15 +378,7 @@ class NetCrunchQueryController extends QueryCtrl {
         this.updateView();
 
         nodeSegmentReady
-          .then(() => getCounters(selectedNodeId))
-          .then((counters) => {
-            setCountersMenu(counters.countersMenu);
-            if (counters.countersTable.some(counter => (counter.name === this.target.counterName))) {
-              updateSelectedCounter(this.target.counterName);
-            } else {
-              this.targetChanged();
-            }
-          });
+          .then(() => self.updateCounterList(selectedNodeId));
       }
     });
   }
@@ -380,6 +392,10 @@ class NetCrunchQueryController extends QueryCtrl {
 
   toggleShowOptions() {
     this.showOptions = !this.showOptions;
+  }
+
+  variableChanged() {
+    this.updateCounterList();
   }
 
   static nodeDisplayValue(node) {
