@@ -375,15 +375,38 @@ class NetCrunchDatasource {
             (this.getNodeVariables().findIndex(variable => (nodeId === `$${variable.name}`)) >= 0));
   }
 
-  getNodeById(nodeID) {
+  decodeNodeIdTemplate(nodeId) {
+
+    if (Number.isInteger(nodeId)) {
+      return nodeId;
+    } else if (this.isNodeTemplate(nodeId)) {
+      const templateValue = this[PRIVATE_PROPERTIES.templateSrv].replace(nodeId);
+      let idValue = Number(templateValue);
+
+      if (Number.isInteger(idValue)) {
+        return idValue;
+      }
+
+      idValue = templateValue.match(/^{(.*)}$/);
+      idValue = ((idValue != null) && (idValue.length === 2)) ? idValue[1].split(',') : null;
+      idValue = ((idValue != null) && (idValue.length > 0)) ? Number(idValue[0]) : null;
+
+      return idValue;
+    }
+
+    return null;
+  }
+
+  getNodeById(nodeId) {
     return this.datasourceReady()
       .then(() => this[PRIVATE_PROPERTIES.nodes])
-      .then(nodes => nodes.getNodeById(nodeID));
+      .then(nodes => nodes.getNodeById(this.decodeNodeIdTemplate(nodeId)));
   }
 
   getCounters(nodeId, fromCache = true) {
     return this.datasourceReady()
-      .then(() => this[PRIVATE_PROPERTIES.netCrunchConnection].counters.getCountersForMonitors(nodeId, fromCache));
+      .then(() => this[PRIVATE_PROPERTIES.netCrunchConnection].counters
+        .getCountersForMonitors(this.decodeNodeIdTemplate(nodeId), fromCache));
   }
 
   static validateSeriesTypes(series) {
