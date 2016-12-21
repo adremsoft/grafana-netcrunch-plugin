@@ -151,15 +151,12 @@ class NetCrunchDatasource {
   query(options) {
     const self = this;
 
-    function validateCounterData(target) {
+    function validateCounterData(nodeId, counterName) {
       const
         countersAPI = self[PRIVATE_PROPERTIES.netCrunchConnection].counters,
-        nodeName = self.getNodeById(target.nodeID).then((nodeData) => {
-          const result = (nodeData != null) ? nodeData.name : null;
-          return result;
-        }),
-        counterDisplayName = self.getCounters(target.nodeID).then((counterList) => {
-          const counterData = countersAPI.findCounterByName(counterList, target.counterName);
+        nodeName = self.getNodeById(nodeId).then(nodeData => ((nodeData != null) ? nodeData.name : null)),
+        counterDisplayName = self.getCounters(nodeId).then((counterList) => {
+          const counterData = countersAPI.findCounterByName(counterList, counterName);
           return (counterData != null) ? counterData.displayName : null;
         });
 
@@ -184,13 +181,13 @@ class NetCrunchDatasource {
       return Object.keys(series).some(seriesKey => series[seriesKey] === true);
     }
 
-    function prepareSeriesName(target, counterData) {
+    function prepareSeriesName(datasource, alias, counterData) {
       let seriesName = `${counterData.nodeName} - ${counterData.counterDisplayName}`;
 
-      if (target.datasource != null) {
+      if (datasource != null) {
         seriesName = `${self.name} - ${seriesName}`;
       }
-      seriesName = target.alias || seriesName;
+      seriesName = alias || seriesName;
 
       return seriesName;
     }
@@ -199,14 +196,14 @@ class NetCrunchDatasource {
       return `${baseSeriesName}\\${SERIES_TYPES_DISPLAY_NAMES[seriesType]}`;
     }
 
-    function prepareSeriesDataQuery(target, range, series) {
+    function prepareSeriesDataQuery(nodeId, counterName, range, series) {
       const trendsAPI = self[PRIVATE_PROPERTIES.netCrunchConnection].trends;
 
       if (seriesTypesSelected(series) === false) {
         return Promise.resolve([]);
       }
 
-      return trendsAPI.getCounterTrendData(target.nodeID, target.counterName, range.from, range.to,
+      return trendsAPI.getCounterTrendData(nodeId, counterName, range.from, range.to,
                                            range.periodType, range.periodInterval, series)
         .then((dataPoints) => {                                         // eslint-disable-line
           return Object.keys(dataPoints.values).map((seriesType) => {   // eslint-disable-line
@@ -222,11 +219,12 @@ class NetCrunchDatasource {
     }
 
     function prepareTargetQuery(target, range, series) {
+      const decodedNodeId = self.decodeNodeIdTemplate(target.nodeID);
       let targetDataQuery = null;
 
       if ((target.hide !== true) && (target.counterDataComplete === true)) {
 
-        targetDataQuery = validateCounterData(target)
+        targetDataQuery = validateCounterData(decodedNodeId, target.counterName)
           .then((counterData) => {
             let
               query = null,
@@ -235,11 +233,11 @@ class NetCrunchDatasource {
               seriesTypes;
 
             if (counterData != null) {
-              seriesName = prepareSeriesName(target, counterData);
+              seriesName = prepareSeriesName(target.datasource, target.alias, counterData);
               query = [Promise.resolve(seriesName)];
               seriesTypes = (series == null) ? Object.create(null) : series;
               seriesTypes = NetCrunchDatasource.validateSeriesTypes(seriesTypes);
-              seriesDataQuery = prepareSeriesDataQuery(target, range, seriesTypes);
+              seriesDataQuery = prepareSeriesDataQuery(decodedNodeId, target.counterName, range, seriesTypes);
               query.push(seriesDataQuery);
               query = Promise.all(query);
             }
