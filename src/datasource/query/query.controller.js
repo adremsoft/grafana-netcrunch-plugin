@@ -7,7 +7,7 @@
  */
 
 import '../css/query.editor.css!';            // eslint-disable-line
-import '../directives/nc-spinner.directive';
+import '../directives/ncSpinner.directive';
 import { QueryCtrl } from 'app/plugins/sdk';  // eslint-disable-line
 import { datasourceURL } from '../common';
 
