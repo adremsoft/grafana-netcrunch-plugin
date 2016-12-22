@@ -21,6 +21,8 @@
                         spinner-on-change="ctrl.counterSpinnerChanged(state)">
             </nc-spinner>
             <div class="gf-form"
+                 nc-focus="ctrl.counterFocus"
+                 nc-focus-child="1"
                  ng-model="ctrl.counterName"
                  dropdown-typeahead2="ctrl.counters"
                  dropdown-typeahead-on-select="ctrl.counterChanged($subItem)"

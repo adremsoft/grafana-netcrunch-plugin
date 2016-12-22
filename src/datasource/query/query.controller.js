@@ -8,6 +8,7 @@
 
 import '../css/query.editor.css!';            // eslint-disable-line
 import '../directives/ncSpinner.directive';
+import '../directives/ncFocus.directive';
 import { QueryCtrl } from 'app/plugins/sdk';  // eslint-disable-line
 import { datasourceURL } from '../common';
 
@@ -20,6 +21,7 @@ const
     nodeSpinner: Symbol('nodeSpinner'),
     counterName: Symbol('counterName'),
     counterSpinner: Symbol('counterSpinner'),
+    counterFocus: Symbol('counterFocus'),
     counters: Symbol('counters')
   },
   DEFAULT_NODE_NAME = 'Select node',
@@ -38,6 +40,7 @@ class NetCrunchQueryController extends QueryCtrl {
     this[PRIVATE_PROPERTIES.nodeSpinner] = false;
     this[PRIVATE_PROPERTIES.counterName] = null;
     this[PRIVATE_PROPERTIES.counterSpinner] = false;
+    this[PRIVATE_PROPERTIES.counterFocus] = false;
     this[PRIVATE_PROPERTIES.counters] = [];
 
     this.localVars = Object.create(null);
@@ -109,6 +112,14 @@ class NetCrunchQueryController extends QueryCtrl {
 
   get counterSpinner() {
     return this[PRIVATE_PROPERTIES.counterSpinner];
+  }
+
+  get counterFocus() {
+    return this[PRIVATE_PROPERTIES.counterFocus];
+  }
+
+  set counterFocus(value) {
+    this[PRIVATE_PROPERTIES.counterFocus] = value;
   }
 
   get counterReady() {
@@ -309,6 +320,7 @@ class NetCrunchQueryController extends QueryCtrl {
           updateSelectedCounter(this.target.counterName);
         } else {
           this.targetChanged();
+          this.counterFocus = true;
         }
       });
   }
