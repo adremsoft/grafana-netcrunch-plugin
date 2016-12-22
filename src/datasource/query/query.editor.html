@@ -9,6 +9,8 @@
             </nc-spinner>
             <metric-segment segment="ctrl.nodeSegment"
                             get-options="ctrl.getNodes()"
+                            nc-focus="ctrl.nodeFocus"
+                            nc-focus-child="1"
                             on-change="ctrl.nodeChanged()"
                             ng-if="!ctrl.nodeSpinner">
             </metric-segment>

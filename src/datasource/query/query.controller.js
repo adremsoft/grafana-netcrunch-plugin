@@ -19,6 +19,7 @@ const
     nodeMap: Symbol('nodeMap'),
     nodeSegment: Symbol('nodeSegment'),
     nodeSpinner: Symbol('nodeSpinner'),
+    nodeFocus: Symbol('nodeFocus'),
     counterName: Symbol('counterName'),
     counterSpinner: Symbol('counterSpinner'),
     counterFocus: Symbol('counterFocus'),
@@ -38,6 +39,7 @@ class NetCrunchQueryController extends QueryCtrl {
     this[PRIVATE_PROPERTIES.nodeMap] = new Map();
     this[PRIVATE_PROPERTIES.nodeSegment] = this.createDefaultNodeSegment(DEFAULT_NODE_NAME);
     this[PRIVATE_PROPERTIES.nodeSpinner] = false;
+    this[PRIVATE_PROPERTIES.nodeFocus] = false;
     this[PRIVATE_PROPERTIES.counterName] = null;
     this[PRIVATE_PROPERTIES.counterSpinner] = false;
     this[PRIVATE_PROPERTIES.counterFocus] = false;
@@ -52,6 +54,8 @@ class NetCrunchQueryController extends QueryCtrl {
       this.updateView();
       if (this.target.nodeID != null) {
         this.nodeChanged(this.target.nodeID);
+      } else {
+        this.nodeFocus = true;
       }
     });
 
@@ -88,6 +92,14 @@ class NetCrunchQueryController extends QueryCtrl {
 
   get nodeSegment() {
     return this[PRIVATE_PROPERTIES.nodeSegment];
+  }
+
+  get nodeFocus() {
+    return this[PRIVATE_PROPERTIES.nodeFocus];
+  }
+
+  set nodeFocus(value) {
+    this[PRIVATE_PROPERTIES.nodeFocus] = value;
   }
 
   get nodeReady() {
