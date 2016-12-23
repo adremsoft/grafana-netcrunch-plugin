@@ -14,7 +14,8 @@ const
     showTimer: Symbol('showTimer'),
     spinnerState: Symbol('spinnerState'),
     timeout: Symbol('timeout')
-  };
+  },
+  NC_SPINNER_CONTROLLER_DI = ['$scope', '$timeout'];
 
 class NcSpinnerController {
 
@@ -70,6 +71,8 @@ class NcSpinnerController {
   }
 
 }
+
+NcSpinnerController.$inject = NC_SPINNER_CONTROLLER_DI;
 
 class NcSpinner {
 
