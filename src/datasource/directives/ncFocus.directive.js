@@ -13,7 +13,8 @@ const
   PRIVATE_PROPERTIES = {
     timeout: Symbol('timeout'),
     parse: Symbol('parse')
-  };
+  },
+  NC_FOCUS_DI = ['$timeout', '$parse'];
 
 class NcFocus {
 
@@ -45,6 +46,8 @@ class NcFocus {
     });
   }
 }
+
+NcFocus.$inject = NC_FOCUS_DI;
 
 angular
   .module(directivesModule)
