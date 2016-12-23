@@ -36,7 +36,7 @@ module.exports = function(grunt) {
           dest: destination
         }
       ]
-    }
+    };
   }
 
   function createBabelTask(destination) {
@@ -49,7 +49,7 @@ module.exports = function(grunt) {
         ext: '.js',
         extDot: 'last'
       }]
-    }
+    };
   }
 
   function createUglifyTask(destination) {
@@ -60,7 +60,7 @@ module.exports = function(grunt) {
         src: ['**/*.js', '!**/*.min.js'],
         dest: destination
       }]
-    }
+    };
   }
 
   grunt.initConfig({
@@ -94,7 +94,7 @@ module.exports = function(grunt) {
     babel: {
       options: {
         sourceMap: true,
-        presets: ['es2015'],
+        presets: ['es2015', 'babili'],
         plugins: ['transform-es2015-modules-systemjs', 'transform-es2015-for-of']
       },
       prod: createBabelTask(productionDest),
