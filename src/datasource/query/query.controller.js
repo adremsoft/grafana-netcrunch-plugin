@@ -25,6 +25,7 @@ const
     counterFocus: Symbol('counterFocus'),
     counters: Symbol('counters')
   },
+  NET_CRUNCH_QUERY_CONTROLLER_DI = ['uiSegmentSrv', '$scope', '$rootScope', '$timeout'],
   DEFAULT_NODE_NAME = 'Select node',
   DEFAULT_COUNTER_DISPLAY_NAME = 'Select counter',
   COUNTERS_SUBMENU_LENGTH = 25;
@@ -435,6 +436,8 @@ class NetCrunchQueryController extends QueryCtrl {
   }
 
 }
+
+NetCrunchQueryController.$inject = NET_CRUNCH_QUERY_CONTROLLER_DI;
 
 export {
   NetCrunchQueryController
