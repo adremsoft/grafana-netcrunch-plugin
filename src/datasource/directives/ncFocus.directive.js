@@ -47,8 +47,6 @@ class NcFocus {
   }
 }
 
-NcFocus.$inject = NC_FOCUS_DI;
-
 angular
   .module(directivesModule)
-    .directive('ncFocus', ($timeout, $parse) => new NcFocus($timeout, $parse));
+    .directive('ncFocus', [...NC_FOCUS_DI, ($timeout, $parse) => new NcFocus($timeout, $parse)]);
