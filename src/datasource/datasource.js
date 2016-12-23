@@ -27,11 +27,11 @@ const
     delta: 'Delta',
     equal: 'Equal',
     distr: 'Distr'
-  };
+  },
+  NET_CRUNCH_DATASOURCE_DI = ['instanceSettings', 'netCrunchAPIService', 'alertSrv', 'templateSrv', '$rootScope'];
 
 class NetCrunchDatasource {
 
-  /** @ngInject */
   constructor(instanceSettings, netCrunchAPIService, alertSrv, templateSrv, $rootScope) {
     const
       self = this,
@@ -419,6 +419,8 @@ class NetCrunchDatasource {
   }
 
 }
+
+NetCrunchDatasource.$inject = NET_CRUNCH_DATASOURCE_DI;
 
 export {
   NetCrunchDatasource
