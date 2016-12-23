@@ -1,3 +1,4 @@
+
 /**
  * @license
  * Copyright AdRem Software. All Rights Reserved.
@@ -16,11 +17,11 @@ import { NetCrunchConnection, CONNECTION_CONSTS, NETCRUNCH_TREND_DATA_CONST } fr
 
 const
   CONNECTION_ERROR_MESSAGES = CONNECTION_CONSTS.ERROR_MESSAGES,
-  MAX_SAMPLE_COUNT = NETCRUNCH_TREND_DATA_CONST.MAX_SAMPLE_COUNT;
+  MAX_SAMPLE_COUNT = NETCRUNCH_TREND_DATA_CONST.MAX_SAMPLE_COUNT,
+  NET_CRUNCH_API_SERVICE_DI = ['adrem', 'alertSrv', 'backendSrv', '$rootScope'];
 
 class NetCrunchAPIService {
 
-  /** @ngInject */
   constructor(adrem, alertSrv, backendSrv, $rootScope) {
     this.adrem = adrem;
     this.alertSrv = alertSrv;
@@ -134,6 +135,8 @@ class NetCrunchAPIService {
 
 }
 
+NetCrunchAPIService.$inject = NET_CRUNCH_API_SERVICE_DI;
+
 export {
   CONNECTION_ERROR_MESSAGES,
   MAX_SAMPLE_COUNT
@@ -141,4 +144,4 @@ export {
 
 angular
   .module(servicesModule)
-  .service('netCrunchAPIService', NetCrunchAPIService);
+    .service('netCrunchAPIService', NetCrunchAPIService);
