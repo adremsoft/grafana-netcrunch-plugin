@@ -112,7 +112,6 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
     }
 
   };
-
 }
 
 export {

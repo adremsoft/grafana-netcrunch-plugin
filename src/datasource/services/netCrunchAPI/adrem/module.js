@@ -35,7 +35,7 @@ const adrem = importAdremClient();
 
 angular
   .module(servicesModule)
-  .factory('adrem', () => adrem);
+    .factory('adrem', () => adrem);
 
 export {
   adrem,
