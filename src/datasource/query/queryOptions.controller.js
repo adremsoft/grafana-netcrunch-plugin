@@ -6,16 +6,22 @@
  * found in the LICENSE file.
  */
 
-import { QueryCtrl } from 'app/plugins/sdk';  // eslint-disable-line
 import { datasourceURL } from '../common';
 
-class NetCrunchQueryOptionsController extends QueryCtrl {
+class NetCrunchQueryOptionsController {
 
   constructor() {
-    super();
-    this.MAX_SAMPLE_COUNT = this.panelCtrl.datasource.MAX_SAMPLE_COUNT;
+    this.MAX_SAMPLE_COUNT = this.datasource.MAX_SAMPLE_COUNT;
     this.setDefaults();
     this.checkMaxDataPoints();
+  }
+
+  get datasource() {
+    return this.panelCtrl.datasource;
+  }
+
+  get panel() {
+    return this.panelCtrl.panel;
   }
 
   setDefaults() {
@@ -24,16 +30,15 @@ class NetCrunchQueryOptionsController extends QueryCtrl {
         maxDataPoints: this.MAX_SAMPLE_COUNT.DEFAULT,
         rawData: false,
         setMaxDataPoints: false
-      },
-      panel = this.panel;
+      };
 
-    if (panel.scopedVars == null) {
-      panel.scopedVars = DEFAULT_QUERY_OPTIONS;
+    if (this.panel.scopedVars == null) {
+      this.panel.scopedVars = DEFAULT_QUERY_OPTIONS;
     } else {
       Object.keys(DEFAULT_QUERY_OPTIONS)
         .forEach((option) => {
-          if (panel.scopedVars[option] == null) {
-            panel.scopedVars[option] = DEFAULT_QUERY_OPTIONS[option];
+          if (this.panel.scopedVars[option] == null) {
+            this.panel.scopedVars[option] = DEFAULT_QUERY_OPTIONS[option];
           }
         });
     }
