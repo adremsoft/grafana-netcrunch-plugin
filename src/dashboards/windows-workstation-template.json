@@ -4,7 +4,7 @@
   "description": "Windows Workstation Template",
   "tags": [
     "netcrunch",
-    "basic windows monitoring"
+    "windows workstation monitoring"
   ],
   "style": "dark",
   "timezone": "browser",

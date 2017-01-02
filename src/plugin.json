@@ -34,6 +34,11 @@
      "name": "Windows Workstation Template",
      "path": "dashboards/windows-workstation-template.json",
      "addToNav": true
+    },
+    {"type": "dashboard",
+      "name": "Windows Server Template",
+      "path": "dashboards/windows-server-template.json",
+      "addToNav": true
     }
   ],
 

@@ -1,0 +1,80 @@
+{
+  "id": null,
+  "title": "Windows Server Template",
+  "description": "Windows Server Template",
+  "tags": [
+    "netcrunch",
+    "windows server monitoring"
+  ],
+  "style": "dark",
+  "timezone": "browser",
+  "editable": false,
+  "sharedCrosshair": true,
+  "hideControls": false,
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "templating": {
+    "list": [
+      {
+        "type": "datasource",
+        "name": "netCrunchDatasource",
+        "hide": 0,
+        "label": "NetCrunch Datasource",
+        "regex": "^(?!default$)[\\w\\W\\s]+$",
+        "query": "grafana-netcrunch-datasource",
+        "refresh": 1
+      },
+      {
+        "type" : "query",
+        "label" : "Windows Server",
+        "query" : "nodes.windows.server",
+        "regex" : "",
+        "sort" : 0,
+        "datasource" : "$netCrunchDatasource",
+        "refresh" : 2,
+        "hide" : 0,
+        "name" : "windowsServer",
+        "multi" : false,
+        "includeAll" : false,
+        "allValue" : null,
+        "tagsQuery" : null,
+        "tagValuesQuery" : null
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "refresh": "30s",
+  "schemaVersion": 13,
+  "version": 0,
+  "links": [],
+  "gnetId": null,
+  "rows": [
+  ]
+}
