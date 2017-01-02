@@ -1,7 +1,7 @@
 {
   "id": null,
-  "title": "Basic Windows Monitoring Template",
-  "description": "Basic Windows Monitoring Template",
+  "title": "Windows Workstation Template",
+  "description": "Windows Workstation Template",
   "tags": [
     "netcrunch",
     "basic windows monitoring"
@@ -82,7 +82,7 @@
       "isNew" : false,
       "panels" : [
         {
-          "content" : "#### Basic Windows Monitoring\n\n",
+          "content" : "#### Windows Workstation Monitoring\n\n",
           "editable" : false,
           "error" : false,
           "height" : "150px",
@@ -189,7 +189,7 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "current"
         },
         {
           "cacheTimeout": null,
@@ -285,7 +285,7 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "current"
         },
         {
           "cacheTimeout": null,
@@ -381,7 +381,7 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "current"
         }
       ],
       "repeat": null,
@@ -490,7 +490,7 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "current"
         },
         {
           "cacheTimeout": null,
@@ -586,7 +586,7 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "current"
         },
         {
           "cacheTimeout": null,
@@ -682,7 +682,7 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "current"
         }
       ],
       "repeat": null,
@@ -694,9 +694,229 @@
     },
     {
       "collapse" : false,
-      "height" : 363,
+      "height" : 365,
       "isNew" : false,
       "panels" : [
+        {
+          "aliasColors": {
+            "Processor(_Total)\\% Processor Time\\Max": "#7EB26D"
+          },
+          "bars": false,
+          "datasource": "$netCrunchDatasource",
+          "editable": false,
+          "error": false,
+          "fill": 0,
+          "id": 8,
+          "isNew": true,
+          "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "hideEmpty": true,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": false,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 1,
+          "points": true,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "Processor(_Total)\\% Processor Time\\Max",
+              "fillBelowTo": "Processor(_Total)\\% Processor Time\\Min",
+              "lines": false,
+              "points": false
+            },
+            {
+              "alias": "Processor(_Total)\\% Processor Time\\Min",
+              "lines": false,
+              "points": false
+            }
+          ],
+          "span": 6,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "alias": "Processor(_Total)\\% Processor Time",
+              "counterDataComplete": true,
+              "counterName": "Processor|% Processor Time|_Total",
+              "localVars": {
+                "counterReady": true,
+                "nodeReady": true,
+                "processingCounter": false,
+                "processingNode": false,
+                "showOptions": true
+              },
+              "nodeID": "$windowsWorkstation",
+              "refId": "A",
+              "series": {
+                "avail": false,
+                "avg": true,
+                "delta": false,
+                "distr": false,
+                "equal": false,
+                "max": true,
+                "min": true
+              }
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Processor(_Total)\\% Processor Time",
+          "tooltip": {
+            "msResolution": false,
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [
+              "total"
+            ]
+          },
+          "yaxes": [
+            {
+              "format": "percent",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ]
+        },
+        {
+          "aliasColors": {
+            "Processor(_Total)\\% Processor Time\\Max": "#7EB26D"
+          },
+          "bars": false,
+          "datasource": "$netCrunchDatasource",
+          "editable": false,
+          "error": false,
+          "fill": 0,
+          "id": 9,
+          "isNew": true,
+          "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "hideEmpty": true,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": false,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 1,
+          "points": true,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "Processor(_Total)\\% Processor Time\\Max",
+              "fillBelowTo": "Processor(_Total)\\% Processor Time\\Min",
+              "lines": false,
+              "points": false
+            },
+            {
+              "alias": "Processor(_Total)\\% Processor Time\\Min",
+              "lines": false,
+              "points": false
+            }
+          ],
+          "span": 6,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "alias": "Memory\\% Committed Bytes In Use",
+              "counterDataComplete": true,
+              "counterName": "Memory|% Committed Bytes In Use",
+              "localVars": {
+                "counterReady": true,
+                "nodeReady": true,
+                "processingCounter": false,
+                "processingNode": false,
+                "showOptions": false
+              },
+              "nodeID": "$windowsWorkstation",
+              "refId": "A",
+              "series": {
+                "avail": false,
+                "avg": true,
+                "delta": false,
+                "distr": false,
+                "equal": false,
+                "max": true,
+                "min": true
+              }
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Memory\\% Committed Bytes In Use",
+          "tooltip": {
+            "msResolution": false,
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [
+              "total"
+            ]
+          },
+          "yaxes": [
+            {
+              "format": "percent",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ]
+        }
       ],
       "repeat": null,
       "repeatIteration": null,

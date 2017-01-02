@@ -31,8 +31,8 @@
   "includes": [
     {"type": "datasource", "name": "NetCrunch"},
     {"type": "dashboard",
-     "name": "Basic Windows Monitoring Template",
-     "path": "dashboards/basic-windows-monitoring-template.json",
+     "name": "Windows Workstation Template",
+     "path": "dashboards/windows-workstation-template.json",
      "addToNav": true
     }
   ],
