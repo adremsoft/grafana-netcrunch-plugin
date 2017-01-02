@@ -34,6 +34,8 @@ class NetCrunchMetricFindQuery {
 
           if (parameters.length === 1) {
             result = nodes.operations.deviceTypeFilter(result, parameters[0]);
+          } else {
+            result = nodes.operations.deviceTypeFilter(result, parameters.join('.'));
           }
 
           return createQueryResult(result);

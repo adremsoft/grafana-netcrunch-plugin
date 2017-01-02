@@ -52,7 +52,7 @@
       {
         "type" : "query",
         "label" : "Windows Workstation",
-        "query" : "nodes.windows",
+        "query" : "nodes.windows.workstation",
         "regex" : "",
         "sort" : 0,
         "datasource" : "$netCrunchDatasource",

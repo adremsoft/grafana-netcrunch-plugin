@@ -7,21 +7,24 @@
  */
 
 /* global window */
+/* eslint-disable quote-props */
 
 const
   MAP_ICON_ID_UNKNOWN = 100,
   ICON_SIZE = 25,
   DEVICE_TYPES = {
-    WINDOWS: [1, [1, 2]],
-    NOVELL: [1, [3]],
-    LINUX: [1, [4]],
-    UNIX: [1, [5]],
-    SOLARIS: [1, [6]],
-    BSD: [1, [7]],
-    IBM: [1, [8]],
-    MACOS: [1, [9]],
-    ESX: [1, [10]],
-    XENSERVER: [1, [11]]
+    'WINDOWS': [1, [1, 2]],
+    'WINDOWS.SERVER': [1, [1]],
+    'WINDOWS.WORKSTATION': [1, [2]],
+    'NOVELL': [1, [3]],
+    'LINUX': [1, [4]],
+    'UNIX': [1, [5]],
+    'SOLARIS': [1, [6]],
+    'BSD': [1, [7]],
+    'IBM': [1, [8]],
+    'MACOS': [1, [9]],
+    'ESX': [1, [10]],
+    'XENSERVER': [1, [11]]
   },
   PRIVATE_PROPERTIES = {
     local: Symbol('local'),
