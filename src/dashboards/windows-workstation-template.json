@@ -699,6 +699,7 @@
       "panels" : [
         {
           "aliasColors": {
+            "Processor(_Total)\\% Processor Time\\Min": "#7EB26D",
             "Processor(_Total)\\% Processor Time\\Max": "#7EB26D"
           },
           "bars": false,
@@ -809,7 +810,8 @@
         },
         {
           "aliasColors": {
-            "Processor(_Total)\\% Processor Time\\Max": "#7EB26D"
+            "Memory\\% Committed Bytes In Use\\Min": "#7EB26D",
+            "Memory\\% Committed Bytes In Use\\Max": "#7EB26D"
           },
           "bars": false,
           "datasource": "$netCrunchDatasource",
@@ -840,13 +842,13 @@
           "renderer": "flot",
           "seriesOverrides": [
             {
-              "alias": "Processor(_Total)\\% Processor Time\\Max",
-              "fillBelowTo": "Processor(_Total)\\% Processor Time\\Min",
+              "alias": "Memory\\% Committed Bytes In Use\\Max",
+              "fillBelowTo": "Memory\\% Committed Bytes In Use\\Min",
               "lines": false,
               "points": false
             },
             {
-              "alias": "Processor(_Total)\\% Processor Time\\Min",
+              "alias": "Memory\\% Committed Bytes In Use\\Min",
               "lines": false,
               "points": false
             }
