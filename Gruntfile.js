@@ -1,21 +1,30 @@
-module.exports = function(grunt) {
+/**
+ * @license
+ * Copyright AdRem Software. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0 that can be
+ * found in the LICENSE file.
+ */
+
+module.exports = (grunt) => {
 
   require('load-grunt-tasks')(grunt);
 
   grunt.loadNpmTasks('grunt-execute');
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks("gruntify-eslint");
+  grunt.loadNpmTasks('gruntify-eslint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
-  var productionDest = 'dist',
-      developmentDest = '../Projects/Go/src/github.com/grafana/grafana/data/plugins/grafana-netcrunch/';
+  const
+    productionDest = 'dist',
+    developmentDest = '../Projects/Go/src/github.com/grafana/grafana/data/plugins/grafana-netcrunch/';
 
   function createCleanTask(destination) {
     return [destination];
   }
 
   function createCopyTask(destination) {
-    var excludeFiles = ['!**/*.js', '!**/*.ts', '!**/*.scss', '!license-banner.txt'];
+    const excludeFiles = ['!**/*.js', '!**/*.ts', '!**/*.scss', '!license-banner.txt'];
     return {
       files: [
         {
@@ -28,7 +37,7 @@ module.exports = function(grunt) {
           cwd: 'src/datasource/services/netCrunchAPI/adrem',
           expand: true,
           src: ['*.min.js'],
-          dest: destination + '/datasource/services/netCrunchAPI/adrem'
+          dest: `${destination}/datasource/services/netCrunchAPI/adrem`
         },
         {
           expand: true,
