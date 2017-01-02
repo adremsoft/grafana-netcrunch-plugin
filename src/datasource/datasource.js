@@ -364,13 +364,17 @@ class NetCrunchDatasource {
 
   getNodeVariables() {
     return this[PRIVATE_PROPERTIES.templateSrv].variables
-      .filter(variable => (variable.datasource === this.name))
+      .filter(variable => (this.decodeDatasourceNameTemplate(variable.datasource) === this.name))
       .filter(variable => (variable.query.match(/^[nN][oO][dD][eE][sS].*/)));
   }
 
   isNodeTemplate(nodeId) {
     return ((!Number.isInteger(nodeId)) &&
             (this.getNodeVariables().findIndex(variable => (nodeId === `$${variable.name}`)) >= 0));
+  }
+
+  decodeDatasourceNameTemplate(datasourceName) {
+    return this[PRIVATE_PROPERTIES.templateSrv].replace(datasourceName);
   }
 
   decodeNodeIdTemplate(nodeId) {
