@@ -8,7 +8,7 @@
   ],
   "style": "dark",
   "timezone": "browser",
-  "editable": true,
+  "editable": false,
   "sharedCrosshair": true,
   "hideControls": false,
   "time": {
@@ -48,6 +48,22 @@
         "regex": "^(?!default$)[\\w\\W\\s]+$",
         "query": "grafana-netcrunch-datasource",
         "refresh": 1
+      },
+      {
+        "type" : "query",
+        "label" : "Windows Workstation",
+        "query" : "nodes.windows",
+        "regex" : "",
+        "sort" : 0,
+        "datasource" : "$netCrunchDatasource",
+        "refresh" : 2,
+        "hide" : 0,
+        "name" : "windowsWorkstation",
+        "multi" : false,
+        "includeAll" : false,
+        "allValue" : null,
+        "tagsQuery" : null,
+        "tagValuesQuery" : null
       }
     ]
   },
@@ -59,5 +75,123 @@
   "version": 0,
   "links": [],
   "gnetId": null,
-  "rows": []
+  "rows": [
+    {
+      "collapse" : false,
+      "height" : 142,
+      "isNew" : false,
+      "panels" : [
+        {
+          "content" : "#### Basic Windows Monitoring\n\n",
+          "editable" : false,
+          "error" : false,
+          "height" : "150px",
+          "id" : 1,
+          "isNew" : true,
+          "links" : [],
+          "mode" : "markdown",
+          "span" : 3,
+          "title" : "Description",
+          "transparent" : true,
+          "type" : "text"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": true,
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "datasource": "$netCrunchDatasource",
+          "decimals": 2,
+          "editable": false,
+          "error": false,
+          "format": "ms",
+          "gauge": {
+            "maxValue": 10,
+            "minValue": 2,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "150px",
+          "id": 2,
+          "interval": null,
+          "isNew": true,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 3,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": true
+          },
+          "targets": [
+            {
+              "alias": "",
+              "counterDataComplete": true,
+              "counterName": "PING|Check Time",
+              "localVars": {
+                "counterReady": true,
+                "nodeReady": true,
+                "processingCounter": false,
+                "processingNode": false,
+                "showOptions": false
+              },
+              "nodeID": "$windowsWorkstation",
+              "refId": "A",
+              "series": {
+                "avail": false,
+                "avg": true,
+                "delta": false,
+                "distr": false,
+                "equal": false,
+                "max": false,
+                "min": false
+              }
+            }
+          ],
+          "thresholds": "2,10",
+          "title": "PING\\Check Time",
+          "type": "singlestat",
+          "valueFontSize": "100%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "avg"
+        }
+      ]
+    }
+  ]
 }
