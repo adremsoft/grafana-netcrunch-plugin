@@ -1271,7 +1271,7 @@
               "counterName": "Processor|% User Time|_Total"
             }
           ],
-          "datasource": null,
+          "datasource": "$netCrunchDatasource",
           "renderer": "flot",
           "yaxes": [
             {
@@ -1385,7 +1385,7 @@
               "counterName": "Memory|% Committed Bytes In Use"
             }
           ],
-          "datasource": null,
+          "datasource": "$netCrunchDatasource",
           "renderer": "flot",
           "yaxes": [
             {
@@ -1555,7 +1555,7 @@
               "hide": false
             }
           ],
-          "datasource": null,
+          "datasource": "$netCrunchDatasource",
           "renderer": "flot",
           "yaxes": [
             {
@@ -1699,7 +1699,7 @@
               "hide": false
             }
           ],
-          "datasource": null,
+          "datasource": "$netCrunchDatasource",
           "renderer": "flot",
           "yaxes": [
             {
@@ -1848,7 +1848,7 @@
               "hide": false
             }
           ],
-          "datasource": null,
+          "datasource": "$netCrunchDatasource",
           "renderer": "flot",
           "yaxes": [
             {
