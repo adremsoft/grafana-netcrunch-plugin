@@ -4,5 +4,18 @@
   "id": "grafana-netcrunch-datasource",
 
   "metrics": true,
-  "annotations": false
+  "annotations": false,
+
+  "info": {
+    "description": "NetCrunch Datasource",
+    "author": {
+      "name": "AdRem Software, Inc., New York, NY",
+      "url": "https://www.adremsoft.com"
+    },
+    "keywords": ["netcrunch", "adrem"],
+    "logos": {
+      "small": "images/datasource-small-logo.png",
+      "large": "images/datasource-large-logo.png"
+    }
+  }
 }
