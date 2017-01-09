@@ -1533,6 +1533,361 @@
       "height" : 150,
       "isNew" : false,
       "panels" : [
+        {
+          "aliasColors": {},
+          "bars": false,
+          "datasource": "$netCrunchDatasource",
+          "decimals": 2,
+          "editable": false,
+          "error": false,
+          "fill": 1,
+          "height": "200px",
+          "id": 15,
+          "isNew": true,
+          "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "hideEmpty": true,
+            "max": false,
+            "min": false,
+            "show": false,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 1,
+          "points": true,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "Volume(_Total)\\% Free Space\\Max",
+              "fillBelowTo": "Volume(_Total)\\% Free Space\\Min",
+              "lines": true,
+              "points": false,
+              "color": "#7EB26D",
+              "fill": 0
+            },
+            {
+              "alias": "Volume(_Total)\\% Free Space\\Min",
+              "lines": false,
+              "points": false,
+              "color": "#7EB26D",
+              "fill": 0
+            },
+            {
+              "alias": "Volume(_Total)\\% Free Space\\Avg",
+              "color": "#7EB26D",
+              "fill": 0
+            }
+          ],
+          "span": 4,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "alias": "Volume(_Total)\\% Free Space",
+              "counterDataComplete": true,
+              "counterName": "Volume|% Free Space|_Total",
+              "hide": false,
+              "localVars": {
+                "processingNode": false,
+                "nodeReady": true,
+                "processingCounter": true,
+                "counterReady": false,
+                "showOptions": false
+              },
+              "nodeID": "$linuxNode",
+              "refId": "D",
+              "series": {
+                "avail": false,
+                "avg": true,
+                "delta": false,
+                "distr": false,
+                "equal": false,
+                "max": true,
+                "min": true
+              }
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Volume(_Total)\\% Free Space",
+          "tooltip": {
+            "msResolution": false,
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "percent",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "percent",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ]
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "datasource": "$netCrunchDatasource",
+          "decimals": 0,
+          "editable": false,
+          "error": false,
+          "fill": 1,
+          "height": "200px",
+          "id": 16,
+          "isNew": true,
+          "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "hideEmpty": true,
+            "max": false,
+            "min": false,
+            "show": false,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 1,
+          "points": true,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "span": 4,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "alias": "Processes\\Running",
+              "counterDataComplete": true,
+              "counterName": "Processes|Running",
+              "hide": false,
+              "localVars": {
+                "processingNode": false,
+                "nodeReady": true,
+                "processingCounter": false,
+                "counterReady": true,
+                "showOptions": false
+              },
+              "nodeID": "$linuxNode",
+              "refId": "A",
+              "series": {
+                "avail": false,
+                "avg": true,
+                "delta": false,
+                "distr": false,
+                "equal": false,
+                "max": false,
+                "min": false
+              }
+            },
+            {
+              "localVars": {
+                "processingNode": false,
+                "nodeReady": true,
+                "processingCounter": false,
+                "counterReady": true,
+                "showOptions": false
+              },
+              "alias": "Processes\\Sleeping",
+              "series": {
+                "min": false,
+                "avg": true,
+                "max": false,
+                "avail": false,
+                "delta": false,
+                "equal": false,
+                "distr": false
+              },
+              "refId": "B",
+              "nodeID": "$linuxNode",
+              "counterDataComplete": true,
+              "counterName": "Processes|Sleeping"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Processes",
+          "tooltip": {
+            "msResolution": false,
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "none",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "percent",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ]
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "datasource": "$netCrunchDatasource",
+          "decimals": 0,
+          "editable": false,
+          "error": false,
+          "fill": 1,
+          "height": "200px",
+          "id": 17,
+          "isNew": true,
+          "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "hideEmpty": true,
+            "max": false,
+            "min": false,
+            "show": false,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 1,
+          "points": true,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "span": 4,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "alias": "System\\Users",
+              "counterDataComplete": true,
+              "counterName": "System|Users",
+              "hide": false,
+              "localVars": {
+                "processingNode": false,
+                "nodeReady": true,
+                "processingCounter": true,
+                "counterReady": false,
+                "showOptions": false
+              },
+              "nodeID": "$linuxNode",
+              "refId": "A",
+              "series": {
+                "avail": false,
+                "avg": true,
+                "delta": false,
+                "distr": false,
+                "equal": false,
+                "max": false,
+                "min": false
+              }
+            },
+            {
+              "localVars": {
+                "processingNode": false,
+                "nodeReady": true,
+                "processingCounter": true,
+                "counterReady": false,
+                "showOptions": false
+              },
+              "alias": "TCP\\Sockets Connected",
+              "series": {
+                "min": false,
+                "avg": true,
+                "max": false,
+                "avail": false,
+                "delta": false,
+                "equal": false,
+                "distr": false
+              },
+              "refId": "B",
+              "nodeID": "$linuxNode",
+              "counterDataComplete": true,
+              "counterName": "TCP|Sockets Connected"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Users & Connections",
+          "tooltip": {
+            "msResolution": false,
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "none",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "percent",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ]
+        }
       ],
       "repeat" : null,
       "repeatIteration" : null,
