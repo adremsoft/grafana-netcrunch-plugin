@@ -1197,7 +1197,7 @@
           "title": "Processor Time - Total",
           "error": false,
           "span": 6,
-          "editable": true,
+          "editable": false,
           "type": "graph",
           "isNew": true,
           "targets": [
@@ -1357,7 +1357,7 @@
           "title": "Memory in use",
           "error": false,
           "span": 6,
-          "editable": true,
+          "editable": false,
           "type": "graph",
           "isNew": true,
           "targets": [
@@ -1502,7 +1502,7 @@
           "title": "Physical Disk Total",
           "error": false,
           "span": 4,
-          "editable": true,
+          "editable": false,
           "type": "graph",
           "isNew": true,
           "targets": [
@@ -1622,7 +1622,7 @@
           "title": "Physical Disk Total Performance",
           "error": false,
           "span": 4,
-          "editable": true,
+          "editable": false,
           "type": "graph",
           "isNew": true,
           "targets": [
@@ -1771,7 +1771,7 @@
           "title": "Connections",
           "error": false,
           "span": 4,
-          "editable": true,
+          "editable": false,
           "type": "graph",
           "isNew": true,
           "targets": [

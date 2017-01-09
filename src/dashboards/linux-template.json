@@ -8,7 +8,7 @@
   ],
   "style" : "dark",
   "timezone" : "browser",
-  "editable" : true,
+  "editable" : false,
   "sharedCrosshair" : true,
   "hideControls" : false,
   "time" : {
@@ -1221,7 +1221,7 @@
           "aliasColors": {},
           "bars": false,
           "datasource": "$netCrunchDatasource",
-          "editable": true,
+          "editable": false,
           "error": false,
           "fill": 1,
           "height": "200px",
@@ -1253,13 +1253,13 @@
           "targets": [
             {
               "alias": "Processor(_Total)\\% System Time",
-              "counterDataComplete": false,
+              "counterDataComplete": true,
               "counterName": "Processor|% System Time|_Total",
               "localVars": {
                 "processingNode": false,
                 "nodeReady": true,
-                "processingCounter": true,
-                "counterReady": false,
+                "processingCounter": false,
+                "counterReady": true,
                 "showOptions": false
               },
               "nodeID": "$linuxNode",
@@ -1276,13 +1276,13 @@
             },
             {
               "alias": "Processor(_Total)\\% Utilization",
-              "counterDataComplete": false,
+              "counterDataComplete": true,
               "counterName": "Processor|% Utilization|_Total",
               "localVars": {
                 "processingNode": false,
                 "nodeReady": true,
-                "processingCounter": true,
-                "counterReady": false,
+                "processingCounter": false,
+                "counterReady": true,
                 "showOptions": false
               },
               "nodeID": "$linuxNode",
@@ -1353,7 +1353,7 @@
           "aliasColors": {},
           "bars": false,
           "datasource": "$netCrunchDatasource",
-          "editable": true,
+          "editable": false,
           "error": false,
           "fill": 1,
           "height": "200px",
@@ -1382,9 +1382,9 @@
             {
               "alias": "Memory\\% Available for Processes\\Max",
               "color": "#7EB26D",
+              "fillBelowTo": "Memory\\% Available for Processes\\Min",
               "lines": false,
-              "points": false,
-              "fillBelowTo": "Memory\\% Available for Processes\\Min"
+              "points": false
             },
             {
               "alias": "Memory\\% Available for Processes\\Min",
@@ -1394,26 +1394,26 @@
             },
             {
               "alias": "Memory\\% Available for Processes\\Avg",
-              "fill": 0,
-              "color": "#7EB26D"
+              "color": "#7EB26D",
+              "fill": 0
             },
             {
               "alias": "Memory\\% Available\\Max",
-              "lines": false,
+              "color": "#EAB839",
               "fillBelowTo": "Memory\\% Available\\Min",
-              "points": false,
-              "color": "#EAB839"
+              "lines": false,
+              "points": false
             },
             {
               "alias": "Memory\\% Available\\Min",
+              "color": "#EAB839",
               "lines": false,
-              "points": false,
-              "color": "#EAB839"
+              "points": false
             },
             {
               "alias": "Memory\\% Available\\Avg",
-              "fill": 0,
-              "color": "#EAB839"
+              "color": "#EAB839",
+              "fill": 0
             }
           ],
           "span": 6,
@@ -1422,13 +1422,14 @@
           "targets": [
             {
               "alias": "Memory\\% Available for Processes",
-              "counterDataComplete": false,
+              "counterDataComplete": true,
               "counterName": "Memory|% Available for Processes",
+              "hide": false,
               "localVars": {
                 "processingNode": false,
                 "nodeReady": true,
-                "processingCounter": true,
-                "counterReady": false,
+                "processingCounter": false,
+                "counterReady": true,
                 "showOptions": false
               },
               "nodeID": "$linuxNode",
@@ -1441,32 +1442,31 @@
                 "equal": false,
                 "max": true,
                 "min": true
-              },
-              "hide": false
+              }
             },
             {
+              "alias": "Memory\\% Available",
+              "counterDataComplete": true,
+              "counterName": "Memory|% Available",
+              "hide": false,
               "localVars": {
                 "processingNode": false,
                 "nodeReady": true,
-                "processingCounter": true,
-                "counterReady": false,
+                "processingCounter": false,
+                "counterReady": true,
                 "showOptions": false
               },
-              "alias": "Memory\\% Available",
-              "series": {
-                "min": true,
-                "avg": true,
-                "max": true,
-                "avail": false,
-                "delta": false,
-                "equal": false,
-                "distr": false
-              },
-              "refId": "B",
               "nodeID": "$linuxNode",
-              "counterDataComplete": false,
-              "counterName": "Memory|% Available",
-              "hide": false
+              "refId": "B",
+              "series": {
+                "avail": false,
+                "avg": true,
+                "delta": false,
+                "distr": false,
+                "equal": false,
+                "max": true,
+                "min": true
+              }
             }
           ],
           "thresholds": [
