@@ -44,6 +44,11 @@
       "name": "Linux Template",
       "path": "dashboards/linux-template.json",
       "addToNav": true
+    },
+    {"type": "dashboard",
+      "name": "ESX Template",
+      "path": "dashboards/esx-template.json",
+      "addToNav": true
     }
   ],
 

@@ -1,0 +1,203 @@
+{
+  "id": null,
+  "title": "ESX Template",
+  "description": "ESX Template",
+  "tags": [
+    "netcrunch",
+    "esx monitoring"
+  ],
+  "style": "dark",
+  "timezone": "browser",
+  "editable": false,
+  "sharedCrosshair": true,
+  "hideControls": false,
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "templating": {
+    "list": [
+      {
+        "type": "datasource",
+        "name": "netCrunchDatasource",
+        "hide": 0,
+        "label": "NetCrunch Datasource",
+        "regex": "^(?!default$)[\\w\\W\\s]+$",
+        "query": "grafana-netcrunch-datasource",
+        "refresh": 1
+      },
+      {
+        "type" : "query",
+        "label" : "ESX",
+        "query" : "nodes.esx",
+        "regex" : "",
+        "sort" : 0,
+        "datasource" : "$netCrunchDatasource",
+        "refresh" : 2,
+        "hide" : 0,
+        "name" : "esxNode",
+        "multi" : false,
+        "includeAll" : false,
+        "allValue" : null,
+        "tagsQuery" : null,
+        "tagValuesQuery" : null
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "refresh": "30s",
+  "schemaVersion": 13,
+  "version": 0,
+  "links": [],
+  "gnetId": null,
+  "rows": [
+    {
+      "collapse" : false,
+      "height" : 150,
+      "isNew" : false,
+      "panels" : [
+        {
+          "content" : "#### ESX Monitoring\n\n",
+          "editable" : false,
+          "error" : false,
+          "height" : "125px",
+          "id" : 1,
+          "isNew" : true,
+          "links" : [],
+          "mode" : "markdown",
+          "span" : 2,
+          "title" : "Description",
+          "transparent" : true,
+          "type" : "text"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": true,
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "datasource": "$netCrunchDatasource",
+          "decimals": 2,
+          "editable": false,
+          "error": false,
+          "format": "ms",
+          "gauge": {
+            "maxValue": 10,
+            "minValue": 2,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "125px",
+          "id": 2,
+          "interval": null,
+          "isNew": true,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 2,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": true
+          },
+          "targets": [
+            {
+              "alias": "",
+              "counterDataComplete": true,
+              "counterName": "PING|Check Time",
+              "localVars": {
+                "counterReady": true,
+                "nodeReady": true,
+                "processingCounter": false,
+                "processingNode": false,
+                "showOptions": false
+              },
+              "nodeID": "$esxNode",
+              "refId": "A",
+              "series": {
+                "avail": false,
+                "avg": true,
+                "delta": false,
+                "distr": false,
+                "equal": false,
+                "max": false,
+                "min": false
+              }
+            }
+          ],
+          "thresholds": "10,20",
+          "title": "PING\\Check Time",
+          "type": "singlestat",
+          "valueFontSize": "100%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Stats Row",
+      "titleSize": "h6"
+    }
+  ]
+}
