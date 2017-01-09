@@ -894,7 +894,7 @@
         {
           "cacheTimeout": null,
           "colorBackground": false,
-          "colorValue": true,
+          "colorValue": false,
           "colors": [
             "rgba(50, 172, 45, 0.97)",
             "rgba(237, 129, 40, 0.89)",
@@ -990,7 +990,7 @@
         {
           "cacheTimeout": null,
           "colorBackground": false,
-          "colorValue": true,
+          "colorValue": false,
           "colors": [
             "rgba(50, 172, 45, 0.97)",
             "rgba(237, 129, 40, 0.89)",
@@ -1049,7 +1049,7 @@
             {
               "alias": "",
               "counterDataComplete": true,
-              "counterName": "Server|Server Sessions",
+              "counterName": "TCPv4|Connections Established",
               "localVars": {
                 "processingNode": false,
                 "nodeReady": true,
@@ -1071,7 +1071,7 @@
             }
           ],
           "thresholds": "20, 50",
-          "title": "Server\\Server Sessions",
+          "title": "TCPv4\\Connections Established",
           "type": "singlestat",
           "valueFontSize": "100%",
           "valueMaps": [
@@ -1081,12 +1081,17 @@
               "value": "null"
             }
           ],
-          "valueName": "current"
+          "valueName": "current",
+          "scopedVars": {
+            "maxDataPoints": 200,
+            "rawData": false,
+            "setMaxDataPoints": false
+          }
         },
         {
           "cacheTimeout": null,
           "colorBackground": false,
-          "colorValue": true,
+          "colorValue": false,
           "colors": [
             "rgba(50, 172, 45, 0.97)",
             "rgba(237, 129, 40, 0.89)",
