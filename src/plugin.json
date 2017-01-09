@@ -39,6 +39,11 @@
       "name": "Windows Server Template",
       "path": "dashboards/windows-server-template.json",
       "addToNav": true
+    },
+    {"type": "dashboard",
+      "name": "Linux Template",
+      "path": "dashboards/linux-template.json",
+      "addToNav": true
     }
   ],
 
