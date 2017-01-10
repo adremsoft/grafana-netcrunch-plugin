@@ -1,6 +1,17 @@
 # NetCrunch App for Grafana
 
+## NetCrunch App activation
+![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/master/doc/movies/activate-netcrunch-plugin.gif)
+
+## Create NetCrunch datasource
+![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/master/doc/movies/create-datasource.gif)
+
+![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/master/doc/images/datasource-list.jpg)
+
 ## Templates
+
+### Select template
+![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/master/doc/movies/select-template.gif)
 
 ### Windows workstation
 ![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/master/doc/images/windows-workstation-template.jpg)
