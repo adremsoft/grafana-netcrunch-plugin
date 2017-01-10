@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/adremsoft/grafana-netcrunch.git"
+    "url": "git+https://github.com/adremsoft/grafana-netcrunch-plugin.git"
   },
   "author": "AdRem Software, Inc., New York, NY",
   "license": "Apache License, Version 2.0",
   "bugs": {
-    "url": "https://github.com/adremsoft/grafana-netcrunch/issues"
+    "url": "https://github.com/adremsoft/grafana-netcrunch-plugin/issues"
   },
   "dependencies": {
     "angular": "1.5.8",
@@ -48,5 +48,5 @@
     "eslint-plugin-react": "^6.7.1",
     "eslint-config-airbnb": "^13.0.0"
   },
-  "homepage": "https://github.com/adremsoft/grafana-netcrunch"
+  "homepage": "https://github.com/adremsoft/grafana-netcrunch-plugin"
 }
