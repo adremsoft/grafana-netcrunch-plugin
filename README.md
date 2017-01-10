@@ -25,6 +25,9 @@
 ### ESX
 ![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/master/doc/images/esx-template.jpg)
 
+## Create dashboard
+![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/master/doc/movies/create-dashboard.gif)
+
 ## Changelog
 
 ### v1.0.0
