@@ -43,6 +43,9 @@ class NetCrunchDatasourceConfigCtrl {
     return `${datasourceURL}config/config.html`;
   }
 
+  static set templateUrl(value) {   // eslint-disable-line
+  }
+
 }
 
 export {

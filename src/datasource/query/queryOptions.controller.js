@@ -60,6 +60,9 @@ class NetCrunchQueryOptionsController {
     return `${datasourceURL}query/query.options.html`;
   }
 
+  static set templateUrl(value) {   // eslint-disable-line
+  }
+
 }
 
 export {

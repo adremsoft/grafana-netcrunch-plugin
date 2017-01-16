@@ -435,6 +435,9 @@ class NetCrunchQueryController extends QueryCtrl {
     return `${datasourceURL}query/query.editor.html`;
   }
 
+  static set templateUrl(value) {   // eslint-disable-line
+  }
+
 }
 
 NetCrunchQueryController.$inject = NET_CRUNCH_QUERY_CONTROLLER_DI;
