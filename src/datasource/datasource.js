@@ -136,7 +136,7 @@ class NetCrunchDatasource {
         .then(() => {
           resolve({
             status: 'success',
-            message: 'Datasource is working',
+            message: 'Datasource connected',
             title: 'Success' });
         })
         .catch((error) => {
