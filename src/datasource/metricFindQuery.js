@@ -49,7 +49,7 @@ class NetCrunchMetricFindQuery {
       return getParseResult((nodesQuery || '').match(/^(nodes)(.*)$/i));
     }
 
-    function parseDeviceTypeItem(deviceTypeItemQuery) {
+    function parseDeviceType(deviceTypeItemQuery) {
       const
         deviceTypes = 'windows\\.server|windows\\.workstation|windows|linux|bsd|macos|solaris|esx|xenserver' +
                       '|unix|novell|ibm',
@@ -57,7 +57,7 @@ class NetCrunchMetricFindQuery {
       return getParseResult(result);
     }
 
-    function parseMapItem(mapItemQuery) {
+    function parseMap(mapItemQuery) {
       const
         mapPattern = `\\.(?:map)\\("(${namePattern})"\\)`,
         result = (mapItemQuery || '').match(new RegExp(`^${mapPattern}(.*)$`, 'i'));
@@ -83,8 +83,8 @@ class NetCrunchMetricFindQuery {
     function parseNodesFilterQuery(nodesFilterQuery) {
       const
         parsingExpressions = [
-          { parseExpression: parseDeviceTypeItem, taskName: 'deviceTypeFilter' },
-          { parseExpression: parseMapItem, taskName: 'mapFilter' },
+          { parseExpression: parseDeviceType, taskName: 'deviceTypeFilter' },
+          { parseExpression: parseMap, taskName: 'mapFilter' },
           { parseExpression: parseMonitoringPack, taskName: 'monitoringPackFilter' }
         ],
         tasks = [];
