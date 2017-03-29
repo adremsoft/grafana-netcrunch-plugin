@@ -15,7 +15,6 @@ class NetCrunchMetricFindQuery {
 
   process() {
     const tasks = NetCrunchMetricFindQuery.parseQuery(this.query);
-
     if (tasks.completeParsed) {
       return Promise.all([this.datasource.nodes(), this.datasource.atlas()])
         .then((result) => {
@@ -83,8 +82,8 @@ class NetCrunchMetricFindQuery {
     function parseNodesFilterQuery(nodesFilterQuery) {
       const
         parsingExpressions = [
-          { parseExpression: parseDeviceType, taskName: 'deviceTypeFilter' },
-          { parseExpression: parseMap, taskName: 'mapFilter' },
+          { parseExpression: parseDeviceType, taskName: 'deviceType' },
+          { parseExpression: parseMap, taskName: 'atlasMap' },
           { parseExpression: parseMonitoringPack, taskName: 'monitoringPackFilter' }
         ],
         tasks = [];
@@ -125,62 +124,98 @@ class NetCrunchMetricFindQuery {
 
   static processQueryTasks(tasks, atlas, nodes) {
 
-    function getFilterResult(success, processedNodes, unprocessedTasks) {
+    function getFilterResult(success, processedNodes) {
       return {
         success,
-        nodes: processedNodes,
-        tasks: unprocessedTasks
+        nodes: processedNodes
       };
     }
 
-    function deviceTypeFilter(tasksToProcess, nodesToFilter) {
-      const currentTask = tasksToProcess.shift();
+    function deviceTypeFilter(deviceType, nodesToFilter) {
       return getFilterResult(
         true,
-        nodesToFilter.filter(node => node.checkDeviceType(currentTask.parameter)),
-        tasksToProcess
+        nodesToFilter.filter(node => node.checkDeviceType(deviceType))
       );
     }
 
-    function mapFilter(tasksToProcess, nodesToFilter) {
-      const currentTask = tasksToProcess.shift();
+    function getNodeIdsForSubMap(subMapNamesSequence, networkMap) {
+      const result = [];
+      let childMap;
+
+      if (subMapNamesSequence.length === 0) {
+        result.push(...networkMap.allNodesId);
+        result.success = true;
+        return result;
+      }
+
+      /* eslint prefer-const: off */
+      childMap = networkMap.getChildMapByDisplayName(subMapNamesSequence.shift());
+      if (childMap != null) {
+        return getNodeIdsForSubMap(subMapNamesSequence, childMap);
+      }
+      /* eslint prefer-const: on */
+
+      result.success = false;
+      return result;
+    }
+
+    function filterNodesByIds(nodeList, nodeIds) {
+      const
+        nodesMap = new Map(),
+        result = [];
+
+      nodeList.forEach(node => nodesMap.set(node.id, node));
+      nodeIds.forEach((nodeId) => {
+        if (nodesMap.has(nodeId)) {
+          result.push(nodesMap.get(nodeId));
+        }
+      });
+
+      return result;
+    }
+
+    function mapFilter(subMapNamesSequence, nodesToFilter, rootMap) {
+      const nodeIds = getNodeIdsForSubMap([].concat(subMapNamesSequence), rootMap);
+      let filteredNodes = [];
+
+      if (nodeIds.success) {
+        filteredNodes = filterNodesByIds(nodesToFilter, nodeIds);
+      }
+
       return getFilterResult(
-        true,
-        nodesToFilter,
-        tasksToProcess
+        nodeIds.success,
+        filteredNodes
       );
     }
 
-    function monitoringPackFilter(tasksToProcess, nodesToFilter) {
-      const currentTask = tasksToProcess.shift();
-      return getFilterResult(
-        true,
-        nodesToFilter,
-        tasksToProcess
-      );
+    function atlasMapFilter(subMapNamesSequence, nodesToFilter) {
+      return mapFilter(subMapNamesSequence, nodesToFilter, atlas.atlasRoot);
     }
 
     const
-      filters = { deviceTypeFilter, mapFilter, monitoringPackFilter };
+      taskMethods = {
+        deviceType: deviceTypeFilter,
+        atlasMap: atlasMapFilter
+      };
     let
-      processingSucceed = true,
-      processedTasks = tasks,
-      processedNodes = nodes,
-      processingResult;
+      currentTask,
+      taskSucceeded = true,
+      taskResult,
+      nodesForProcessing = nodes;
 
-    while (processingSucceed && (processedTasks.length > 0)) {
-      processingResult = filters[tasks[0].name](processedTasks, processedNodes, atlas);
-      processingSucceed = processingResult.success;
-      processedTasks = processingResult.tasks;
+    while (taskSucceeded && (tasks.length > 0)) {
+      currentTask = tasks.shift();
+      taskResult = taskMethods[currentTask.name](currentTask.parameter, nodesForProcessing);
+      taskSucceeded = taskResult.success;
 
-      if (processingSucceed) {
-        processedNodes = processingResult.nodes;
+      if (taskSucceeded) {
+        nodesForProcessing = taskResult.nodes;
       }
     }
 
     return {
-      success: processingSucceed,
-      nodes: processedNodes
+      success: taskSucceeded,
+      nodes: nodesForProcessing
     };
   }
 
