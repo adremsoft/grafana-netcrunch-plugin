@@ -21,7 +21,7 @@ class NetCrunchMetricFindQuery {
           const
             atlas = result[1],
             allNodes = result[0].all,
-            tasksResult = NetCrunchMetricFindQuery.processQueryTasks(tasks, atlas, allNodes);
+            tasksResult = NetCrunchMetricFindQuery.processQueryElements(tasks, atlas, allNodes);
 
           return NetCrunchMetricFindQuery.createQueryResult((tasksResult.success) ? tasksResult.nodes : []);
         });
@@ -72,7 +72,7 @@ class NetCrunchMetricFindQuery {
       return getParseResult(result);
     }
 
-    function getTask(taskName, taskParameter) {
+    function getQueryTask(taskName, taskParameter) {
       return {
         name: taskName,
         parameter: taskParameter
@@ -97,7 +97,7 @@ class NetCrunchMetricFindQuery {
         parsingSuccessful = parsingExpressions.some((parsingExpression) => {    // eslint-disable-line no-loop-func
           const parseResult = parsingExpression.parseExpression(queryToParse);
           if (parseResult != null) {
-            tasks.push(getTask(parsingExpression.taskName, parseResult.parameter));
+            tasks.push(getQueryTask(parsingExpression.taskName, parseResult.parameter));
             queryToParse = parseResult.queryRest;
             return true;
           }
@@ -122,36 +122,29 @@ class NetCrunchMetricFindQuery {
     return parseResult;
   }
 
-  static processQueryTasks(tasks, atlas, nodes) {
+  static processQueryElements(queryElements, atlas, nodes) {
 
-    function getFilterResult(success, processedNodes) {
+    function getProcessingResult(success, nodeList) {
       return {
         success,
-        nodes: processedNodes
+        nodes: nodeList
       };
     }
 
-    function deviceTypeFilter(deviceType, nodesToFilter) {
-      return getFilterResult(
-        true,
-        nodesToFilter.filter(node => node.checkDeviceType(deviceType))
-      );
-    }
-
-    function getNodeIdsForSubMap(subMapNamesSequence, networkMap) {
+    function getNodeIdsForSubMap(map, subMapNamesSequence) {
       const result = [];
-      let childMap;
+      let subMap;
 
       if (subMapNamesSequence.length === 0) {
-        result.push(...networkMap.allNodesId);
+        result.push(...map.allNodesId);
         result.success = true;
         return result;
       }
 
       /* eslint prefer-const: off */
-      childMap = networkMap.getChildMapByDisplayName(subMapNamesSequence.shift());
-      if (childMap != null) {
-        return getNodeIdsForSubMap(subMapNamesSequence, childMap);
+      subMap = map.getChildMapByDisplayName(subMapNamesSequence.shift());
+      if (subMap != null) {
+        return getNodeIdsForSubMap(subMap, subMapNamesSequence);
       }
       /* eslint prefer-const: on */
 
@@ -174,47 +167,54 @@ class NetCrunchMetricFindQuery {
       return result;
     }
 
-    function mapFilter(subMapNamesSequence, nodesToFilter, rootMap) {
-      const nodeIds = getNodeIdsForSubMap([].concat(subMapNamesSequence), rootMap);
+    function filterNodesBySubMap(inputNodeList, map, subMapNamesSequence) {
+      const nodeIds = getNodeIdsForSubMap(map, [].concat(subMapNamesSequence));
       let filteredNodes = [];
 
       if (nodeIds.success) {
-        filteredNodes = filterNodesByIds(nodesToFilter, nodeIds);
+        filteredNodes = filterNodesByIds(inputNodeList, nodeIds);
       }
 
-      return getFilterResult(
+      return getProcessingResult(
         nodeIds.success,
         filteredNodes
       );
     }
 
-    function atlasMapFilter(subMapNamesSequence, nodesToFilter) {
-      return mapFilter(subMapNamesSequence, nodesToFilter, atlas.atlasRoot);
+    function processDeviceTypeElement(deviceType, nodeList) {
+      return getProcessingResult(
+        true,
+        nodeList.filter(node => node.checkDeviceType(deviceType))
+      );
+    }
+
+    function processAtlasMapElement(subMapNamesSequence, nodeList) {
+      return filterNodesBySubMap(nodeList, atlas.atlasRoot, subMapNamesSequence);
     }
 
     const
-      taskMethods = {
-        deviceType: deviceTypeFilter,
-        atlasMap: atlasMapFilter
+      elementProcessingMethods = {
+        deviceType: processDeviceTypeElement,
+        atlasMap: processAtlasMapElement
       };
     let
-      currentTask,
-      taskSucceeded = true,
-      taskResult,
+      currentElement,
+      processingSuccessful = true,
+      processingResult,
       nodesForProcessing = nodes;
 
-    while (taskSucceeded && (tasks.length > 0)) {
-      currentTask = tasks.shift();
-      taskResult = taskMethods[currentTask.name](currentTask.parameter, nodesForProcessing);
-      taskSucceeded = taskResult.success;
+    while (processingSuccessful && (queryElements.length > 0)) {
+      currentElement = queryElements.shift();
+      processingResult = elementProcessingMethods[currentElement.name](currentElement.parameter, nodesForProcessing);
+      processingSuccessful = processingResult.success;
 
-      if (taskSucceeded) {
-        nodesForProcessing = taskResult.nodes;
+      if (processingSuccessful) {
+        nodesForProcessing = processingResult.nodes;
       }
     }
 
     return {
-      success: taskSucceeded,
+      success: processingSuccessful,
       nodes: nodesForProcessing
     };
   }
