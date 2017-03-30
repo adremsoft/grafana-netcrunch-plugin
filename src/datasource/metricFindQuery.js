@@ -14,16 +14,16 @@ class NetCrunchMetricFindQuery {
   }
 
   process() {
-    const tasks = NetCrunchMetricFindQuery.parseQuery(this.query);
-    if (tasks.completeParsed) {
+    const queryElements = NetCrunchMetricFindQuery.parseQuery(this.query);
+    if (queryElements.completeParsed) {
       return Promise.all([this.datasource.nodes(), this.datasource.atlas()])
         .then((result) => {
           const
             atlas = result[1],
             allNodes = result[0].all,
-            tasksResult = NetCrunchMetricFindQuery.processQueryElements(tasks, atlas, allNodes);
+            processingResult = NetCrunchMetricFindQuery.processQueryElements(queryElements, atlas, allNodes);
 
-          return NetCrunchMetricFindQuery.createQueryResult((tasksResult.success) ? tasksResult.nodes : []);
+          return NetCrunchMetricFindQuery.createQueryResult((processingResult.success) ? processingResult.nodes : []);
         });
     }
 
