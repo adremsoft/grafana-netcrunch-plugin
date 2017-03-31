@@ -10,9 +10,10 @@ const
   PRIVATE_PROPERTIES = {
     type: Symbol('type'),
     value: Symbol('value'),
-    tokens: Symbol('token'),
+    token: Symbol('token'),
     residuals: Symbol('residuals')
-  };
+  },
+  NULL_TOKEN_TYPE = 'NULL';
 
 class Token {
 
@@ -29,25 +30,49 @@ class Token {
     return this[PRIVATE_PROPERTIES.value];
   }
 
+  isNull() {
+    return (this.type === NULL_TOKEN_TYPE);
+  }
+
   static getToken(type, value) {
     return new Token(type, value);
+  }
+
+  static getNullToken() {
+    return Token.getToken(NULL_TOKEN_TYPE, null);
   }
 
 }
 
 class ReadResult {
 
-  constructor(tokens, residuals) {
-    this[PRIVATE_PROPERTIES.tokens] = [].concat(tokens);
+  constructor(token, residuals) {
+    this[PRIVATE_PROPERTIES.token] = token;
     this[PRIVATE_PROPERTIES.residuals] = residuals;
   }
 
-  get tokens() {
-    return this[PRIVATE_PROPERTIES.tokens];
+  get token() {
+    return this[PRIVATE_PROPERTIES.token];
   }
 
   get residuals() {
     return this[PRIVATE_PROPERTIES.residuals];
+  }
+
+  aggregateTokenValues() {
+    let aggregatedValue;
+
+    if (this.token != null) {
+      aggregatedValue = ([].concat(this.token.value)).reduce((aggregation, subToken) => {
+        aggregation.push(...([].concat(subToken.value)));
+        return aggregation;
+      }, []);
+      this[PRIVATE_PROPERTIES.token] = Token.getToken(this.token.type, aggregatedValue);
+    }
+  }
+
+  static getNullReadResult(residuals) {
+    return new ReadResult(Token.getNullToken(), residuals);
   }
 
   static getReadResult(tokenType, tokenValues, residuals) {
@@ -58,26 +83,7 @@ class ReadResult {
     if ((tokenRegExpResult != null) && (tokenRegExpResult.length >= 3)) {
       return this.getReadResult(tokenType, tokenRegExpResult[1], tokenRegExpResult[2]);
     }
-    return null;
-  }
-
-  static aggregateTokenValues(result) {
-    let
-      resultToken,
-      aggregatedValue;
-
-    if (result != null) {
-      resultToken = result.tokens[0];
-
-      aggregatedValue = resultToken.value.reduce((aggregation, token) => {
-        aggregation.push(...([].concat(token.value)));
-        return aggregation;
-      }, []);
-
-      return ReadResult.getReadResult(resultToken.type, aggregatedValue, result.residuals);
-    }
-
-    return null;
+    return ReadResult.getNullReadResult('');
   }
 
 }
@@ -103,7 +109,7 @@ class GenericTokenReaders {
       residuals;
 
     while (result != null) {
-      readedTokens.push(...result.tokens);
+      readedTokens.push(...result.token);
       residuals = result.residuals;
       result = tokenReader(residuals);
     }
@@ -120,7 +126,7 @@ class GenericTokenReaders {
     iterationOK = tokenReadersIterator((tokenReader) => {       // eslint-disable-line prefer-const
       const result = tokenReader(residuals);
       if (result != null) {
-        readedTokens.push(...result.tokens);
+        readedTokens.push(...result.token);
         residuals = result.residuals;
         return true;
       }
@@ -166,6 +172,10 @@ class GenericTokenReaders {
     return this.readTokens(tokenType, ifOccurIterator, input);
   }
 
+  static readNullToken(input) {
+    return ReadResult.getReadResult(NULL_TOKEN_TYPE, null, input);
+  }
+
 }
 
 class QueryTokenReaders {
@@ -197,8 +207,8 @@ class QueryTokenReaders {
     }
 
     if (selectorReadResult != null) {
-      parameterReadResult = GenericTokenReaders.readToken('', parameterPattern, selectorReadResult.tokens[0].value);
-      parameterValue = replaceHashedChars(parameterReadResult.tokens[0].value);
+      parameterReadResult = GenericTokenReaders.readToken('', parameterPattern, selectorReadResult.token[0].value);
+      parameterValue = replaceHashedChars(parameterReadResult.token[0].value);
     }
 
     if ((selectorReadResult != null) && (parameterReadResult != null)) {
@@ -220,7 +230,7 @@ class QueryTokenReaders {
 
     if (readResult != null) {
       readResult = ReadResult.aggregateTokenValues(readResult);
-      resultTokenValue = readResult.tokens[0].value;
+      resultTokenValue = readResult.token[0].value;
       return ReadResult.getReadResult(tokenType, resultTokenValue[1], readResult.residuals);
     }
     return null;
@@ -245,6 +255,12 @@ class QueryTokenReaders {
 
   static readName(input) {
     return this.readDotSelectorWithStringParameter('name', 'name', input);
+  }
+
+  static readDeviceType(input) {
+    const deviceTypes = 'windows\\.server|windows\\.workstation|windows|linux|bsd|macos|solaris|esx|xenserver' +
+                        '|unix|novell|ibm';
+    return GenericTokenReaders.readToken('deviceType', `\\.(${deviceTypes})`, input);
   }
 
 }
