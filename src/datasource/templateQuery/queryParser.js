@@ -70,11 +70,11 @@ class GenericTokenReaders {
     return ReadResult.getReadResultFromTokenRegExp(tokenType, regExpResult);
   }
 
-  static readFunctionToken(tokenType, functionName, input) {
+  static readSelectorToken(tokenType, selectorName, input) {
     const
-      functionParametersPattern = '(?:(?:\\\\\\(|\\\\\\))|[^()])+',
-      functionPattern = `(?:${functionName})\\((${functionParametersPattern})\\)`;
-    return this.readToken(tokenType, functionPattern, input);
+      selectorParametersPattern = '(?:(?:\\\\\\(|\\\\\\))|[^()])+',
+      selectorPattern = `(?:${selectorName})\\((${selectorParametersPattern})\\)`;
+    return this.readToken(tokenType, selectorPattern, input);
   }
 
   static readRepetitiveToken(tokenType, tokenReader, input) {
@@ -149,6 +149,69 @@ class GenericTokenReaders {
 
 }
 
+class QueryTokenReaders {
+
+  static readNodes(input) {
+    return GenericTokenReaders.readToken('nodes', 'nodes()', input);
+  }
+
+  static readMonitoringPacks(input) {
+    return GenericTokenReaders.readToken('monitoringPacks', '\\.monitoringPacks()', input);
+  }
+
+  static readSelectorWithStringParameter(tokenType, selectorName, input) {
+    const
+      parameterCharPattern = '(?:[\\w~`!@#$%^&*_+-=\\[\\]{};\':<>,\\.\\?\\/|]|\\\\"|\\\\\\(|\\\\\\)|\\\\)',
+      parameterPattern = `"(\\s*${parameterCharPattern}+(?:[\\s]${parameterCharPattern}+)*\\s*)"`,
+      selectorReadResult = GenericTokenReaders.readSelectorToken('', selectorName, input);
+    let
+      parameterReadResult,
+      parameterValue;
+
+    function replaceHashedChars(string) {
+      let result;
+
+      result = (string || '').replace(/\\\(/g, '(');
+      result = result.replace(/\\\)/g, ')');
+      result = result.replace(/\\"/g, '"');
+      return result;
+    }
+
+    if (selectorReadResult != null) {
+      parameterReadResult = GenericTokenReaders.readToken('', parameterPattern, selectorReadResult.tokens[0].value);
+      parameterValue = replaceHashedChars(parameterReadResult.tokens[0].value);
+    }
+
+    if ((selectorReadResult != null) && (parameterReadResult != null)) {
+      return ReadResult.getReadResult(tokenType, parameterValue, selectorReadResult.residuals);
+    }
+
+    return null;
+  }
+
+  static readDot(input) {
+    return GenericTokenReaders.readToken('dot', '(\\.)', input);
+  }
+
+  static readDotSelectorWithStringParameter(tokenType, functionName, input) {
+    const
+      selectorReader = (readerInput => this.readSelectorWithStringParameter('', functionName, readerInput)),
+      readResult = GenericTokenReaders.readTokenSequence('', [this.readDot, selectorReader], input);
+    let resultTokenValue;
+
+    if (readResult != null) {
+      resultTokenValue = readResult.tokens[0].value;
+      return ReadResult.getReadResult(tokenType, resultTokenValue[1].value, readResult.residuals);
+    }
+    return null;
+  }
+
+  static readNetworkAtlas(input) {
+    return this.readDotSelectorWithStringParameter('networkAtlas', 'networkAtlas', input);
+  }
+
+}
+
 export {
-  GenericTokenReaders
+  QueryTokenReaders
 };
