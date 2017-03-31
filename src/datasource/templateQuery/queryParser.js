@@ -59,15 +59,26 @@ class ReadResult {
     return this[PRIVATE_PROPERTIES.residuals];
   }
 
-  aggregateSubTokensValues() {
+  aggregateSubTokensValues(withNullTokens = false) {
     let aggregatedValue;
 
     if (this.token != null) {
       aggregatedValue = ([].concat(this.token.value)).reduce((aggregation, subToken) => {
-        aggregation.push(...([].concat(subToken.value)));
+        if (withNullTokens || (!subToken.isNull())) {
+          aggregation.push(...([].concat(subToken.value)));
+        }
         return aggregation;
       }, []);
       this[PRIVATE_PROPERTIES.token] = Token.getToken(this.token.type, aggregatedValue);
+    }
+  }
+
+  mergeResult(result, residuals) {
+    let mergedValues;
+    if ((this.token != null) && (result != null) && (result.token != null)) {
+      mergedValues = [].concat(this.token.value).concat(result.token.value);
+      this[PRIVATE_PROPERTIES.token] = Token.getToken(this.token.type, mergedValues);
+      this[PRIVATE_PROPERTIES.residuals] = (residuals != null) ? residuals : result.residuals;
     }
   }
 
@@ -103,18 +114,15 @@ class GenericTokenReaders {
   }
 
   static readRepetitiveToken(tokenType, tokenReader, input) {
-    const readedTokens = [];
-    let
-      result = tokenReader(input),
-      residuals;
+    let currentResult = tokenReader(input);
+    const result = currentResult;
 
-    while (result != null) {
-      readedTokens.push(result.token);
-      residuals = result.residuals;
-      result = tokenReader(residuals);
+    while (currentResult != null) {
+      currentResult = tokenReader(currentResult.residuals);
+      result.mergeResult(currentResult);
     }
 
-    return (readedTokens.length > 0) ? ReadResult.getReadResult(tokenType, readedTokens, residuals) : null;
+    return (result != null) ? ReadResult.getReadResult(tokenType, result.token.value, result.residuals) : null;
   }
 
   static readTokens(tokenType, tokenReadersIterator, input) {
@@ -222,9 +230,9 @@ class QueryTokenReaders {
     return GenericTokenReaders.readToken('dot', '(\\.)', input);
   }
 
-  static readDotSelectorWithStringParameter(tokenType, functionName, input) {
+  static readDotSelectorWithStringParameter(tokenType, selectorName, input) {
     const
-      selectorReader = (readerInput => this.readSelectorWithStringParameter('', functionName, readerInput)),
+      selectorReader = (readerInput => this.readSelectorWithStringParameter('', selectorName, readerInput)),
       readResult = GenericTokenReaders.readTokenSequence('', [this.readDot, selectorReader], input);
 
     if (readResult != null) {
