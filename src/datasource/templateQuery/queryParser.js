@@ -120,6 +120,33 @@ class GenericTokenReaders {
     return this.readTokens(tokenType, sequenceIterator, input);
   }
 
+  static readFirstOccurredToken(tokenType, tokenReaders, input) {
+
+    function firstOccurredIterator(anonymousCallback) {
+      return tokenReaders.some(anonymousCallback);
+    }
+
+    return this.readTokens(tokenType, firstOccurredIterator, input);
+  }
+
+  static readTokensIfOccur(tokenType, tokenReaders, input) {
+
+    function ifOccurIterator(anonymousCallback) {
+      let iteratorResult = false;
+
+      tokenReaders.forEach((reader, index, array) => {
+        const result = anonymousCallback(reader, index, array);
+        if (result) {
+          iteratorResult = true;
+        }
+      });
+
+      return iteratorResult;
+    }
+
+    return this.readTokens(tokenType, ifOccurIterator, input);
+  }
+
 }
 
 export {
