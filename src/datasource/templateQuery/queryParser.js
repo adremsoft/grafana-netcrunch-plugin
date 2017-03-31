@@ -61,6 +61,25 @@ class ReadResult {
     return null;
   }
 
+  static aggregateTokenValues(result) {
+    let
+      resultToken,
+      aggregatedValue;
+
+    if (result != null) {
+      resultToken = result.tokens[0];
+
+      aggregatedValue = resultToken.value.reduce((aggregation, token) => {
+        aggregation.push(...([].concat(token.value)));
+        return aggregation;
+      }, []);
+
+      return ReadResult.getReadResult(resultToken.type, aggregatedValue, result.residuals);
+    }
+
+    return null;
+  }
+
 }
 
 class GenericTokenReaders {
@@ -194,20 +213,38 @@ class QueryTokenReaders {
   }
 
   static readDotSelectorWithStringParameter(tokenType, functionName, input) {
-    const
-      selectorReader = (readerInput => this.readSelectorWithStringParameter('', functionName, readerInput)),
-      readResult = GenericTokenReaders.readTokenSequence('', [this.readDot, selectorReader], input);
-    let resultTokenValue;
+    const selectorReader = (readerInput => this.readSelectorWithStringParameter('', functionName, readerInput));
+    let
+      readResult = GenericTokenReaders.readTokenSequence('', [this.readDot, selectorReader], input),
+      resultTokenValue;
 
     if (readResult != null) {
+      readResult = ReadResult.aggregateTokenValues(readResult);
       resultTokenValue = readResult.tokens[0].value;
-      return ReadResult.getReadResult(tokenType, resultTokenValue[1].value, readResult.residuals);
+      return ReadResult.getReadResult(tokenType, resultTokenValue[1], readResult.residuals);
     }
     return null;
   }
 
   static readNetworkAtlas(input) {
     return this.readDotSelectorWithStringParameter('networkAtlas', 'networkAtlas', input);
+  }
+
+  static readFolder(input) {
+    return QueryTokenReaders.readDotSelectorWithStringParameter('folder', 'folder', input);
+  }
+
+  static readRepetitiveFolder(input) {
+    const result = GenericTokenReaders.readRepetitiveToken('folders', QueryTokenReaders.readFolder, input);
+    return ReadResult.aggregateTokenValues(result);
+  }
+
+  static readView(input) {
+    return this.readDotSelectorWithStringParameter('view', 'view', input);
+  }
+
+  static readName(input) {
+    return this.readDotSelectorWithStringParameter('name', 'name', input);
   }
 
 }
