@@ -50,12 +50,8 @@ class ReadResult {
     return this[PRIVATE_PROPERTIES.residuals];
   }
 
-  addToken(token) {
-    this.tokens.push(token);
-  }
-
-  static getReadResult(tokenType, tokenValue, residuals) {
-    return new ReadResult(Token.getToken(tokenType, tokenValue), residuals);
+  static getReadResult(tokenType, tokenValues, residuals) {
+    return new ReadResult(Token.getToken(tokenType, tokenValues), residuals);
   }
 
   static getReadResultFromTokenRegExp(tokenType, tokenRegExpResult) {
@@ -64,5 +60,68 @@ class ReadResult {
     }
     return null;
   }
+
 }
 
+class GenericTokenReaders {
+
+  static readToken(tokenType, pattern, input) {
+    const regExpResult = (input || '').match(new RegExp(`^${pattern}(.*)$`, 'i'));
+    return ReadResult.getReadResultFromTokenRegExp(tokenType, regExpResult);
+  }
+
+  static readFunctionToken(tokenType, functionName, input) {
+    const
+      functionParametersPattern = '(?:(?:\\\\\\(|\\\\\\))|[^()])+',
+      functionPattern = `(?:${functionName})\\((${functionParametersPattern})\\)`;
+    return this.readToken(tokenType, functionPattern, input);
+  }
+
+  static readRepetitiveToken(tokenType, tokenReader, input) {
+    const readedTokens = [];
+    let
+      result = tokenReader(input),
+      residuals;
+
+    while (result != null) {
+      readedTokens.push(...result.tokens);
+      residuals = result.residuals;
+      result = tokenReader(residuals);
+    }
+
+    return (readedTokens.length > 0) ? ReadResult.getReadResult(tokenType, readedTokens, residuals) : null;
+  }
+
+  static readTokens(tokenType, tokenReadersIterator, input) {
+    const readedTokens = [];
+    let
+      iterationOK,
+      residuals = input;
+
+    iterationOK = tokenReadersIterator((tokenReader) => {       // eslint-disable-line prefer-const
+      const result = tokenReader(residuals);
+      if (result != null) {
+        readedTokens.push(...result.tokens);
+        residuals = result.residuals;
+        return true;
+      }
+      return false;
+    });
+
+    return (iterationOK) ? ReadResult.getReadResult(tokenType, readedTokens, residuals) : null;
+  }
+
+  static readTokenSequence(tokenType, tokenReaders, input) {
+
+    function sequenceIterator(anonymousCallback) {
+      return tokenReaders.every(anonymousCallback);
+    }
+
+    return this.readTokens(tokenType, sequenceIterator, input);
+  }
+
+}
+
+export {
+  GenericTokenReaders
+};
