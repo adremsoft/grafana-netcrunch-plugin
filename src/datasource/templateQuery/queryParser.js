@@ -59,7 +59,7 @@ class ReadResult {
     return this[PRIVATE_PROPERTIES.residuals];
   }
 
-  aggregateTokenValues() {
+  aggregateSubTokensValues() {
     let aggregatedValue;
 
     if (this.token != null) {
@@ -83,7 +83,7 @@ class ReadResult {
     if ((tokenRegExpResult != null) && (tokenRegExpResult.length >= 3)) {
       return this.getReadResult(tokenType, tokenRegExpResult[1], tokenRegExpResult[2]);
     }
-    return ReadResult.getNullReadResult('');
+    return null;
   }
 
 }
@@ -109,7 +109,7 @@ class GenericTokenReaders {
       residuals;
 
     while (result != null) {
-      readedTokens.push(...result.token);
+      readedTokens.push(result.token);
       residuals = result.residuals;
       result = tokenReader(residuals);
     }
@@ -126,7 +126,7 @@ class GenericTokenReaders {
     iterationOK = tokenReadersIterator((tokenReader) => {       // eslint-disable-line prefer-const
       const result = tokenReader(residuals);
       if (result != null) {
-        readedTokens.push(...result.token);
+        readedTokens.push(result.token);
         residuals = result.residuals;
         return true;
       }
@@ -173,7 +173,7 @@ class GenericTokenReaders {
   }
 
   static readNullToken(input) {
-    return ReadResult.getReadResult(NULL_TOKEN_TYPE, null, input);
+    return ReadResult.getNullReadResult(input);
   }
 
 }
@@ -207,8 +207,8 @@ class QueryTokenReaders {
     }
 
     if (selectorReadResult != null) {
-      parameterReadResult = GenericTokenReaders.readToken('', parameterPattern, selectorReadResult.token[0].value);
-      parameterValue = replaceHashedChars(parameterReadResult.token[0].value);
+      parameterReadResult = GenericTokenReaders.readToken('', parameterPattern, selectorReadResult.token.value);
+      parameterValue = replaceHashedChars(parameterReadResult.token.value);
     }
 
     if ((selectorReadResult != null) && (parameterReadResult != null)) {
@@ -223,15 +223,13 @@ class QueryTokenReaders {
   }
 
   static readDotSelectorWithStringParameter(tokenType, functionName, input) {
-    const selectorReader = (readerInput => this.readSelectorWithStringParameter('', functionName, readerInput));
-    let
-      readResult = GenericTokenReaders.readTokenSequence('', [this.readDot, selectorReader], input),
-      resultTokenValue;
+    const
+      selectorReader = (readerInput => this.readSelectorWithStringParameter('', functionName, readerInput)),
+      readResult = GenericTokenReaders.readTokenSequence('', [this.readDot, selectorReader], input);
 
     if (readResult != null) {
-      readResult = ReadResult.aggregateTokenValues(readResult);
-      resultTokenValue = readResult.token[0].value;
-      return ReadResult.getReadResult(tokenType, resultTokenValue[1], readResult.residuals);
+      readResult.aggregateSubTokensValues();
+      return ReadResult.getReadResult(tokenType, readResult.token.value[1], readResult.residuals);
     }
     return null;
   }
@@ -246,7 +244,7 @@ class QueryTokenReaders {
 
   static readRepetitiveFolder(input) {
     const result = GenericTokenReaders.readRepetitiveToken('folders', QueryTokenReaders.readFolder, input);
-    return ReadResult.aggregateTokenValues(result);
+    return result;
   }
 
   static readView(input) {
