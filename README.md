@@ -40,9 +40,9 @@
 
 ![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/master/doc/images/create-template-3.png)
 
-#### Query option
+#### Query
 
-Query option for variable is used for filtering nodes and should has following syntax:
+Query is used for filtering nodes available in template and should has following syntax:
 
 `<queryOption> ::= 'nodes'[.<map>][.<nodeType>]`
 
@@ -53,20 +53,20 @@ The simplest possible query which return all atlas nodes is `nodes`.
 
 ##### `<map>`
 
-This selector allows for filtering nodes belongs to particular atlas map.
-For selecting map it's necessary to specify atlas group, folders and
+This selector allows nodes filter belongs to particular atlas map.
+For select a map it's necessary to specify atlas group, folders and
 view using following syntax:
 
 `networkAtlas("group name").folder("folder name").view("view name")`
 
 ###### Example
 
-To obtain the nodes belonged the view shown in the image below, enter the following query:
+To obtain the nodes that belong to the view shown in the image below, enter the following query:
 
 `nodes.networkAtlas("Custom Views").folder("My custom folder").folder("My sub folder").view("My view")`
 
-Characters `(` `)` `"` occurring in names must be quoted by `\`. For get nodes from view `My view (old)`
-query should by:
+Characters `(` `)` `"` occurring in names must be quoted by `\`. To get nodes from view `My view (old)`
+query should be:
 
 `nodes.networkAtlas("Custom Views").folder("My custom folder").folder("My sub folder").view("My view \(old\)")`
 
@@ -74,8 +74,8 @@ query should by:
 
 ##### `<nodeType>`
 
-This selector is used for filtering nodes by type. It may be combined with other selectors. 
-The types of nodes that can be filtered are as follows:
+This selector is used to filter nodes by type and may be combined with other selectors. 
+The types of nodes that can be filter are as follows:
 
 * windows
 * windows.server
@@ -92,7 +92,7 @@ The types of nodes that can be filtered are as follows:
 
 ###### Example
 
-To filter out all linux nodes from specific IP network enter following query:
+To filter all linux nodes from specific IP network enter follow query:
 
 `nodes.networkAtlas("IP Networks").folder("Local").view("192.168.0.0/22").linux`
 
