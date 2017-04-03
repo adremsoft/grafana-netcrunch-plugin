@@ -24,7 +24,7 @@ class NetCrunchMetricFindQuery {
           const
             atlas = result[1],
             allNodes = result[0].all,
-            processingResult = NetCrunchMetricFindQuery.processQuery(parsingResult, atlas, allNodes);
+            processingResult = NetCrunchMetricFindQuery.processQuery(parsingResult.tokens, atlas, allNodes);
 
           return NetCrunchMetricFindQuery.createQueryResult((processingResult.success) ? processingResult.nodes : []);
         });
@@ -51,7 +51,7 @@ class NetCrunchMetricFindQuery {
     return result;
   }
 
-  static processQuery(queryElements, atlas, nodes) {
+  static processQuery(tokens, atlas, nodes) {
 
     function getProcessingResult(success, nodeList) {
       return {
@@ -110,36 +110,35 @@ class NetCrunchMetricFindQuery {
       );
     }
 
-    function createProcessNodes(nodeList) {
+    function createNodesTokenProcessor(nodeList) {
       return () => getProcessingResult(true, nodeList);
     }
 
-    function processDeviceTypeElement(deviceType, nodeList) {
+    function deviceTypeTokenProcessor(deviceType, nodeList) {
       return getProcessingResult(
         true,
         nodeList.filter(node => node.checkDeviceType(deviceType))
       );
     }
 
-    function processAtlasMapElement(subMapNamesSequence, nodeList) {
+    function networkMapTokenProcessor(subMapNamesSequence, nodeList) {
       return filterNodesBySubMap(nodeList, atlas.atlasRoot, subMapNamesSequence);
     }
 
-    const
-      elementProcessingMethods = {
-        nodes: createProcessNodes(nodes),
-        deviceType: processDeviceTypeElement,
-        networkMap: processAtlasMapElement
-      };
+    const tokenProcessors = {
+      nodes: createNodesTokenProcessor(nodes),
+      deviceType: deviceTypeTokenProcessor,
+      networkMap: networkMapTokenProcessor
+    };
     let
-      currentElement,
+      currentToken,
       processingSuccessful = true,
       processingResult,
       nodesForProcessing = [];
 
-    while (processingSuccessful && (queryElements.tokens.length > 0)) {
-      currentElement = queryElements.tokens.shift();
-      processingResult = elementProcessingMethods[currentElement.type](currentElement.value, nodesForProcessing);
+    while (processingSuccessful && (tokens.length > 0)) {
+      currentToken = tokens.shift();
+      processingResult = tokenProcessors[currentToken.type](currentToken.value, nodesForProcessing);
       processingSuccessful = processingResult.success;
 
       if (processingSuccessful) {
