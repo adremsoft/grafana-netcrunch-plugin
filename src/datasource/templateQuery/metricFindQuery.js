@@ -125,11 +125,12 @@ class NetCrunchMetricFindQuery {
       return filterNodesBySubMap(nodeList, atlas.atlasRoot, subMapNamesSequence);
     }
 
-    const tokenProcessors = {
-      nodes: createNodesTokenProcessor(nodes),
-      deviceType: deviceTypeTokenProcessor,
-      networkMap: networkMapTokenProcessor
-    };
+    const
+      tokenProcessors = {
+        nodes: createNodesTokenProcessor(nodes),
+        deviceType: deviceTypeTokenProcessor,
+        networkMap: networkMapTokenProcessor
+      };
     let
       currentToken,
       processingSuccessful = true,
