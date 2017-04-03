@@ -34,6 +34,10 @@ class Token {
     return (this.type === NULL_TOKEN_TYPE);
   }
 
+  removeNulls() {
+    this[PRIVATE_PROPERTIES.value] = [].concat(this.value).filter(token => (token != null) && (!token.isNull()));
+  }
+
   static getToken(type, value) {
     return new Token(type, value);
   }
@@ -80,6 +84,10 @@ class ReadResult {
       this[PRIVATE_PROPERTIES.token] = Token.getToken(this.token.type, mergedValues);
       this[PRIVATE_PROPERTIES.residuals] = (residuals != null) ? residuals : result.residuals;
     }
+  }
+
+  static getReadResultWithToken(token, residuals) {
+    return new ReadResult(token, residuals);
   }
 
   static getNullReadResult(residuals) {
@@ -243,7 +251,7 @@ class QueryTokenReaders {
   }
 
   static readNetworkAtlas(input) {
-    return this.readDotSelectorWithStringParameter('networkAtlas', 'networkAtlas', input);
+    return QueryTokenReaders.readDotSelectorWithStringParameter('networkAtlas', 'networkAtlas', input);
   }
 
   static readFolder(input) {
@@ -256,11 +264,11 @@ class QueryTokenReaders {
   }
 
   static readView(input) {
-    return this.readDotSelectorWithStringParameter('view', 'view', input);
+    return QueryTokenReaders.readDotSelectorWithStringParameter('view', 'view', input);
   }
 
   static readName(input) {
-    return this.readDotSelectorWithStringParameter('name', 'name', input);
+    return QueryTokenReaders.readDotSelectorWithStringParameter('name', 'name', input);
   }
 
   static readDeviceType(input) {
@@ -271,6 +279,95 @@ class QueryTokenReaders {
 
 }
 
+class QueryParser {
+
+  /*
+    Query grammar:
+      <networkFolderView> ::= ['.repetitiveFolder'][.view]'nothing'
+      <networkMap> ::= '.networkAtlas'['networkFolderView']
+      <monitoringPack> ::= '.monitoringPacks''.repetitiveFolder''.name'
+      <networkMapOrMonitoringPack> ::= <networkMap>|<monitoringPack>
+      <query> ::= 'nodes'[<networkMapOrMonitoringPack>]['.deviceType']
+  */
+
+  static parse(query) {
+    const
+      atoms = {
+        'nodes': QueryTokenReaders.readNodes,                         // eslint-disable-line quote-props
+        '.monitoringPacks': QueryTokenReaders.readMonitoringPacks,
+        '.networkAtlas': QueryTokenReaders.readNetworkAtlas,
+        '.repetitiveFolder': QueryTokenReaders.readRepetitiveFolder,
+        '.view': QueryTokenReaders.readView,
+        '.name': QueryTokenReaders.readName,
+        '.deviceType': QueryTokenReaders.readDeviceType,
+        'nothing': GenericTokenReaders.readNullToken                  // eslint-disable-line quote-props
+      },
+      queryGrammar = {
+
+        networkFoldersView: (input) => {
+          const
+            foldersView = [atoms['.repetitiveFolder'], atoms['.view'], atoms.nothing],
+            result = GenericTokenReaders.readTokensIfOccur('networkFoldersView', foldersView, input);
+          if (result != null) {
+            result.aggregateSubTokensValues();
+          }
+          return result;
+        },
+
+        networkMap: (input) => {
+          const
+            networkMap = [atoms['.networkAtlas'], queryGrammar.networkFoldersView],
+            result = GenericTokenReaders.readTokenSequence('networkMap', networkMap, input);
+
+          if (result != null) {
+            result.aggregateSubTokensValues();
+          }
+          return result;
+        },
+
+        monitoringPack: (input) => {
+          const
+            monitoringPack = [atoms['.monitoringPacks'], atoms['.repetitiveFolder'], atoms['.name']],
+            result = GenericTokenReaders.readTokenSequence('monitoringPack', monitoringPack, input);
+
+          if (result != null) {
+            result.aggregateSubTokensValues();
+          }
+          return result;
+        },
+
+        networkMapOrMonitoringPack: (input) => {
+          const
+            mapOrMonitoringPack = [queryGrammar.networkMap, queryGrammar.monitoringPack, atoms.nothing],
+            result = GenericTokenReaders.readFirstOccurredToken('', mapOrMonitoringPack, input);
+          if (result != null) {
+            return ReadResult.getReadResultWithToken(result.token.value[0], result.residuals);
+          }
+          return null;
+        },
+
+        query: (input) => {
+          const parameters = [queryGrammar.networkMapOrMonitoringPack, atoms['.deviceType'], atoms.nothing];
+          let
+            result = atoms.nodes(input),
+            parametersResult;
+
+          if (result != null) {
+            result = ReadResult.getReadResult('query', [result.token], result.residuals);
+            parametersResult = GenericTokenReaders.readTokensIfOccur('', parameters, result.residuals);
+            result.mergeResult(parametersResult);
+            result.token.removeNulls();
+          }
+          return result;
+        }
+
+      };
+
+    return queryGrammar.query(query);
+  }
+
+}
+
 export {
-  QueryTokenReaders
+  QueryParser
 };
