@@ -70,7 +70,7 @@ query should by:
 
 `nodes.networkAtlas("Custom Views").folder("My custom folder").folder("My sub folder").view("My view \(old\)")`
 
-![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/master/doc/images/template-query-view.jpg)
+![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/development/doc/images/template-query-view.jpg)
 
 ##### `<nodeType>`
 
