@@ -70,12 +70,11 @@ class NetCrunchMetricFindQuery {
         return result;
       }
 
-      /* eslint prefer-const: off */
-      subMap = map.getChildMapByDisplayName(subMapNamesSequence.shift());
+
+      subMap = map.getChildMapByDisplayName(subMapNamesSequence.shift());         // eslint-disable-line prefer-const
       if (subMap != null) {
         return getNodeIdsForSubMap(subMap, subMapNamesSequence);
       }
-      /* eslint prefer-const: on */
 
       result.success = false;
       return result;
