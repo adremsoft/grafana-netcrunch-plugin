@@ -93,7 +93,7 @@ class NetCrunchNetworkAtlas {
     return this[PRIVATE_PROPERTIES.atlasMaps];
   }
 
-  get atlasRoot() {
+  get networkAtlasRoot() {
     return this.atlas.get(ATLAS_ROOT_ID);
   }
 

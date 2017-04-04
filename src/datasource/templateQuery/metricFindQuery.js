@@ -121,7 +121,7 @@ class NetCrunchMetricFindQuery {
     }
 
     function networkMapTokenProcessor(subMapNamesSequence, nodeList) {
-      return filterNodesBySubMap(nodeList, atlas.atlasRoot, subMapNamesSequence);
+      return filterNodesBySubMap(nodeList, atlas.networkAtlasRoot, subMapNamesSequence);
     }
 
     const
