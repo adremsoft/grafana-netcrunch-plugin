@@ -85,7 +85,7 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       }
 
       function networksChanged() {
-        networksReady.resolve(networkAtlas.atlas);
+        networksReady.resolve(networkAtlas.atlasMaps);
 
         if (typeof self.onNetworksChanged === 'function') {
           self.onNetworksChanged();

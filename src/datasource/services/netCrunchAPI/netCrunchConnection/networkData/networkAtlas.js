@@ -89,12 +89,12 @@ class NetCrunchNetworkAtlas {
     return this[PRIVATE_PROPERTIES.nodes];
   }
 
-  get atlas() {
+  get atlasMaps() {
     return this[PRIVATE_PROPERTIES.atlasMaps];
   }
 
   get networkAtlasRoot() {
-    return this.atlas.get(ATLAS_ROOT_ID);
+    return this.atlasMaps.get(ATLAS_ROOT_ID);
   }
 
   get monitoringPacks() {
