@@ -112,6 +112,10 @@ class NetCrunchNetworkMap {
     return this[PRIVATE_PROPERTIES.local].isFolder;
   }
 
+  get isMonitoringPack() {
+    return this[PRIVATE_PROPERTIES.values].MapClassTag === 'policynet';
+  }
+
   get children() {
     return this[PRIVATE_PROPERTIES.local].children;
   }
