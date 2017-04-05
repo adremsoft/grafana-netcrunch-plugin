@@ -124,11 +124,17 @@ class NetCrunchMetricFindQuery {
       return filterNodesBySubMap(nodeList, atlas.networkAtlasRoot, subMapNamesSequence);
     }
 
+    function monitoringPackTokenProcessor(parameter, nodeList) {
+      parameter.shift();
+      return filterNodesBySubMap(nodeList, atlas.monitoringPacks, parameter);
+    }
+
     const
       tokenProcessors = {
         nodes: createNodesTokenProcessor(nodes),
         deviceType: deviceTypeTokenProcessor,
-        networkMap: networkMapTokenProcessor
+        networkMap: networkMapTokenProcessor,
+        monitoringPack: monitoringPackTokenProcessor
       };
     let
       currentToken,

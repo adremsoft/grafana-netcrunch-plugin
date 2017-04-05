@@ -197,11 +197,11 @@ class GenericTokenReaders {
 class QueryTokenReaders {
 
   static readNodes(input) {
-    return GenericTokenReaders.readToken('nodes', 'nodes()', input);
+    return GenericTokenReaders.readToken('nodes', '(nodes)', input);
   }
 
   static readMonitoringPacks(input) {
-    return GenericTokenReaders.readToken('monitoringPacks', '\\.monitoringPacks()', input);
+    return GenericTokenReaders.readToken('monitoringPacks', '\\.(monitoringPacks)', input);
   }
 
   static readSelectorWithStringParameter(tokenType, selectorName, input) {
