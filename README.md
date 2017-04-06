@@ -42,26 +42,26 @@
 
 #### Query
 
-Query is used for filtering nodes available in template and should has following syntax:
+The query is used to filter the nodes available in the template  and should have following syntax:
 
-`<queryOption> ::= 'nodes'[.<map>][.<nodeType>]`
+`<query> ::= 'nodes'['.'<map> | '.'<monitoringPack>]['.'<nodeType>]`
 
 ##### `nodes` 
 
-This part of query is mandatory and it gives all nodes from the network atlas.
-The simplest possible query which return all atlas nodes is `nodes`. 
+This part of the query is obligatory and gives all nodes from the network atlas.
+The simplest possible query that returns all atlas nodes is `nodes`. 
 
 ##### `<map>`
 
-This selector allows nodes filter belongs to particular atlas map.
-For select a map it's necessary to specify atlas group, folders and
-view using following syntax:
+This selector allows to filter the nodes that belongs to particular atlas map.
+To select the map it's necessary to specify a atlas group, folders and
+view using the following syntax:
 
 `networkAtlas("group name").folder("folder name").view("view name")`
 
 ###### Example
 
-To obtain the nodes that belong to the view shown in the image below, enter the following query:
+The query to filter out the nodes belonging to the view shown in the image below is as follows:
 
 `nodes.networkAtlas("Custom Views").folder("My custom folder").folder("My sub folder").view("My view")`
 
@@ -70,7 +70,22 @@ query should be:
 
 `nodes.networkAtlas("Custom Views").folder("My custom folder").folder("My sub folder").view("My view \(old\)")`
 
-![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/development/doc/images/template-query-view.jpg)
+![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/development/doc/images/template-query-maps-view.jpg)
+
+##### `<monitoringPack>`
+
+This selector allows to filter the nodes to which specific monitoring pack has been added.
+To select the monitoring pack it's necessary to specify a monitoring pack's folder, sub-folder and name using the following syntax:
+
+`nodes.monitoringPacks.folder("Folder name").folder("Sub-folder name").name("Monitoring pack name")`
+
+###### Example
+
+The query to filter out the nodes to which monitoring pack shown in the image below has been added is as follows:
+
+`nodes.monitoringPacks.folder("Hardware").folder("Network Devices").name("Cisco \(SNMP\)")`
+
+![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/development/doc/images/template-query-monitoring-pack-view.jpg)
 
 ##### `<nodeType>`
 
@@ -92,7 +107,7 @@ The types of nodes that can be filter are as follows:
 
 ###### Example
 
-To filter all linux nodes from specific IP network enter follow query:
+The query to filter out all linux nodes from a specific IP network is as follows:
 
 `nodes.networkAtlas("IP Networks").folder("Local").view("192.168.0.0/22").linux`
 
