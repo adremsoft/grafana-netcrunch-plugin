@@ -12,10 +12,11 @@ import { NetCrunchNodes } from './networkNodes';
 
 const
   ATLAS_ROOT_ID = '',
+  MONITORING_PACKS_NET_ID = 3,
   PRIVATE_PROPERTIES = {
     connection: Symbol('connection'),
     nodes: Symbol('nodes'),
-    atlas: Symbol('atlas'),
+    atlasMaps: Symbol('atlasMaps'),
     orphans: Symbol('orphans')
   },
   ROOT_MAP_REC = {
@@ -34,52 +35,73 @@ class NetCrunchNetworkAtlas {
   constructor(netCrunchServerConnection) {
     this[PRIVATE_PROPERTIES.connection] = netCrunchServerConnection;
     this[PRIVATE_PROPERTIES.nodes] = new NetCrunchNodes();
-    this[PRIVATE_PROPERTIES.atlas] = new Map();
-    this[PRIVATE_PROPERTIES.atlas].set(ATLAS_ROOT_ID, new NetCrunchNetworkMap(ROOT_MAP_REC));
+    this[PRIVATE_PROPERTIES.atlasMaps] = new Map();
+    this[PRIVATE_PROPERTIES.atlasMaps].set(ATLAS_ROOT_ID, new NetCrunchNetworkMap(ROOT_MAP_REC));
     this[PRIVATE_PROPERTIES.orphans] = [];
   }
 
-  addMap(mapRec) {
-    const
-      networkMap = new NetCrunchNetworkMap(mapRec);
+  addNetworkMap(networkMap) {
+    const self = this;
 
-    this[PRIVATE_PROPERTIES.atlas].set(networkMap.netId, networkMap);
+    function isMonitoringPacksFolder(map) {
+      return (map.netId === MONITORING_PACKS_NET_ID);
+    }
 
-    this[PRIVATE_PROPERTIES.orphans] = this[PRIVATE_PROPERTIES.orphans]
-      .filter((orphan) => {
-        if (orphan.parentId === networkMap.netId) {
-          this[PRIVATE_PROPERTIES.atlas]
-            .get(networkMap.netId)
-            .addChild(orphan);
-          return false;
-        }
-        return true;
-      });
+    function addChildrenFromOrphans(map) {
+      self[PRIVATE_PROPERTIES.orphans] = self[PRIVATE_PROPERTIES.orphans]
+        .filter((orphan) => {
+          if (orphan.parentId === map.netId) {
+            map.addChild(orphan);
+            return false;
+          }
+          return true;
+        });
+    }
 
-    if (this[PRIVATE_PROPERTIES.atlas].has(networkMap.parentId)) {
-      this[PRIVATE_PROPERTIES.atlas]
-        .get(networkMap.parentId)
-        .addChild(networkMap);
-    } else {
-      this[PRIVATE_PROPERTIES.orphans].push(networkMap);
+    function addMapToParent(map) {
+      if (self[PRIVATE_PROPERTIES.atlasMaps].has(map.parentId)) {
+        self[PRIVATE_PROPERTIES.atlasMaps]
+          .get(map.parentId)
+          .addChild(map);
+      } else {
+        self[PRIVATE_PROPERTIES.orphans].push(map);
+      }
+    }
+
+    self[PRIVATE_PROPERTIES.atlasMaps].set(networkMap.netId, networkMap);
+    addChildrenFromOrphans(networkMap);
+    if (!isMonitoringPacksFolder(networkMap)) {
+      addMapToParent(networkMap);
     }
   }
 
+  addMap(mapRec) {
+    const networkMap = new NetCrunchNetworkMap(mapRec);
+    this.addNetworkMap(networkMap);
+  }
+
   addNode(nodeRec) {
-    const newNode = new NetCrunchNetworkNode(nodeRec, this[PRIVATE_PROPERTIES.connection]);
-    this[PRIVATE_PROPERTIES.nodes].add(newNode);
+    const node = new NetCrunchNetworkNode(nodeRec, this[PRIVATE_PROPERTIES.connection]);
+    this[PRIVATE_PROPERTIES.nodes].add(node);
   }
 
   get nodes() {
     return this[PRIVATE_PROPERTIES.nodes];
   }
 
-  get atlas() {
-    return this[PRIVATE_PROPERTIES.atlas];
+  get atlasMaps() {
+    return this[PRIVATE_PROPERTIES.atlasMaps];
   }
 
-  get atlasRoot() {
-    return this.atlas.get(ATLAS_ROOT_ID);
+  get networkAtlasRoot() {
+    return this.atlasMaps.get(ATLAS_ROOT_ID);
+  }
+
+  get monitoringPacks() {
+    if (this[PRIVATE_PROPERTIES.atlasMaps].has(MONITORING_PACKS_NET_ID)) {
+      return this[PRIVATE_PROPERTIES.atlasMaps].get(MONITORING_PACKS_NET_ID);
+    }
+    return null;
   }
 
 }

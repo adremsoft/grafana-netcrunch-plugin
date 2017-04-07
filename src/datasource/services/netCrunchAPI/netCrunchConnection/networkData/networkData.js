@@ -66,15 +66,11 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
     init: function() {
       const
         PERFORMANCE_VIEWS_NET_INT_ID = 2,
-        MONITORING_PACKS_NET_INT_ID = 3,
         HOSTS_QUERY = 'Select Id, Name, Address, DeviceType, GlobalDataNode ',
-        NETWORKS_QUERY = 'Select NetIntId, DisplayName, HostMapData, IconId, ' +
-                         'MapType, NetworkData, MapClassTag ' +
-                         'where (MapClassTag != \'policynet\') && (MapClassTag != \'pnet\') && ' +
-                         '(MapClassTag != \'dependencynet\') && ' +
-                         '(MapClassTag != \'issuesnet\') && (MapClassTag != \'all\') && ' +
-                         '(NetIntId != ' + PERFORMANCE_VIEWS_NET_INT_ID + ') && ' +
-                         '(NetIntId != ' + MONITORING_PACKS_NET_INT_ID + ')',
+        NETWORKS_QUERY = 'Select NetIntId, DisplayName, HostMapData, IconId, MapType, NetworkData, MapClassTag ' +
+                         'where (MapClassTag != \'pnet\') && (MapClassTag != \'dependencynet\') && ' +
+                               '(MapClassTag != \'issuesnet\') && (MapClassTag != \'all\') && ' +
+                               '(NetIntId != ' + PERFORMANCE_VIEWS_NET_INT_ID + ')',
         self = this;
 
       let
@@ -89,7 +85,7 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
       }
 
       function networksChanged() {
-        networksReady.resolve(networkAtlas.atlas);
+        networksReady.resolve(networkAtlas.atlasMaps);
 
         if (typeof self.onNetworksChanged === 'function') {
           self.onNetworksChanged();
@@ -112,6 +108,7 @@ function NetCrunchNetworkData(adremClient, netCrunchServerConnection) {
     }
 
   };
+
 }
 
 export {

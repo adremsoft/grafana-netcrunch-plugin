@@ -7,7 +7,7 @@
  */
 
 import { CONNECTION_ERROR_MESSAGES, MAX_SAMPLE_COUNT } from './services/netCrunchAPI/module';
-import { NetCrunchMetricFindQuery } from './metricFindQuery';
+import { NetCrunchMetricFindQuery } from './templateQuery/metricFindQuery';
 
 const
   PRIVATE_PROPERTIES = {

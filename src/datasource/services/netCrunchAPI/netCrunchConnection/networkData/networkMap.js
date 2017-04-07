@@ -156,6 +156,20 @@ class NetCrunchNetworkMap {
     }
   }
 
+  getChildMapByDisplayName(displayName) {
+    let result = null;
+
+    this.children.some((childMap) => {
+      if (childMap.displayName.toUpperCase() === displayName.toUpperCase()) {
+        result = childMap;
+        return true;
+      }
+      return false;
+    });
+
+    return result;
+  }
+
 }
 
 export {
