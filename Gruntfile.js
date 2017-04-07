@@ -17,7 +17,7 @@ module.exports = (grunt) => {
 
   const
     productionDest = 'dist',
-    developmentDest = '../Projects/Go/src/github.com/grafana/grafana/data/plugins/grafana-netcrunch/';
+    developmentDest = '../Projects/Go/src/github.com/grafana/grafana/data/plugins/adremsoft-netcrunch-app/';
 
   function createCleanTask(destination) {
     return [destination];
