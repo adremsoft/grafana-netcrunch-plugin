@@ -138,6 +138,9 @@ grunt build
 ```
 
 #### Development
+
+Update value of `developmentDest` in Gruntfile.js.
+
 ```
 grunt develop
 grunt watch

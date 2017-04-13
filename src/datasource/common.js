@@ -8,7 +8,7 @@
 
 const
   baseURL = 'public/',
-  basePluginURL = 'plugins/grafana-netcrunch/',
+  basePluginURL = 'plugins/adremsoft-netcrunch-app/',
   baseDatasourceURL = `${basePluginURL}datasource/`,
   pluginURL = `${baseURL}${basePluginURL}`,
   imagesURL = `${pluginURL}images/`,

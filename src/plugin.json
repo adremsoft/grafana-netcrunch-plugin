@@ -1,7 +1,7 @@
 {
   "type": "app",
   "name": "NetCrunch",
-  "id": "grafana-netcrunch",
+  "id": "adremsoft-netcrunch-app",
 
   "css": {
     "dark": "css/dark.css",
