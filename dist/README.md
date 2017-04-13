@@ -1,8 +1,5 @@
 # NetCrunch App for Grafana
 
-## NetCrunch App activation
-![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/grafCrunch/doc/movies/activate-netcrunch-plugin.gif)
-
 ## Create NetCrunch datasource
 ![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/grafCrunch/doc/movies/create-datasource.gif)
 
@@ -124,24 +121,3 @@ The query to filter out all linux nodes from a specific IP network is as follows
 ### v1.0.0
 - NetCrunch datasource
 - Templates: esx, linux, windows-server, windows-workstation
-
-## Development
-
-### Building
-```
-npm install
-```
-
-#### Production
-```
-grunt build
-```
-
-#### Development
-
-Update value of `developmentDest` in Gruntfile.js.
-
-```
-grunt develop
-grunt watch
-```
