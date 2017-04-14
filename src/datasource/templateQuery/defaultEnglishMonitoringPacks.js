@@ -284,19 +284,21 @@ class NetCrunchDefaultEnglishMonitoringPacks {
 
     const
       monitoringPacks = (monitoringPacksData == null) ? DEFAULT_ENGLISH_MONITORING_PACKS : monitoringPacksData,
-      currentMonitoringPackName = (monitoringPackPath.length > 0) ? monitoringPackPath.shift() : '',
+      currentMonitoringPackPath = Array.from(monitoringPackPath),
+      currentMonitoringPackName = (currentMonitoringPackPath.length > 0) ? currentMonitoringPackPath.shift() : '',
       currentMonitoringPack = getChildByName(monitoringPacks, currentMonitoringPackName);
 
     if (currentMonitoringPack != null) {
       if (Object.keys(currentMonitoringPack.children).length === 0) {
-        if (monitoringPackPath.length === 0) {
+        if (currentMonitoringPackPath.length === 0) {
           return currentMonitoringPack.id;
         }
         return null;
       }
 
-      if (monitoringPackPath.length > 0) {
-        return NetCrunchDefaultEnglishMonitoringPacks.getMonitoringPackId(monitoringPackPath, currentMonitoringPack);
+      if (currentMonitoringPackPath.length > 0) {
+        return NetCrunchDefaultEnglishMonitoringPacks.getMonitoringPackId(currentMonitoringPackPath,
+                                                                          currentMonitoringPack);
       }
     }
 
