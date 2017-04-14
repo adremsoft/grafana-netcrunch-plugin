@@ -111,6 +111,18 @@ class NetCrunchMetricFindQuery {
       );
     }
 
+    function filterNodesByMap(inputNodeList, mapId) {
+      const
+        map = atlas.atlasMaps.has(mapId) ? atlas.atlasMaps.get(mapId) : null,
+        success = (map != null),
+        filteredNodes = (success) ? filterNodesByIds(inputNodeList, map.allNodesId) : [];
+
+      return getProcessingResult(
+        success,
+        filteredNodes
+      );
+    }
+
     function createNodesTokenProcessor(nodeList) {
       return () => getProcessingResult(true, nodeList);
     }
@@ -127,8 +139,20 @@ class NetCrunchMetricFindQuery {
     }
 
     function monitoringPackTokenProcessor(parameter, nodeList) {
-      parameter.shift();
-      return filterNodesBySubMap(nodeList, atlas.monitoringPacks, parameter);
+      const
+        monitoringPackPath = parameter.shift() ? parameter : [],
+        nodesAtlasMonitoringPack = filterNodesBySubMap(nodeList, atlas.monitoringPacks, monitoringPackPath);
+
+      if (!nodesAtlasMonitoringPack.success) {
+        const monitoringPackId = NetCrunchDefaultEnglishMonitoringPacks.getMonitoringPackId(monitoringPackPath);
+
+        if (monitoringPackId != null) {
+          return filterNodesByMap(nodeList, monitoringPackId);
+        }
+        return getProcessingResult(false, []);
+      }
+
+      return nodesAtlasMonitoringPack;
     }
 
     const
