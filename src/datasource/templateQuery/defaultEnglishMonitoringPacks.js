@@ -267,6 +267,39 @@ class NetCrunchDefaultEnglishMonitoringPacks {
   }
 
   static getMonitoringPackId(monitoringPackPath, monitoringPacksData) {
+
+    function getChildByName(monitoringPackData, childName) {
+      let result = null;
+
+      Object.keys(monitoringPackData.children).some((currentChildName) => {
+        if (currentChildName.toUpperCase() === childName.toUpperCase()) {
+          result = monitoringPackData.children[currentChildName];
+          return true;
+        }
+        return false;
+      });
+
+      return result;
+    }
+
+    const
+      monitoringPacks = (monitoringPacksData == null) ? DEFAULT_ENGLISH_MONITORING_PACKS : monitoringPacksData,
+      currentMonitoringPackName = (monitoringPackPath.length > 0) ? monitoringPackPath.shift() : '',
+      currentMonitoringPack = getChildByName(monitoringPacks, currentMonitoringPackName);
+
+    if (currentMonitoringPack != null) {
+      if (Object.keys(currentMonitoringPack.children).length === 0) {
+        if (monitoringPackPath.length === 0) {
+          return currentMonitoringPack.id;
+        }
+        return null;
+      }
+
+      if (monitoringPackPath.length > 0) {
+        return NetCrunchDefaultEnglishMonitoringPacks.getMonitoringPackId(monitoringPackPath, currentMonitoringPack);
+      }
+    }
+
     return null;
   }
 
