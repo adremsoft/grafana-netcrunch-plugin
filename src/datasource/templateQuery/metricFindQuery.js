@@ -7,6 +7,7 @@
  */
 
 import { QueryParser } from './queryParser';
+import { NetCrunchDefaultEnglishMonitoringPacks } from './defaultEnglishMonitoringPacks';
 
 class NetCrunchMetricFindQuery {
 
@@ -64,16 +65,17 @@ class NetCrunchMetricFindQuery {
       const result = [];
       let subMap;
 
-      if (subMapNamesSequence.length === 0) {
-        result.push(...map.allNodesId);
-        result.success = true;
-        return result;
-      }
+      if (map != null) {
+        if (subMapNamesSequence.length === 0) {
+          result.push(...map.allNodesId);
+          result.success = true;
+          return result;
+        }
 
-
-      subMap = map.getChildMapByDisplayName(subMapNamesSequence.shift());         // eslint-disable-line prefer-const
-      if (subMap != null) {
-        return getNodeIdsForSubMap(subMap, subMapNamesSequence);
+        subMap = map.getChildMapByDisplayName(subMapNamesSequence.shift());     // eslint-disable-line prefer-const
+        if (subMap != null) {
+          return getNodeIdsForSubMap(subMap, subMapNamesSequence);
+        }
       }
 
       result.success = false;
