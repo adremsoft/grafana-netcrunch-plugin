@@ -108,6 +108,7 @@ class NetCrunchConnection {
   }
 
   login(userName, password, ignoreDownloadNetworkAtlas = false) {
+    const self = this;
 
     function nodesChanged() {
       if (typeof this.onNodesChanged === 'function') {
@@ -121,14 +122,23 @@ class NetCrunchConnection {
       }
     }
 
+    function getUserProfileData() {
+      return new Promise(resolve =>
+        self.serverConnection.ncSrv.ICurrentUserProfile.GetProfileData(userProfile =>
+          resolve(userProfile)));
+    }
+
     if (this.serverConnection == null) {
       this.serverConnectionReady = this.establishConnection();
     }
+
     return this.serverConnectionReady
       .then(() =>
         this.authenticateUser(userName, password)
-          .then(() => {
-            this.networkAtlas = new NetCrunchNetworkData(this.adremClient, this.serverConnection);
+          .then(() => getUserProfileData())
+          .then((userProfile) => {
+            this.userProfile = userProfile;
+            this.networkAtlas = new NetCrunchNetworkData(this.adremClient, this);
             this.networkAtlas.onNodesChanged = nodesChanged.bind(this);
             this.networkAtlas.onNetworksChanged = networksChanged.bind(this);
             this.counters = new NetCrunchCountersData(this.adremClient, this.serverConnection);
@@ -207,7 +217,6 @@ class NetCrunchConnection {
     const
       MAX_LOGIN_ATTEMPTS = 3,
       BASE_LOGIN_TIMEOUT = 5000,
-      serverConnection = this.serverConnection,
       netCrunchClient = this.netCrunchClient;
     let loginProcess;
 
@@ -233,21 +242,13 @@ class NetCrunchConnection {
       });
     }
 
-    function getUserProfileData() {
-      return new Promise(resolve =>
-        serverConnection.ncSrv.ICurrentUserProfile.GetProfileData(userProfile =>
-          resolve(userProfile)));
-    }
-
     if (this.loggedIn() === false) {
       if (this.loginInProgress === false) {
         const self = this;
         this.loginInProgress = true;
         loginProcess = new Promise((resolve, reject) => {
           tryAuthenticate(userName, password, MAX_LOGIN_ATTEMPTS)
-            .then(() => getUserProfileData())
-            .then((userProfile) => {
-              self.userProfile = userProfile;
+            .then(() => {
               self.loginInProgress = false;
               self.loginInProgressPromise = null;
               resolve();
