@@ -207,6 +207,7 @@ class NetCrunchConnection {
     const
       MAX_LOGIN_ATTEMPTS = 3,
       BASE_LOGIN_TIMEOUT = 5000,
+      serverConnection = this.serverConnection,
       netCrunchClient = this.netCrunchClient;
     let loginProcess;
 
@@ -232,13 +233,21 @@ class NetCrunchConnection {
       });
     }
 
+    function getUserProfileData() {
+      return new Promise(resolve =>
+        serverConnection.ncSrv.ICurrentUserProfile.GetProfileData(userProfile =>
+          resolve(userProfile)));
+    }
+
     if (this.loggedIn() === false) {
       if (this.loginInProgress === false) {
         const self = this;
         this.loginInProgress = true;
         loginProcess = new Promise((resolve, reject) => {
           tryAuthenticate(userName, password, MAX_LOGIN_ATTEMPTS)
-            .then(() => {
+            .then(() => getUserProfileData())
+            .then((userProfile) => {
+              self.userProfile = userProfile;
               self.loginInProgress = false;
               self.loginInProgressPromise = null;
               resolve();
