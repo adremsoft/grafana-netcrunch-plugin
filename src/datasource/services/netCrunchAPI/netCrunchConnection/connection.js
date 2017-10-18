@@ -14,8 +14,8 @@ const
   CONNECTION_CONSTS = {
     API_NAME: '/ncapi/',
 
-    NC_SERVER_VER_MAJOR: 9,
-    NC_SERVER_VER_MINOR: 3,
+    NC_SERVER_VER_MAJOR: 10,
+    NC_SERVER_VER_MINOR: 0,
 
     STATUS_OK: 0,
     ERROR_SERVER_API: 1,
@@ -25,7 +25,7 @@ const
     ERROR_MESSAGES: [
       '',
       'Server connection failed',
-      'NetCrunch server version should be 9.3 or greater',
+      'NetCrunch server version should be 10.0 or greater',
       'Server connection initialization failed',
       'Authentication failed'
     ]
