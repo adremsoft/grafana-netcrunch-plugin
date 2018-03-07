@@ -24,8 +24,8 @@
       {"name": "Project site", "url": "https://github.com/adremsoft/grafana-netcrunch-plugin"},
       {"name": "License & Terms", "url": "https://github.com/adremsoft/grafana-netcrunch-plugin/blob/master/LICENSE"}
     ],
-    "version": "1.1.0",
-    "updated": "2017-04-03"
+    "version": "2.0.0",
+    "updated": "2018-03-07"
   },
 
   "includes": [
@@ -53,7 +53,7 @@
   ],
 
   "dependencies": {
-    "grafanaVersion": "4.x.x",
+    "grafanaVersion": "5.x.x",
     "plugins": []
   }
 }
