@@ -299,27 +299,33 @@ class NetCrunchDatasource {
 
     function performQuery(queryOptions) {
 
+      function getRawDataMode(maxDataPoints) {
+        return (typeof maxDataPoints === 'string') && (maxDataPoints.toUpperCase().indexOf('RAW') >= 0);
+      }
+
+      function getMaxDataPoints(maxDataPoints) {
+        const maxSampleCount = parseInt(maxDataPoints, 10);
+        if (Number.isInteger(maxSampleCount) && (maxSampleCount >= MAX_SAMPLE_COUNT.MIN)) {
+          return Math.min(maxSampleCount, MAX_SAMPLE_COUNT.MAX);
+        }
+        return MAX_SAMPLE_COUNT.DEFAULT;
+      }
+
       const
         RAW_TIME_RANGE_EXCEEDED_WARNING_TITLE = 'Time range is too long.',
         RAW_TIME_RANGE_EXCEEDED_WARNING_TEXT = 'Maximum allowed length of time range for RAW data is ',
         trends = self[PRIVATE_PROPERTIES.netCrunchConnection].trends,
         targets = queryOptions.targets || [],
-        globalOptions = queryOptions.scopedVars || {},
-        rawData = (globalOptions.rawData == null) ? false : globalOptions.rawData,
-        setMaxDataPoints = (globalOptions.setMaxDataPoints == null) ? false : globalOptions.setMaxDataPoints,
-        maxDataPoints = globalOptions.maxDataPoints,
+        rawData = getRawDataMode(queryOptions.maxDataPoints),
+        maxDataPoints = getMaxDataPoints(queryOptions.maxDataPoints),
         rangeFrom = queryOptions.range.from.startOf('minute'),
-        rangeTo = queryOptions.range.to.startOf('minute');
-
+        rangeTo = queryOptions.range.to.startOf('minute'),
+        range = trends.prepareTimeRange(rangeFrom, rangeTo, rawData, maxDataPoints);
       let
-        range,
         dataQueries = [];
 
-      range = trends.prepareTimeRange(rangeFrom, rangeTo, rawData, setMaxDataPoints ? maxDataPoints : null);
-
       if (range.error == null) {
-        range = range.result;
-        dataQueries = dataQueries.concat(prepareQueries(targets, range, rawData));
+        dataQueries = dataQueries.concat(prepareQueries(targets, range.result, rawData));
       } else {
         // eslint-disable-next-line
         const ERROR_MESSAGE = RAW_TIME_RANGE_EXCEEDED_WARNING_TEXT + ' ' + range.error.periodInterval + ' ' +
