@@ -77,7 +77,7 @@ query should be:
 
 `nodes.networkAtlas("Custom Views").folder("My custom folder").folder("My sub folder").view("My view \(old\)")`
 
-![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/development/doc/v2.0/images/template-query-maps-view.jpg)
+![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/master/doc/v2.0/images/template-query-maps-view.jpg)
 
 ##### `<monitoringPack>`
 
@@ -94,7 +94,7 @@ The query to filter out the nodes to which monitoring pack shown in the image be
 
 `nodes.monitoringPacks.folder("Hardware").folder("Network Devices").name("Cisco \(SNMP\)")`
 
-![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/development/doc/v2.0/images/template-query-monitoring-pack-view.jpg)
+![Image Title](https://raw.githubusercontent.com/adremsoft/grafana-netcrunch-plugin/master/doc/v2.0/images/template-query-monitoring-pack-view.jpg)
 
 ##### `<nodeType>`
 
