@@ -28,11 +28,12 @@ const
     equal: 'Equal',
     distr: 'Distr'
   },
-  NET_CRUNCH_DATASOURCE_DI = ['instanceSettings', 'netCrunchAPIService', 'alertSrv', 'templateSrv', '$rootScope'];
+  NET_CRUNCH_DATASOURCE_DI = ['instanceSettings', 'netCrunchAPIService', 'alertSrv', 'templateSrv', '$rootScope',
+    '$timeout'];
 
 class NetCrunchDatasource {
 
-  constructor(instanceSettings, netCrunchAPIService, alertSrv, templateSrv, $rootScope) {
+  constructor(instanceSettings, netCrunchAPIService, alertSrv, templateSrv, $rootScope, $timeout) {
     const
       self = this,
       nodesBuffer = {};
@@ -128,6 +129,19 @@ class NetCrunchDatasource {
       return datasourceInitialization;
     };
 
+    this.refreshView = () => {
+
+      /* This is workaround for wrong Grafana assumption that each datasource uses angular's synchronized HTTP requests.
+         NetCrunch datasource uses Adrem's client.js framework for communication and angular view is not updated when
+         tests finish */
+
+      $timeout(() => {
+        if ($rootScope.$$phase == null) {
+          $rootScope.$apply();
+        }
+      }, 0);
+    };
+
   }
 
   testDatasource() {
@@ -136,14 +150,14 @@ class NetCrunchDatasource {
         .then(() => {
           resolve({
             status: 'success',
-            message: 'Datasource connected',
-            title: 'Success' });
+            message: 'Datasource connected' });
+          this.refreshView();
         })
         .catch((error) => {
           resolve({
             status: 'error',
-            message: CONNECTION_ERROR_MESSAGES[error],
-            title: 'Error' });
+            message: CONNECTION_ERROR_MESSAGES[error] });
+          this.refreshView();
         });
     });
   }
