@@ -22,7 +22,8 @@
     "links": [
       {"name": "AdRem Software", "url": "https://www.adremsoft.com"},
       {"name": "Project site", "url": "https://github.com/adremsoft/grafana-netcrunch-plugin"},
-      {"name": "License & Terms", "url": "https://github.com/adremsoft/grafana-netcrunch-plugin/blob/master/LICENSE"}
+      {"name": "License & Terms", "url": "https://github.com/adremsoft/grafana-netcrunch-plugin/blob/master/LICENSE"},
+      {"name": "NetCrunch Documentation", "url": "https://www.adremsoft.com/adoc/view/netcrunch/"}
     ],
     "version": "2.0.0",
     "updated": "2018-03-07"
