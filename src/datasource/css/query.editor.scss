@@ -1,3 +1,11 @@
+.dropdown-submenu {
+
+  > a:after {
+    margin-right: -12px;
+  }
+
+}
+
 .nc-no-wrap-text {
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -71,4 +79,5 @@
       opacity: 0.5;
     }
   }
+
 }
