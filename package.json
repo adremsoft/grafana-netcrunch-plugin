@@ -16,7 +16,7 @@
     "url": "https://github.com/adremsoft/grafana-netcrunch-plugin/issues"
   },
   "dependencies": {
-    "angular": "1.5.8",
+    "angular": "1.8.0",
     "moment": "2.17.0"
   },
   "devDependencies": {
